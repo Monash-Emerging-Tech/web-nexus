@@ -1,18 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --mnet-red: #DC003B;
+  --mnet-blue: #030CAB;
+  --mnet-black: #0B0B0B;
+  --mnet-white: #FFFFFF;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-offbit: "OffBit", "sans-serif";
-  --font-offbit--font-feature-settings: "cv02", "cv03", "cv04", "cv11";
-  --font-offbit--font-variation-settings: "opsz" 32;
+  --color-background: var(--mnet-black);
+  --color-text: var(--mnet-white);
+  --color-primary: var(--mnet-red);
+  --color-secondary: var(--mnet-blue);
+
+  --font-offbit: var(--font-offbit), sans-serif;
+  --font-offbit-101: var(--font-offbit-101), sans-serif;
+  --font-offbit-dot: var(--font-offbit-dot), sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -23,14 +26,7 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--color-background);
+  color: var(--color-text);
   font-family: Arial, Helvetica, sans-serif;
-}
-@font-face {
-  font-family: OffBit;
-  font-style: normal;
-  font-weight: 200 700;
-  font-display: swap;
-  src: url("/fonts/OffBit-101.woff2") format("woff2");
 }

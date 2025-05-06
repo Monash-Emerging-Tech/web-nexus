@@ -1,16 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { offbit, offbit101, offbitDot, inter } from "@/lib/fonts";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -25,7 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="w-full h-full">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased w-full h-full`}
+        className={`${inter.variable} ${offbit.variable} ${offbit101.variable} ${offbitDot.variable} antialiased w-full h-full`}
       >
         {children}
       </body>
