@@ -12,14 +12,14 @@ const NavBar: React.FC = () => {
           alt="3d cube that has an illusion of having overlapping sides"
         />
         <div className="flex flex-col">
-          <h1 className="text-3xl">MNET</h1>
-          <h2 className="md:flex hidden">
+          <h1 className="text-3xl font-extrabold font-offbit">MNET</h1>
+          <h2 className="md:flex hidden font-bold font-offbit">
             MONASH NEXUS FOR EMERGING TECHNOLOGIES
           </h2>
         </div>
       </div>
       <div className="flex flex-row gap-6 items-center">
-        <button className="hover:cursor-pointer md:flex hidden h-fit px-8 py-3 bg-[#DC003B] rounded-md">
+        <button className="hover:cursor-pointer md:flex font-offbit font-bold hidden h-fit px-8 py-3 bg-[#DC003B] rounded-md">
           CONTACT
         </button>
         <Image
