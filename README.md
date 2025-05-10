@@ -1,8 +1,14 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
+First install NextJS using the package manager of your choice (npm, yarn, pnpm etc.):
 
-First, run the development server:
+```bash
+#NodeJS Example
+npm install -D next
+```
+
+Then, run the development server:
 
 ```bash
 npm run dev
