@@ -2,7 +2,7 @@ import Image from "next/image";
 
 const NavBar: React.FC = () => {
   return (
-    <div className="md:p-7 p-3 bg-black bg-opacity-75 rounded-3xl flex flex-row justify-between items-center w-full gap-5 border-2 border-[#2C2C2D] backdrop-blur-md">
+    <div className="m-4 md:p-7 p-3 z-10 bg-[#00050] rounded-3xl flex flex-row justify-between items-center gap-5 border-2 border-[#2C2C2D] backdrop-blur-md sticky top-0">
       <div className="flex flex-row gap-6 items-center">
         <Image
           width={128}
