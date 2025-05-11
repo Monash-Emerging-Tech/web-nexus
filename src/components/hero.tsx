@@ -5,7 +5,7 @@ const Hero: React.FC = () => {
   };
   return (
     <div className="absolute top-0 bg-[url(/img/spacefabric.png)] bg-center bg-cover w-full h-full flex justify-center items-center">
-      <div className="md:w-3/5 w-4/5">
+      <div className="md:w-3/5 p-4 flex flex-col md:gap-0 gap-4">
         <p className="font-offbit font-bold md:text-2xl text-sm">
           {latestEvent.title}: {latestEvent.timestamp.getDay()}d{" "}
           {latestEvent.timestamp.getHours()}h{" "}
