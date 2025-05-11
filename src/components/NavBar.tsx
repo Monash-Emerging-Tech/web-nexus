@@ -12,7 +12,9 @@ const NavBar: React.FC = () => {
           alt="MNET logo"
         />
         <div className="flex flex-col">
-          <h1 className="text-3xl font-offbit-dot font-bold">MNET</h1>
+          <h1 className="md:text-3xl text-4xl font-offbit-dot font-bold">
+            MNET
+          </h1>
           <h2 className="md:flex hidden font-offbit font-bold">
             MONASH NEXUS FOR EMERGING TECHNOLOGIES
           </h2>
@@ -23,6 +25,7 @@ const NavBar: React.FC = () => {
           CONTACT
         </button>
         <Image
+          className="hover:cursor-pointer"
           src="/img/menu.svg"
           width={40}
           height={40}
