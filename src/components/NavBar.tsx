@@ -42,19 +42,21 @@ const NavBar: React.FC = () => {
         ></Image>
       </div>
       {open ? (
-        <div className="flex flex-col absolute right-4 top-36 bg-black rounded-3xl py-4 px-8 gap-4 font-offbit font-bold text-2xl items-center border-2 border-[#2C2C2D]">
-          <Link className="hover:opacity-100 opacity-75" href={"/"}>
-            Home
-          </Link>
-          <Link className="hover:opacity-100 opacity-75" href={"/projects"}>
-            Projects
-          </Link>
-          <Link className="hover:opacity-100 opacity-75" href={"/events"}>
-            Events
-          </Link>
-          <Link className="hover:opacity-100 opacity-75" href={"/about-us"}>
-            About Us
-          </Link>
+        <div className="absolute right-4 top-36 bg-gradient-to-b from-[#030CAB] to-[#DC003B] p-1 rounded-3xl">
+          <div className="flex flex-col bg-black rounded-3xl py-4 px-8 gap-4 font-offbit font-bold text-2xl items-center border-2 border-[#2C2C2D]">
+            <Link className="hover:opacity-100 opacity-75" href={"/"}>
+              Home
+            </Link>
+            <Link className="hover:opacity-100 opacity-75" href={"/projects"}>
+              Projects
+            </Link>
+            <Link className="hover:opacity-100 opacity-75" href={"/events"}>
+              Events
+            </Link>
+            <Link className="hover:opacity-100 opacity-75" href={"/about-us"}>
+              About Us
+            </Link>
+          </div>
         </div>
       ) : null}
     </div>
