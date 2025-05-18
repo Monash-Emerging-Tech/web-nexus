@@ -45,7 +45,7 @@ const Hero: React.FC = () => {
   });
 
   return (
-    <div className="absolute top-0 bg-[url(/img/spacefabric.png)] bg-center bg-cover w-full h-full flex justify-center items-center">
+    <div className="top-0 bg-[url(/img/spacefabric.png)] bg-center bg-cover w-screen h-screen flex justify-center items-center">
       <div className="md:w-3/5 p-4 flex flex-col md:gap-0 gap-4">
         {eventActive && (
           <p className="font-offbit font-bold md:text-2xl text-sm">
