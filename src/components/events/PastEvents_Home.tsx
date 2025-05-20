@@ -1,6 +1,26 @@
-import EventsCard from './EventsCard';
+"use client";
 
-function EventsHolder() {
+import { useEffect, useState } from 'react';
+import EventsCard from './EventsCard';
+import Carousel from './Carousel';
+
+function PastEvents_Home() {
+	const [isPortrait, setIsPortrait] = useState<boolean | null>(null);
+
+	useEffect(() => {
+		function updateOrientation() {
+			const checkPortrait = window.matchMedia("(orientation: portrait)").matches;
+			setIsPortrait(checkPortrait);
+		}
+
+		updateOrientation();
+
+		window.addEventListener("resize", updateOrientation);
+
+		return () => {
+			window.removeEventListener("resize", updateOrientation);
+		}
+	}, []);
 
 	// Temp data
 	const data = [
@@ -22,26 +42,46 @@ function EventsHolder() {
 
 	return (
 		<div className="mb-25">
-			<div className="pt-10 pr-24 pl-12 flex flex-col">
-				<div className={"text-[8.5rem] font-offbit-dot font-bold text-right translate-y-6"}>
-					Past Events
-				</div>
-				<div className="flex flex-row justify-between">
-					<div className="text-[1.75rem] font-offbit-101 font-bold text-left -translate-y-2">
-						Stay in touch for future events!<br /> &nbsp; @MonashEmergingTech
+			{isPortrait ? (
+				<>
+					<div className="pt-10 flex flex-col">
+						<div className={"text-[6rem] font-offbit-dot font-bold text-center translate-y-6"}>
+							Past Events
+						</div>
+						<div className="text-[2rem] font-offbit-101 font-bold text-center">
+							Inspire. Connect. Innovate.
+						</div>
 					</div>
-					<div className="text-[3.5rem] font-offbit-101 font-bold text-right">
-						Inspire. Connect. Innovate.
+					<Carousel>
+						{data.map((event, index) => (
+							<EventsCard style={"gradient"} data={event} key={index} />
+						))}
+					</Carousel>
+				</>
+			) : (
+				<>
+					<div className="pt-10 pr-24 pl-12 flex flex-col">
+						<div className={"text-[8.5rem] font-offbit-dot font-bold text-right translate-y-6"}>
+							Past Events
+						</div>
+						<div className="flex flex-row justify-between">
+							<div className="text-[1.75rem] font-offbit-101 font-bold text-left">
+								Stay in touch for future events!<br /> &nbsp; @MonashEmergingTech
+							</div>
+							<div className="text-[3.5rem] font-offbit-101 font-bold text-right">
+								Inspire. Connect. Innovate.
+							</div>
+						</div>
 					</div>
-				</div>
-			</div>
-			<div className="grid grid-cols-3 gap-12 p-10 pb-0 items-stretch">
-				{data.map((event, index) => (
-					<EventsCard style={"gradient"} data={event} key={index} />
-				))}
-			</div>
+					<div className="grid grid-cols-2 lg:grid-cols-3 gap-12 p-10 pb-0 items-stretch">
+						{data.map((event, index) => (
+							<EventsCard style={"gradient"} data={event} key={index} />
+						))}
+					</div>
+				</>
+			)}
 		</div>
 	);
 }
 
-export default EventsHolder;
+export default PastEvents_Home;
