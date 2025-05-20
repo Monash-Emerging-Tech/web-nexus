@@ -5,15 +5,13 @@ import EventsHolder from "@/components/events/PastEvents_Home";
 
 export default function Home() {
   return (
-    <>
-      <div className="bg-black h-full p-4">
-        <NavBar />
-        <div className="relative">
-          <Hero />
-          <EventsHolder />
-        </div>
+    <div className="bg-black min-h-screen w-full">
+      <NavBar />
+      <div className="relative">
+        <Hero />
+        <EventsHolder />
       </div>
       <Footer />
-    </>
+    </div>
   );
 }
