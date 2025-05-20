@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import EventsCard from './EventsCard';
 import Carousel from './Carousel';
 
-function PastEvents_Home() {
+function EventsHolder() {
 	const [isPortrait, setIsPortrait] = useState<boolean | null>(null);
 
 	useEffect(() => {
@@ -84,4 +84,4 @@ function PastEvents_Home() {
 	);
 }
 
-export default PastEvents_Home;
+export default EventsHolder;

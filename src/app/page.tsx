@@ -1,13 +1,17 @@
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
-import PastEvents_Home from "@/components/events/PastEvents_Home";
+import Hero from "@/components/hero";
+import EventsHolder from "@/components/events/PastEvents_Home";
 
 export default function Home() {
   return (
     <>
       <div className="bg-black h-full p-4">
         <NavBar />
-        <PastEvents_Home />
+        <div className="relative">
+          <Hero />
+          <EventsHolder />
+        </div>
       </div>
       <Footer />
     </>
