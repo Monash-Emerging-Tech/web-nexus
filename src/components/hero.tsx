@@ -42,7 +42,7 @@ const Hero: React.FC = () => {
         seconds: Math.floor((countdown % (1000 * 60)) / 1000),
       });
     }, 1000);
-  });
+  }, [eventActive]);
 
   return (
     <div className="top-0 bg-[url(/img/spacefabric.png)] bg-center bg-cover w-screen h-screen flex justify-center items-center">
