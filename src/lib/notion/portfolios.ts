@@ -1,6 +1,6 @@
 import { getNotionClient, NOTION_CONFIG } from "./client";
 import { type QueryDatabaseParameters } from "@notionhq/client/build/src/api-endpoints";
-import { type PortfolioPageObject } from "../notion/types";
+import { type PortfolioPageObject, Portfolio } from "../notion/types";
 
 async function getPortfolioData({
   filter,
@@ -8,12 +8,12 @@ async function getPortfolioData({
 }: {
   filter?: QueryDatabaseParameters["filter"];
   sorts?: QueryDatabaseParameters["sorts"];
-}) {
+}): Promise<Portfolio[]> {
   const notion = getNotionClient();
   if (!NOTION_CONFIG.PORTFOLIOS_DB_ID) {
     throw new Error("NOTION_PORTFOLIOS_DB_ID is not defined");
   }
-  const portfolios = [];
+  const portfolios: Portfolio[] = [];
   const response = await notion.databases.query({
     database_id: NOTION_CONFIG.PORTFOLIOS_DB_ID,
     filter,
@@ -36,18 +36,18 @@ async function getPortfolioData({
           portfolioPage["properties"]["Description"]["rich_text"][0]?.["text"][
             "content"
           ],
-        github:
+        githubUrl:
           portfolioPage["properties"]["GitHub Repository"]["url"] || undefined,
-        category: portfolioPage["properties"]["Project Type"][
-          "multi_select"
-        ].map((item) => item.name),
+        tags: portfolioPage["properties"]["Project Type"]["multi_select"].map(
+          (item) => item.name
+        ),
         tech: portfolioPage["properties"]["Tech Used"]["multi_select"].map(
           (item) => item.name
         ),
         members: portfolioPage["properties"]["Assignee(s)"]["people"].map(
           (item) => item.name
         ),
-        image:
+        imageUrl:
           (portfolioPage["cover"]?.["type"] === "external" &&
             portfolioPage["cover"]["external"]["url"]) ||
           (portfolioPage["cover"]?.["type"] === "file" &&

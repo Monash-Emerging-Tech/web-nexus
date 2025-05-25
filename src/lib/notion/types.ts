@@ -112,11 +112,11 @@ export interface Portfolio {
   name: string;
   oneliner: string;
   description: string;
-  github: string | undefined;
-  category: string[];
+  githubUrl: string | undefined;
+  tags: string[];
   tech: string[];
   members: string[];
-  image: string | undefined;
+  imageUrl: string | undefined;
   status: "Active" | "Featured" | "Inactive" | undefined;
   date: {
     start: string | undefined;
