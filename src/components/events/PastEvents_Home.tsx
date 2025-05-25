@@ -22,7 +22,7 @@ function EventsHolder() {
   ];
 
   return (
-    <div className="mb-25">
+    <section className="mb-25">
       <div className="pt-10 pr-24 pl-12 flex flex-col">
         <div
           className={
@@ -46,7 +46,7 @@ function EventsHolder() {
           <EventsCard style={"gradient"} data={event} key={index} />
         ))}
       </div>
-    </div>
+    </section>
   );
 }
 
