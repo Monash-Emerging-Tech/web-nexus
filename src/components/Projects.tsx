@@ -38,7 +38,7 @@ const Projects = () => {
       <div className="container mx-auto">
         <h2 className="text-7xl font-bold text-neutral-100 text-left mb-4 font-offbit-dot">Projects</h2>
         <p className="text-neutral-300 text-left mb-12 text-xl font-offbit">A slice of our work</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
+        <div className="grid grid-cols-[repeat(auto-fit,_minmax(410px,_1fr))] gap-10">
           {projectsData.map((project, index) => (
             <ProjectCard
               key={index}

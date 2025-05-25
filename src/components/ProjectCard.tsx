@@ -11,23 +11,23 @@ interface ProjectCardProps {
 const ProjectCard: React.FC<ProjectCardProps> = ({ title, description, imageUrl, tags, githubUrl }) => {
   return (
     
-    <div className=" bg-neutral-900 rounded-lg shadow-lg overflow-hidden border border-[#DB003A] p-5 flex flex-col h-full">
+    <div   className=" rounded-[10px] bg-black shadow-lg overflow-hidden border border-[#DB003B] py-3.75 px-3 flex flex-col h-full">
       {/* Title */}
-      <h3 className="font-offbit-dot font-bold text-2xl text-neutral-100 mb-2">{title}</h3>
+      <h3 className="font-offbit-dot font-bold text-xl text-white ">{title}</h3>
 
       {/* Description */}
-      <p className="font-offbit text-neutral-300 text-sm mb-4 flex-grow">{description}</p>
+      <p className="font-offbit text-white text-sm  flex-grow">{description}</p>
       {/* Image Container */}
-      <div className="w-full h-48 mb-4 overflow-hidden rounded-md">
-        <img src={imageUrl} alt={title} className="w-full h-full object-cover transition-transform duration-300 ease-in-out hover:scale-105" />
+      <div style={{ aspectRatio: '384.28 / 213.27', }} className="w-auto  mb-3 overflow-hidden ">
+        <img src={imageUrl} alt={title} className="w-full h-full object-cover " />
       </div>
 
       
 
       {/* Tags and GitHub icon */}
-      <div className="mt-auto flex justify-between items-center pt-3 border-t border-neutral-700/50">
+      <div className="mt-auto flex justify-between items-center ">
         {/* Tags */}
-        <div className="text-xs text-neutral-400 font-offbit font-bold">
+        <div className="text-sm text-white font-offbit font-bold">
           {tags.join(' · ')}
         </div>
         {/* GitHub Icon */}
@@ -35,7 +35,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ title, description, imageUrl,
           href={githubUrl} 
           target="_blank" 
           rel="noopener noreferrer" 
-          className="text-neutral-300 hover:brightness-75 transition-colors duration-200"
+          className="text-white hover:brightness-75 transition-colors duration-200"
           aria-label={`GitHub repository for ${title}`}
         >
           <i className="fab fa-github text-2xl"></i>
