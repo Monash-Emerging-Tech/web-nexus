@@ -37,7 +37,7 @@ const projectsData = [
 
 const Projects = () => {
   return (
-    <section className="px-4 sm:px-6 lg:px-8 bg-black">
+    <section className="px-4 sm:px-6 lg:px-8">
       <div className="container mx-auto">
         <h2 className="h-[160px] text-header font-bold text-neutral-100 text-left font-offbit-dot">
           Projects

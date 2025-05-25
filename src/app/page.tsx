@@ -10,8 +10,10 @@ export default function Home() {
       <NavBar />
       <div className="relative">
         <Hero />
-        <Projects />
-        <EventsHolder />
+        <div className="bg-[url(/img/wireframe_1.png)] bg-[length:120%] bg-no-repeat bg-[position:-100px_50px] ">
+          <Projects />
+          <EventsHolder />
+        </div>
       </div>
       <Footer />
     </div>
