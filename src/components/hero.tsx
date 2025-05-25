@@ -14,25 +14,26 @@ const Hero: React.FC = () => {
     minutes: 0,
     seconds: 0,
   });
-  const [eventActive, setEventActive] = useState(true);
+  const [eventActive, setEventActive] = useState(false);
 
   useEffect(() => {
-    const timestamp = latestEvent.timestamp;
-    const now = new Date().getTime();
-    const countdown = timestamp - now;
+    const updateCountdown = () => {
+      const timestamp = latestEvent.timestamp;
+      const now = new Date().getTime();
+      const countdown = timestamp - now;
 
-    if (countdown < 0) {
-      setEventActive(false);
-      setDate({
-        days: 0,
-        hours: 0,
-        minutes: 0,
-        seconds: 0,
-      });
-      return;
-    }
+      if (countdown < 0) {
+        setEventActive(false);
+        setDate({
+          days: 0,
+          hours: 0,
+          minutes: 0,
+          seconds: 0,
+        });
+        return;
+      }
 
-    setTimeout(() => {
+      setEventActive(true);
       setDate({
         days: Math.floor(countdown / (1000 * 60 * 60 * 24)),
         hours: Math.floor(
@@ -41,8 +42,17 @@ const Hero: React.FC = () => {
         minutes: Math.floor((countdown % (1000 * 60 * 60)) / (1000 * 60)),
         seconds: Math.floor((countdown % (1000 * 60)) / 1000),
       });
-    }, 1000);
-  });
+    };
+
+    // Update immediately
+    updateCountdown();
+
+    // Set up interval to update every second
+    const interval = setInterval(updateCountdown, 1000);
+
+    // Cleanup interval on unmount
+    return () => clearInterval(interval);
+  }, [latestEvent.timestamp]);
 
   return (
     <div className="top-0 bg-[url(/img/spacefabric.png)] bg-center bg-cover w-screen h-screen flex justify-center items-center">
