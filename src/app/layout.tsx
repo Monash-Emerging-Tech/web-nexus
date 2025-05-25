@@ -18,7 +18,7 @@ export default function RootLayout({
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
       </head>
       <body
-        className={`${offbit.variable} ${offbit101.variable} ${offbitDot.variable} antialiased w-full h-full`}
+        className={`${offbit.variable} ${offbit101.variable} ${offbitDot.variable} antialiased w-full h-auto`}
       >
         {children}
       </body>
