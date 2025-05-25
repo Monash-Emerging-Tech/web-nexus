@@ -5,6 +5,8 @@
   --mnet-blue: #030CAB;
   --mnet-black: #0B0B0B;
   --mnet-white: #FFFFFF;
+  --header-size: 120px;
+  --subheader-size: 48px;
 }
 
 @theme inline {
@@ -16,6 +18,15 @@
   --font-offbit: var(--font-offbit), sans-serif;
   --font-offbit-101: var(--font-offbit-101), sans-serif;
   --font-offbit-dot: var(--font-offbit-dot), sans-serif;
+}
+
+@layer utilities {
+  .text-header {
+    font-size: var(--header-size);
+  }
+  .text-subheader {
+    font-size: var(--subheader-size);
+  }
 }
 
 @media (prefers-color-scheme: dark) {
