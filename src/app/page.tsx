@@ -1,7 +1,7 @@
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import Projects from "@/components/Projects";
-import Hero from "@/components/hero";
+import Hero from "@/components/Hero";
 import EventsHolder from "@/components/events/PastEvents_Home";
 
 export default function Home() {
@@ -10,9 +10,9 @@ export default function Home() {
       <NavBar />
       <div className="relative">
         <Hero />
+        <Projects />
         <EventsHolder />
       </div>
-      <Projects />
       <Footer />
     </div>
   );
