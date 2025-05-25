@@ -36,7 +36,8 @@ async function getPortfolioData({
           portfolioPage["properties"]["Description"]["rich_text"][0]?.["text"][
             "content"
           ],
-        github: portfolioPage["properties"]["GitHub Repository"]["url"],
+        github:
+          portfolioPage["properties"]["GitHub Repository"]["url"] || undefined,
         category: portfolioPage["properties"]["Project Type"][
           "multi_select"
         ].map((item) => item.name),
@@ -47,8 +48,11 @@ async function getPortfolioData({
           (item) => item.name
         ),
         image:
-          portfolioPage["cover"]?.["type"] === "external" &&
-          portfolioPage["cover"]["external"]["url"],
+          (portfolioPage["cover"]?.["type"] === "external" &&
+            portfolioPage["cover"]["external"]["url"]) ||
+          (portfolioPage["cover"]?.["type"] === "file" &&
+            portfolioPage["cover"]["file"]["url"]) ||
+          undefined,
         status: portfolioPage["properties"]["Web Status"]["select"]?.["name"],
         date: {
           start: portfolioPage["properties"]["Dates"]["date"]?.["start"],
@@ -71,7 +75,7 @@ export async function getFeaturedPortfolios() {
   };
   const sorts: QueryDatabaseParameters["sorts"] = [
     {
-      property: "Date",
+      property: "Dates",
       direction: "descending",
     },
   ];

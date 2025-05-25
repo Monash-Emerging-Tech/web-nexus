@@ -91,7 +91,7 @@ export interface PortfolioPageObject
       type: "select";
       select: {
         id: string;
-        name: string;
+        name: "Active" | "Featured" | "Inactive" | undefined;
         color: string;
       } | null;
     };
@@ -112,15 +112,15 @@ export interface Portfolio {
   name: string;
   oneliner: string;
   description: string;
-  github: string;
+  github: string | undefined;
   category: string[];
   tech: string[];
   members: string[];
-  image: string;
-  status: string;
+  image: string | undefined;
+  status: "Active" | "Featured" | "Inactive" | undefined;
   date: {
-    start: string;
-    end?: string;
+    start: string | undefined;
+    end: string | null | undefined;
   };
 }
 
