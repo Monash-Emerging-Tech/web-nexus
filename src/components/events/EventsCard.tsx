@@ -1,6 +1,6 @@
 import Image from 'next/image'
 
-// Imports for handling dynamic styles
+
 import { cn } from "@/lib/utils"
 import { cva, type VariantProps } from "class-variance-authority";
 
@@ -17,7 +17,7 @@ const eventsHolderStyles = cva(
   }
 );
 
-interface EventData {
+export interface EventData {
 	title: string;
 	description: string;
 	date: {
@@ -33,11 +33,19 @@ function EventsCard({
 	style,
 	data
 } : VariantProps<typeof eventsHolderStyles> & { data : EventData }) {
+	const badgeColorByType: Record<string, string> = {
+		Workshop: "bg-[#DC003B]",
+		Expo: "bg-[#030CAB]",
+		Industry: "bg-[#8A2BE2]",
+	};
+
+	const badgeClass = badgeColorByType[data.type] ?? "bg-[#DC003B]";
+
 	return (
 		<div className="relative">
 			<div className={cn(eventsHolderStyles({ style }), "h-full")}>
 				<div className="absolute pt-7">
-					<p className="bg-[#DC003B] pt-2 pb-2 pl-4 pr-4 text-2xl font-bold">{data.type}</p>
+					<p className={`${badgeClass} pt-2 pb-2 pl-4 pr-4 text-2xl font-bold`}>{data.type}</p>
 				</div>
 				<div className="p-8 flex flex-col gap-2">
 					<Image
