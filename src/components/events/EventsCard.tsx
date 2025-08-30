@@ -34,8 +34,8 @@ function EventsCard({
 	data
 } : VariantProps<typeof eventsHolderStyles> & { data : EventData }) {
 	return (
-		<div className="relative eventCard">
-			<div className={cn(eventsHolderStyles({ style }), "h-full w-90 md:w-auto")}>
+		<div className="relative">
+			<div className={cn(eventsHolderStyles({ style }), "h-full w-80 md:w-auto")}>
 				<div className="absolute pt-7">
 					<p className="bg-[#DC003B] pt-2 pb-2 pl-4 pr-4 text-2xl font-bold">{data.type}</p>
 				</div>

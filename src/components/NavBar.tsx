@@ -8,7 +8,7 @@ const NavBar: React.FC = () => {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="fixed z-10 w-full h-full">
+    <div className="fixed z-10 w-full h-auto">
       {open ? (
         <div className="absolute z-10 top-0 left-0 w-full h-full bg-black opacity-80">
           <div className="absolute right-4 top-40 bg-gradient-to-b from-[#030CAB] to-[#DC003B] p-0.5 rounded-3xl">
