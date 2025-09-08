@@ -107,3 +107,75 @@ export async function getActivePortfolios() {
   ];
   return getPortfolioData({ filter, sorts });
 }
+
+export async function getEventsPortfolios() {
+  const filter: QueryDatabaseParameters["filter"] = {
+    and: [
+      {
+        property: "Parent Portfolio",
+        relation: {
+          contains: "1a81d8933ee3806b92bfef94fd02634e",
+        },
+      },
+    ],
+  };
+  const sorts: QueryDatabaseParameters["sorts"] = [
+    {
+      property: "Dates",
+      direction: "descending",
+    },
+  ];
+  return getPortfolioData({ filter, sorts });
+}
+
+export async function getPastEventPortfolios() {
+  const filter: QueryDatabaseParameters["filter"] = {
+    and: [
+      {
+        property: "Parent Portfolio",
+        relation: {
+          contains: "1a81d8933ee3806b92bfef94fd02634e",
+        },
+      },
+      {
+        property: "Dates",
+        date: {
+          before: new Date().toISOString(),
+        },
+      },
+    ],
+  };
+  const sorts: QueryDatabaseParameters["sorts"] = [
+    {
+      property: "Dates",
+      direction: "descending",
+    },
+  ];
+  return getPortfolioData({ filter, sorts });
+}
+
+export async function getUpcomingEventPortfolios() {
+  const filter: QueryDatabaseParameters["filter"] = {
+    and: [
+      {
+        property: "Parent Portfolio",
+        relation: {
+          contains: "1a81d8933ee3806b92bfef94fd02634e",
+        },
+      },
+      {
+        property: "Dates",
+        date: {
+          after: new Date().toISOString(),
+        },
+      },
+    ],
+  };
+  const sorts: QueryDatabaseParameters["sorts"] = [
+    {
+      property: "Dates",
+      direction: "descending",
+    },
+  ];
+  return getPortfolioData({ filter, sorts });
+}
