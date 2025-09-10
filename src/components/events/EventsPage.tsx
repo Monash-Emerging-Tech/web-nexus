@@ -81,8 +81,8 @@ const mockPast: EventData[] = [
 ];
 
 const SectionHeader: React.FC<{ title: string }> = ({ title }) => (
-  <div className="pt-10 pr-6 pl-6 md:pr-24 md:pl-12 flex flex-col">
-    <div className={"text-[4rem] md:text-[6rem] font-offbit-101 font-bold text-left"}>
+  <div className="pt-6 md:pt-8 pr-6 pl-6 md:pr-24 md:pl-12 flex flex-col mb-2 md:mb-4">
+    <div className={"text-[3rem] md:text-[5rem] font-offbit-101 font-bold text-left"}>
       {title}
     </div>
   </div>
@@ -93,7 +93,7 @@ const EventsPage: React.FC = () => {
     <div className="mb-25">
       <div className="bg-[url(/img/events-background.png)] bg-cover bg-bottom w-full h-[30vh] md:h-[40vh] flex items-end">
         <div className="px-6 md:px-12 pb-6 m-auto pt-32">
-          <h1 className="text-[3rem] md:text-[6rem] text-center font-offbit-dot font-bold">EVENTS</h1>
+          <h1 className="text-[4rem] md:text-[6rem] text-center font-offbit-dot font-bold">EVENTS</h1>
         </div>
       </div>
 
@@ -101,7 +101,7 @@ const EventsPage: React.FC = () => {
         title="UPCOMING EVENTS:"
         
       />
-      <div className="grid md:grid-cols-3 grid-cols-1 gap-6 md:gap-12 p-6 md:p-10 items-stretch">
+      <div className="grid md:grid-cols-3 grid-cols-1 gap-6 md:gap-10 px-6 md:px-10 pt-3 md:pt-4 pb-6 md:pb-8 items-stretch">
         {mockUpcoming.map((event, index) => (
           <EventsCard style={index % 2 === 0 ? "gradient" : "altBlue"} data={event} key={`up-${index}`} />
         ))}
@@ -111,7 +111,7 @@ const EventsPage: React.FC = () => {
         title="PAST EVENTS:"
         
       />
-      <div className="grid md:grid-cols-3 grid-cols-1 gap-6 md:gap-12 p-6 md:p-10 pt-6 items-stretch">
+      <div className="grid md:grid-cols-3 grid-cols-1 gap-6 md:gap-10 px-6 md:px-10 pt-3 md:pt-4 pb-6 md:pb-8 items-stretch">
         {mockPast.map((event, index) => (
           <EventsCard style="gradient" data={event} key={`past-${index}`} />
         ))}
