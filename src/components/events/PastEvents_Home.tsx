@@ -16,23 +16,28 @@ function EventsHolder() {
 		if (emblaApi) {
 			emblaApi.on("select", () => {
 				setSelectedIndex(emblaApi.selectedScrollSnap());
+				if (!emblaApi.plugins()?.autoplay.isPlaying()) {
+					const autoplay = emblaApi?.plugins()?.autoplay
+					if (!autoplay) return
+					
+					setTimeout(() => {
+						autoplay.play()
+					}, 8000)
+				}
 			});
 		}
 	}, [emblaApi]);
 
 	// Scroll to a specific slide index and pause autoplay for 8 seconds
 	const scrollTo = (index: number) => {
-		if (emblaApi) {
-			emblaApi.scrollTo(index);
-		}
 		const autoplay = emblaApi?.plugins()?.autoplay
 		if (!autoplay) return
 		
 		autoplay.stop()
 
-		setTimeout(() => {
-			autoplay.play()
-		}, 8000)
+		if (emblaApi) {
+			emblaApi.scrollTo(index);
+		}
 	}
 
 	// Temp data
