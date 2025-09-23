@@ -108,7 +108,7 @@ export async function getActivePortfolios() {
   return getPortfolioData({ filter, sorts });
 }
 
-export async function getEventsPortfolios() {
+export async function getAllEventsPortfolios() {
   const filter: QueryDatabaseParameters["filter"] = {
     and: [
       {

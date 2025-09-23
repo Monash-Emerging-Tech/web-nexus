@@ -7,7 +7,15 @@ export function getNotionClient(): Client {
     if (!process.env.NOTION_API_KEY) {
       throw new Error("NOTION_API_KEY is not defined");
     }
-    notionClient = new Client({ auth: process.env.NOTION_API_KEY });
+    notionClient = new Client({
+       auth: process.env.NOTION_API_KEY,
+       fetch: (url, options) => { // Override the default fetch function to allow nextjs CDN caching (should work)
+        return fetch(url, { // Ref: https://github.com/makenotion/notion-sdk-js/issues/415
+          ...options,
+          next: { revalidate: 3600 }
+        })
+       }
+      });
   }
   return notionClient;
 }

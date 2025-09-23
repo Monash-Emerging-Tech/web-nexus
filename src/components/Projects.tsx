@@ -1,8 +1,16 @@
 import React from "react";
 import ProjectCard from "./ProjectCard";
 import { Portfolio } from "@/lib/notion/types";
+import { fetchFeaturedPortfolios } from "@/app/actions";
+import { useEffect, useState } from "react";
 
-const Projects = ({ data }: { data: Portfolio[] }) => {
+const Projects = () => {
+  const [data, setData] = useState<Portfolio[]>([]);
+
+  useEffect(() => {
+    fetchFeaturedPortfolios().then((res) => setData(res));
+  }, []);
+
   return (
     <section className="px-4 sm:px-6 lg:px-8">
       <div className="container mx-auto">
