@@ -1,9 +1,8 @@
-// import { getPortfolioData } from "@/lib/notion";
+// import { getActivePortfolios } from "@/lib/notion/portfolios";
 
-export const revalidate = 86400;
+// export const revalidate = 86400;
 
 export default async function Projects() {
-  // const data = await getPortfolioData();
-  // console.log(data);
+  // const data = await getActivePortfolios();
   return <div>This is the projects page</div>;
 }
