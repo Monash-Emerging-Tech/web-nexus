@@ -124,8 +124,6 @@ export interface Portfolio {
   };
 }
 
-export type PortfolioData = Portfolio[];
-
 export interface EventPageObject
   extends Omit<PageObjectResponse, "properties"> {
   properties: {
@@ -226,8 +224,6 @@ export interface Event {
     end: string | null | undefined;
   };
 }
-
-export type EventData = Event[];
 
 export interface MemberPageObject
   extends Omit<PageObjectResponse, "properties"> {
@@ -330,6 +326,5 @@ export interface Member {
   email?: string | undefined;
   phone?: string | undefined;
   discord?: string | undefined;
+  icon?: string | undefined;
 }
-
-export type MemberData = Member[];

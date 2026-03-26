@@ -5,9 +5,11 @@ import { type PortfolioPageObject, Portfolio } from "../notion/types";
 async function getPortfolioData({
   filter,
   sorts,
+  limit
 }: {
   filter?: QueryDatabaseParameters["filter"];
   sorts?: QueryDatabaseParameters["sorts"];
+  limit: number | undefined;
 }): Promise<Portfolio[]> {
   const notion = getNotionClient();
   if (!NOTION_CONFIG.PORTFOLIOS_DB_ID) {
@@ -63,10 +65,15 @@ async function getPortfolioData({
       console.error("Error processing portfolio page:", error);
     }
   }
-  return portfolios;
+
+  if (limit === undefined) {
+    return portfolios;
+  }
+
+  return portfolios.slice(0, limit);
 }
 
-export async function getFeaturedPortfolios() {
+export async function getFeaturedPortfolios(limit? : number) {
   const filter: QueryDatabaseParameters["filter"] = {
     property: "Web Status",
     select: {
@@ -79,10 +86,10 @@ export async function getFeaturedPortfolios() {
       direction: "descending",
     },
   ];
-  return getPortfolioData({ filter, sorts });
+  return getPortfolioData({ filter, sorts, limit });
 }
 
-export async function getActivePortfolios() {
+export async function getActivePortfolios(limit? : number) {
   const filter: QueryDatabaseParameters["filter"] = {
     or: [
       {
@@ -105,10 +112,10 @@ export async function getActivePortfolios() {
       direction: "descending",
     },
   ];
-  return getPortfolioData({ filter, sorts });
+  return getPortfolioData({ filter, sorts, limit });
 }
 
-export async function getAllEventsPortfolios() {
+export async function getAllEventsPortfolios(limit? : number) {
   const filter: QueryDatabaseParameters["filter"] = {
     and: [
       {
@@ -125,10 +132,10 @@ export async function getAllEventsPortfolios() {
       direction: "descending",
     },
   ];
-  return getPortfolioData({ filter, sorts });
+  return getPortfolioData({ filter, sorts, limit });
 }
 
-export async function getPastEventPortfolios() {
+export async function getPastEventPortfolios(limit? : number) {
   const filter: QueryDatabaseParameters["filter"] = {
     and: [
       {
@@ -151,10 +158,10 @@ export async function getPastEventPortfolios() {
       direction: "descending",
     },
   ];
-  return getPortfolioData({ filter, sorts });
+  return getPortfolioData({ filter, sorts, limit });
 }
 
-export async function getUpcomingEventPortfolios() {
+export async function getUpcomingEventPortfolios(limit? : number) {
   const filter: QueryDatabaseParameters["filter"] = {
     and: [
       {
@@ -177,5 +184,5 @@ export async function getUpcomingEventPortfolios() {
       direction: "descending",
     },
   ];
-  return getPortfolioData({ filter, sorts });
+  return getPortfolioData({ filter, sorts, limit });
 }

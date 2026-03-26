@@ -38,7 +38,16 @@ async function getMemberDataPublic({
         department:
           memberpage["properties"]["Department"]["multi_select"].map(
             (item) => item.name
-          )
+          ),
+        icon: (
+          memberpage.icon?.type === "external" 
+          ? memberpage.icon.external.url 
+          : memberpage.icon?.type === "file"
+            ? memberpage.icon.file.url
+            : memberpage.icon?.type === "emoji"
+              ? memberpage.icon.emoji
+              : undefined
+        ),
       });
     } catch (error) {
       console.error("Error processing members page:", error);
