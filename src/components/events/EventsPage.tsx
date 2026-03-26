@@ -1,82 +1,50 @@
 "use client";
 
-import EventsCard, { EventData } from "@/components/events/EventsCard";
+import EventsCard from "@/components/events/EventsCard";
+import { Portfolio } from "@/lib/notion/types";
 
-const mockUpcoming: EventData[] = [
+const mockUpcoming: Portfolio[] = [
   {
-    title: "MNET x MAC Spline Workshop",
+    id: "1",
+    name: "MNET x MAC Spline Workshop",
+    oneliner: "temp",
+    tags: ["test", "mac"],
+    tech: [],
+    members: [],
+    githubUrl: undefined,
+    status: undefined,
     description:
       "Partnered with Monash's largest IT student club to deliver a workshop teaching the fundamentals of 3D on the web.",
-    date: { day: 7, month: 5, year: 2025 },
-    type: "Workshop",
-    image: "https://placehold.co/640x360.png",
+    date: { start: "not tomorrow", end: undefined },
+    imageUrl: "https://placehold.co/640x360.png",
   },
   {
-    title: "SXSW Sydney",
+    id: "2",
+    name: "SXSW Sydney",
+    oneliner: "temp",
+    tags: ["text", "sxsw"],
+    tech: [],
+    members: [],
+    githubUrl: undefined,
+    status: undefined,
     description:
       "Ran a booth at one of the premier innovation conferences in the Southern Hemisphere, showcasing MNET projects to attendees from 40+ countries.",
-    date: { day: 14, month: 10, year: 2025 },
-    type: "Expo",
-    image: "https://placehold.co/640x360.png",
+    date: { start: "today", end: undefined },
+    imageUrl: "https://placehold.co/640x360.png",
   },
   {
-    title: "Tech Futures Industry Night",
+    id: "3",
+    name: "Tech Futures Industry Night",
+    oneliner: "temp",
+    tags: ["test", "industry"],
+    tech: [],
+    members: [],
+    githubUrl: undefined,
+    status: undefined,
     description:
       "Worked with Monash Deep Neuron to organize a networking event with cutting-edge companies, featuring 2 panelists, industry partners, and over 500 student attendees.",
-    date: { day: 1, month: 6, year: 2025 },
-    type: "Industry",
-    image: "https://placehold.co/640x360.png",
-  },
-];
-
-const mockPast: EventData[] = [
-  {
-    title: "MNET x MAC Spline Workshop",
-    description:
-      "Partnered with Monash's largest IT student club to deliver a workshop teaching the fundamentals of 3D on the web.",
-    date: { day: 7, month: 5, year: 2024 },
-    type: "Workshop",
-    image: "https://placehold.co/640x360.png",
-  },
-  {
-    title: "SXSW Sydney",
-    description:
-      "Ran a booth at one of the premier innovation conferences in the Southern Hemisphere, showcasing MNET projects to attendees from 40+ countries.",
-    date: { day: 14, month: 10, year: 2024 },
-    type: "Expo",
-    image: "https://placehold.co/640x360.png",
-  },
-  {
-    title: "Tech Futures Industry Night",
-    description:
-      "Worked with Monash Deep Neuron to organize a networking event with cutting-edge companies, featuring 2 panelists, industry partners, and over 500 student attendees.",
-    date: { day: 1, month: 6, year: 2024 },
-    type: "Industry",
-    image: "https://placehold.co/640x360.png",
-  },
-  {
-    title: "MNET x MAC Spline Workshop",
-    description:
-      "Partnered with Monash's largest IT student club to deliver a workshop teaching the fundamentals of 3D on the web.",
-    date: { day: 7, month: 5, year: 2023 },
-    type: "Workshop",
-    image: "https://placehold.co/640x360.png",
-  },
-  {
-    title: "SXSW Sydney",
-    description:
-      "Ran a booth at one of the premier innovation conferences in the Southern Hemisphere, showcasing MNET projects to attendees from 40+ countries.",
-    date: { day: 14, month: 10, year: 2023 },
-    type: "Expo",
-    image: "https://placehold.co/640x360.png",
-  },
-  {
-    title: "Tech Futures Industry Night",
-    description:
-      "Worked with Monash Deep Neuron to organize a networking event with cutting-edge companies, featuring 2 panelists, industry partners, and over 500 student attendees.",
-    date: { day: 1, month: 6, year: 2023 },
-    type: "Industry",
-    image: "https://placehold.co/640x360.png",
+    date: { start: "not yesterday", end: undefined },
+    imageUrl: "https://placehold.co/640x360.png",
   },
 ];
 
@@ -88,7 +56,7 @@ const SectionHeader: React.FC<{ title: string }> = ({ title }) => (
   </div>
 );
 
-const EventsPage: React.FC = () => {
+const EventsPage = ({ pastEvents, futureEvents } : { pastEvents : Portfolio[], futureEvents: Portfolio[] }) => {
   return (
     <div className="mb-25">
       <div className="bg-[url(/img/events-background.png)] bg-cover bg-bottom w-full h-[30vh] md:h-[40vh] flex items-end">
@@ -102,7 +70,12 @@ const EventsPage: React.FC = () => {
         
       />
       <div className="grid md:grid-cols-3 grid-cols-1 gap-6 md:gap-10 px-6 md:px-10 pt-3 md:pt-4 pb-6 md:pb-8 items-stretch">
+        {/* Use mock data for now until Notion data is exists */}
         {mockUpcoming.map((event, index) => (
+          <EventsCard style={index % 2 === 0 ? "gradient" : "altBlue"} data={event} key={`up-${index}`} />
+        ))}
+
+        {futureEvents.map((event, index) => (
           <EventsCard style={index % 2 === 0 ? "gradient" : "altBlue"} data={event} key={`up-${index}`} />
         ))}
       </div>
@@ -112,7 +85,7 @@ const EventsPage: React.FC = () => {
         
       />
       <div className="grid md:grid-cols-3 grid-cols-1 gap-6 md:gap-10 px-6 md:px-10 pt-3 md:pt-4 pb-6 md:pb-8 items-stretch">
-        {mockPast.map((event, index) => (
+        {pastEvents.map((event, index) => (
           <EventsCard style="gradient" data={event} key={`past-${index}`} />
         ))}
       </div>

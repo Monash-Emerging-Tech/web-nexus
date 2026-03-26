@@ -1,25 +1,7 @@
+import { Portfolio } from "@/lib/notion/types";
 import EventsCard from "./EventsCard";
 
-function EventsHolder() {
-  // Temp data
-  const data = [
-    {
-      title: "MNET x MAC Spline Workshop",
-      description:
-        "Partnered with Monash's largest IT student club to deliver a workshop teaching the fundamentals of 3D on the web.",
-      date: { day: 7, month: 5, year: 2024 },
-      type: "Workshop",
-      image: "https://placehold.co/600x400.png",
-    },
-    {
-      title: "SXSW Sydney",
-      description:
-        "Ran a booth at one of the largest tech conferences in the Southern Hemisphere, showcasing MNET projects to attendees from 40+ countries.",
-      date: { day: 14, month: 10, year: 2024 },
-      type: "Expo",
-      image: "https://placehold.co/600x400.png",
-    },
-  ];
+function EventsHolder({data}: {data: Portfolio[]}) {
 
   return (
     <section className="mb-25">
