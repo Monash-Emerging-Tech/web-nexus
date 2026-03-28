@@ -7,9 +7,9 @@ export default function AboutUs() {
   return (
     <div className="w-full h-full flex flex-col">
       <Nav />
-      <div className="flex flex-col p-[8vw] md:pt-[30vh] gap-4 items-center justify-center">
+      <div className="flex flex-col p-[4vw] pb-0 md:p-[8vw] pt-[25vh] md:pt-[30vh] gap-2 md:gap-4 items-center justify-center">
         <h1 className="text-white text-4xl md:text-5xl font-offbit-dot font-bold text-center">Our Story</h1>
-        <p className="text-white text-lg md:text-lg font-offbit text-center max-w-2/3">
+        <p className="text-white text-lg md:text-lg font-offbit text-center md:max-w-2/3">
           Lorem ipsum dolor sit amet, consectetur adipiscing elit.
            Mauris tempus sem vel nisi porttitor blandit.
             Ut vel felis eu dolor fringilla vestibulum.
@@ -46,8 +46,8 @@ export default function AboutUs() {
           </div>
         </div>
       </div>
-      <div className="flex flex-row p-[8vw] gap-20">
-        <div className="flex-1 flex flex-col gap-4 items-baseline justify-start">
+      <div className="flex flex-col-reverse md:flex-row p-[8vw] pt-0 gap-8 md:gap-20">
+        <div className="flex-1 flex flex-col gap-2 md:gap-4 items-baseline justify-start">
           <h1 className="text-white text-4xl md:text-5xl font-offbit-101 font-bold text-left">
             Meet our team
           </h1>
@@ -61,7 +61,7 @@ export default function AboutUs() {
                   sit amet porttitor nibh ante eu diam.
           </p>
           <a href="/team" 
-            className="text-white text-md font-semibold bg-[#DC003B] my-8 px-6 py-2 rounded-lg font-offbit cursor-pointer"
+            className="text-white text-md font-semibold bg-[#DC003B] my-4 md:my-8 px-6 py-2 rounded-lg font-offbit cursor-pointer"
           >
             LEARN MORE &rarr;
           </a>
@@ -71,7 +71,7 @@ export default function AboutUs() {
           alt="Meet the Team"
           width={1000}
           height={800}
-          className="max-w-1/2 flex-1 rounded-3xl object-cover border-[#DC003B] border-4"
+          className="md:max-w-1/2 flex-1 rounded-3xl object-cover border-[#DC003B] border-4"
         />
       </div>
       <Footer />

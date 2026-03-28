@@ -43,11 +43,11 @@ const TeamPage = async () => {
 	return (
 		<div className="bg-[#0E0E0E] min-h-screen w-full flex flex-col">
 			<Nav />
-			<div className="pt-[40vh] px-16 py-16">
-				<h1 className="text-white font-offbit-101 font-bold text-7xl">Meet the team</h1>
+			<div className="pt-[25vh] md:pt-[30vh] px-8 md:px-16 py-8 md:py-16">
+				<h1 className="text-white font-offbit-101 font-bold text-4xl md:text-7xl">Meet the team</h1>
 			</div>
-			<div className="w-full h-full bg-[#DB003B] flex flex-col items-center justify-center md:px-16 py-16 md:gap-6 gap-2">
-				<div className="w-full flex flex-row items-center justify-between gap-24 mb-16">
+			<div className="w-full h-full bg-[#DB003B] flex flex-col items-center justify-center px-8 md:px-16 py-8 md:py-16 md:gap-6 gap-2">
+				<div className="w-full flex flex-col md:flex-row md:items-center md:justify-between gap-12 md:gap-24 md:mb-16">
 					<div className="flex-2">
 						<h1 className="text-white text-4xl md:text-6xl font-offbit font-bold">Leads</h1>
 						<p className="text-white text-xl font-semibold font-offbit mt-2">
@@ -127,8 +127,8 @@ const TeamPage = async () => {
 					}
 				</div>
 			</div>
-			<div className="w-full h-full bg-[#030CAB] flex flex-col items-center justify-center md:px-16 py-16 md:gap-6 gap-2">
-				<div className="w-full flex flex-row items-center justify-between gap-24 mb-16">
+			<div className="w-full h-full bg-[#030CAB] flex flex-col items-center justify-center px-8 md:px-16 py-8 md:py-16 md:gap-6 gap-2">
+				<div className="w-full flex flex-col-reverse md:flex-row items-start md:items-center justify-between gap-12 md:gap-24 md:mb-16">
 					<Image
 						src="/img/Senior-Members-Temp.jpg"
 						alt="Team Leads"
@@ -187,8 +187,8 @@ const TeamPage = async () => {
 					}
 				</div>
 			</div>
-			<div className="w-full h-full bg-[#2D2D2D] flex flex-col items-center justify-center md:px-16 py-16 md:gap-6 gap-2">
-				<div className="w-full flex flex-row items-center justify-between gap-24 mb-16">
+			<div className="w-full h-full bg-[#2D2D2D] flex flex-col items-center justify-center px-8 md:px-16 py-8 md:py-16 md:gap-6 gap-2">
+				<div className="w-full flex flex-col md:flex-row items-start md:items-center justify-between gap-12 md:gap-24 md:mb-16">
 					<div className="flex-2">
 						<h1 className="text-white text-4xl md:text-6xl font-offbit font-bold">Academic Advisors</h1>
 						<p className="text-white text-xl font-semibold font-offbit mt-2">
@@ -226,7 +226,7 @@ const TeamPage = async () => {
 						))}
 					</div>
 				</div>
-				<div className="md:hidden grid grid-cols-3 w-full">
+				<div className="md:hidden grid grid-cols-2 w-full">
 					{
 						academicAdvisors.map((lead) => (
 							<div key={lead.id} className="flex-1 bg-transparent rounded-lg p-6 flex flex-col items-center gap-2">
@@ -243,15 +243,15 @@ const TeamPage = async () => {
 					}
 				</div>
 			</div>
-			<div className="w-full h-full flex flex-col items-center justify-center md:px-16 py-16 md:gap-10 gap-4">
+			<div className="w-full h-full flex flex-col items-center justify-center px-4 md:px-16 py-8 md:py-16 md:gap-12 gap-6">
 				<h1 className="font-offbit-101 font-bold text-4xl md:text-7xl text-white">
 					Team Structure
 				</h1>
-				<div className="w-full self-baseline flex flex-col gap-4">
-					<p className="text-white text-xl md:text-4xl font-offbit font-semibold">
+				<div className="w-full self-baseline flex flex-col items-center gap-2 md:gap-4">
+					<p className="text-white text-3xl md:text-4xl font-offbit font-semibold">
 						Team Leads
 					</p>
-					<div className="w-full grid grid-cols-5">
+					<div className="w-full text-center flex flex-col md:grid md:grid-cols-5 gap-2">
 						{
 							teamLeads.map((lead) => (
 								<p key={lead.id} className="text-white text-lg md:text-xl font-offbit-101 font-semibold">
@@ -261,11 +261,11 @@ const TeamPage = async () => {
 						}
 					</div>
 				</div>
-				<div className="w-full self-baseline flex flex-col gap-4">
-					<p className="text-white text-xl md:text-4xl font-offbit font-semibold">
+				<div className="w-full self-baseline flex flex-col items-center gap-2 md:gap-4">
+					<p className="text-white text-3xl md:text-4xl font-offbit font-semibold">
 						Marketing
 					</p>
-					<div className="w-full grid grid-cols-5 gap-2">
+					<div className="w-full text-center flex flex-col md:grid md:grid-cols-5 gap-2">
 						{
 							marketingMembers.map((member) => (
 								<p key={member.id} className="text-white text-lg md:text-xl font-offbit-101 font-semibold">
@@ -275,11 +275,11 @@ const TeamPage = async () => {
 						}
 					</div>
 				</div>
-				<div className="w-full self-baseline flex flex-col gap-4">
-					<p className="text-white text-xl md:text-4xl font-offbit font-semibold">
+				<div className="w-full self-baseline flex flex-col items-center gap-2 md:gap-4">
+					<p className="text-white text-3xl md:text-4xl font-offbit font-semibold">
 						Operations
 					</p>
-					<div className="w-full grid grid-cols-5 gap-2">
+					<div className="w-full text-center flex flex-col md:grid md:grid-cols-5 gap-2">
 						{
 							operationsMembers.map((member) => (
 								<p key={member.id} className="text-white text-lg md:text-xl font-offbit-101 font-semibold">
@@ -289,11 +289,11 @@ const TeamPage = async () => {
 						}
 					</div>
 				</div>
-				<div className="w-full self-baseline flex flex-col gap-4">
-					<p className="text-white text-xl md:text-4xl font-offbit font-semibold">
+				<div className="w-full self-baseline flex flex-col items-center gap-2 md:gap-4">
+					<p className="text-white text-3xl md:text-4xl font-offbit font-semibold">
 						Education
 					</p>
-					<div className="w-full grid grid-cols-5 gap-2">
+					<div className="w-full text-center flex flex-col md:grid md:grid-cols-5 gap-2">
 						{
 							educationMembers.map((member) => (
 								<p key={member.id} className="text-white text-lg md:text-xl font-offbit-101 font-semibold">
@@ -303,11 +303,11 @@ const TeamPage = async () => {
 						}
 					</div>
 				</div>
-				<div className="w-full self-baseline flex flex-col gap-4">
-					<p className="text-white text-xl md:text-4xl font-offbit font-semibold">
+				<div className="w-full self-baseline flex flex-col items-center gap-2 md:gap-4">
+					<p className="text-white text-3xl md:text-4xl font-offbit font-semibold">
 						Projects
 					</p>
-					<div className="w-full grid grid-cols-6 gap-2">
+					<div className="w-full text-center flex flex-col md:grid md:grid-cols-6 gap-2">
 						{
 							projectsMembers.map((member) => (
 								<p key={member.id} className="text-white text-lg md:text-xl font-offbit-101 font-semibold">
