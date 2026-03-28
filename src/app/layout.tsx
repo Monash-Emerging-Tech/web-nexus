@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { offbit, offbit101, offbitDot } from "@/lib/fonts";
 import "./globals.css";
+import { NavBarProvider } from "@/components/navbar_test/NavProvider";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -20,7 +21,9 @@ export default function RootLayout({
       <body
         className={`${offbit.variable} ${offbit101.variable} ${offbitDot.variable} antialiased w-full h-auto`}
       >
-        {children}
+        <NavBarProvider>
+          {children}
+        </NavBarProvider>
       </body>
     </html>
   );

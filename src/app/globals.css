@@ -43,6 +43,10 @@ body {
 }
 
 
+.dotGrid {
+  transition: scale 0.2s ease-in-out, background-color 1s ease-in-out, box-shadow 1s ease-in-out;
+}
+
 /*
 The following CSS is used to create a gradient border effect for divs, used in the Past Events section.
 I would not recommend altering this code, with the exception of gradient colors, or the pixels added to bg-size in the event of clipping.
