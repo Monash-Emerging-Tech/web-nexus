@@ -328,3 +328,148 @@ export interface Member {
   discord?: string | undefined;
   icon?: string | undefined;
 }
+
+export interface RichTextAnnotations {
+  bold: boolean;
+  italic: boolean;
+  strikethrough: boolean;
+  underline: boolean;
+  code: boolean;
+  color: string;
+}
+
+interface RichTextText {
+  type: "text";
+  text: {
+    content: string;
+    link: null | { url: string };
+  }
+  annotations: RichTextAnnotations;
+}
+
+interface RichTextMention {
+  type: "mention";
+  mention: RichTextMentionOpts;
+  annotations: RichTextAnnotations;
+}
+
+interface RichTextEquation {
+  type: "equation";
+  equation: { expression: string };
+  annotations: RichTextAnnotations;
+}
+
+export type RichText = RichTextText | RichTextMention | RichTextEquation;
+
+type RichTextMentionOpts =
+  | {
+      type: "database";
+      database: {
+        id: string;
+      };
+    }
+  | {
+      type: "date";
+      date: {
+        start: string;
+        end: string | null;
+      };
+    }
+  | {
+      type: "link_preview";
+      link_preview: {
+        url: string;
+      };
+    }
+  | {
+      type: "page";
+      page: {
+        id: string;
+      };
+    }
+  | {
+      type: "template_mention_date";
+      template_mention_date: string;
+    }
+  | {
+      type: "template_mention_user";
+      template_mention_user: string;
+    }
+  | {
+      type: "user";
+      user: {
+        object: "user";
+        id: string;
+      };
+    };
+
+interface PageBlockBase {
+  id: string;
+  in_trash: boolean;
+  has_children: boolean;
+  type: string;
+}
+
+export type PageBlock = 
+  | Heading1Block
+  | Heading2Block
+  | Heading3Block
+  | Heading4Block
+  | ParagraphBlock
+  | BulletedListItemBlock
+
+interface Heading1Block extends PageBlockBase {
+  type: "heading_1";
+  heading_1: {
+    rich_text: RichTextText[];
+    color: string;
+    is_toggleable: boolean;
+  };
+}
+
+interface Heading2Block extends PageBlockBase {
+  type: "heading_2";
+  heading_2: {
+    rich_text: RichTextText[];
+    color: string;
+    is_toggleable: boolean;
+  };
+}
+
+interface Heading3Block extends PageBlockBase {
+  type: "heading_3";
+  heading_3: {
+    rich_text: RichTextText[];
+    color: string;
+    is_toggleable: boolean;
+  };
+}
+
+interface Heading4Block extends PageBlockBase {
+  type: "heading_4";
+  heading_4: {
+    rich_text: RichTextText[];
+    color: string;
+    is_toggleable: boolean;
+  };
+}
+
+export type HeadingBlock = Heading1Block | Heading2Block | Heading3Block | Heading4Block;
+
+export interface ParagraphBlock extends PageBlockBase {
+  type: "paragraph";
+  paragraph: {
+    rich_text: RichText[];
+    color: string;
+    is_toggleable: boolean;
+  };
+}
+
+export interface BulletedListItemBlock extends PageBlockBase {
+  type: "bulleted_list_item";
+  bulleted_list_item: {
+    rich_text: RichText[];
+    color: string;
+  };
+  children: PageBlock[];
+}
