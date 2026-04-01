@@ -314,6 +314,19 @@ export interface MemberPageObject
         };
       }>;
     };
+    "Person" : {
+      id: string;
+      type: "people";
+      people: Array<{
+        id: string;
+        name: string;
+        avatar_url: string | null;
+        type: "person";
+        person: {
+          email: string;
+        };
+      }>;
+    }
   };
 }
 
@@ -327,6 +340,141 @@ export interface Member {
   phone?: string | undefined;
   discord?: string | undefined;
   icon?: string | undefined;
+}
+
+export interface BlogPageObject
+  extends Omit<PageObjectResponse, "properties"> {
+  properties: {
+    "Project name": {
+      id: string;
+      type: "title";
+      title: Array<{
+        type: "text";
+        text: {
+          content: string;
+          link: null | { url: string };
+        };
+        plain_text: string;
+        href: null | string;
+        annotations?: {
+          bold: boolean;
+          italic: boolean;
+          strikethrough: boolean;
+          underline: boolean;
+          code: boolean;
+          color: string;
+        };
+      }>;
+    };
+    "Title": {
+      id: string;
+      type: "title";
+      title: Array<{
+        type: "text";
+        text: {
+          content: string;
+          link: null | { url: string };
+        };
+        plain_text: string;
+        href: null | string;
+        annotations?: {
+          bold: boolean;
+          italic: boolean;
+          strikethrough: boolean;
+          underline: boolean;
+          code: boolean;
+          color: string;
+        };
+      }>;
+    };
+    "Role": {
+      id: string;
+      type: "multi_select";
+      multi_select: Array<{
+        id: string;
+        name: "Team Lead" | "Senior Member" | "Member" | 
+        "Marketing Lead" | "Education Lead" | "Project Lead" | "Operation Lead" | "Deputy Operation Lead" |
+        "Away" | "Alumni" | "Academic Advisor"
+      }>;
+    };
+    "Quote": {
+      id: string;
+      type: "rich_text";
+      rich_text: Array<{
+        type: "text";
+        text: {
+          content: string;
+          link: null | { url: string };
+        };
+        plain_text: string;
+        href: null | string;
+      }>;
+    };
+    "Department": {
+      id: string;
+      type: "multi_select";
+      multi_select: Array<{
+        id: string;
+        name: "Marketing" | "Education" | "Projects" | "Operations" |
+         "Away" | "Alumni" | "Academic Advisors" |
+         string | undefined
+        color: string;
+      }>;
+    };
+    "Email" : {
+      id: string;
+      type: "email";
+      email: string;
+    };
+    "Phone" : {
+      id: string;
+      type: "phone_number";
+      phone_number: string;
+    };
+    "Discord": {
+      id: string;
+      type: "rich_text";
+      rich_text: Array<{
+        type: "text";
+        text: {
+          content: string;
+          link: null | { url: string };
+        };
+        plain_text: string;
+        href: null | string;
+        annotations?: {
+          bold: boolean;
+          italic: boolean;
+          strikethrough: boolean;
+          underline: boolean;
+          code: boolean;
+          color: string;
+        };
+      }>;
+    };
+  };
+}
+
+export interface PageMetadata {
+  id: string;
+  title: string;
+  in_trash: boolean;
+  in_archive: boolean;
+  cover: {
+    type: "external";
+    external: {
+      url: string;
+    };
+  } | {
+    type: "file";
+    file: {
+      url: string;
+    };
+  } | null;
+}
+
+export interface PageObject extends PageMetadata {
+  content: PageBlock[];
 }
 
 export interface RichTextAnnotations {

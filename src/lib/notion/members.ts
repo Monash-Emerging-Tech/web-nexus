@@ -161,3 +161,14 @@ export async function getMembersByDepartment(department : string) {
   };
   return getMemberDataPublic({ filter });
 }
+
+export async function getMemberById(userId: string) {
+  const filter: QueryDatabaseParameters["filter"] = {
+    property: "Person",
+    people: {
+      contains: userId
+    }
+  }
+
+  return getMemberDataPublic({ filter })
+}
