@@ -54,21 +54,31 @@ const fragmentShader = `
     // elevation is roughly between 0.0 and 3.5
     float t = clamp(vElevation / 3.0, 0.0, 1.0);
     
-    // Vibrant blue to bright red
-    vec3 colorLow = vec3(0.0, 0.4, 1.0);   // Blue
-    vec3 colorHigh = vec3(1.0, 0.0, 0.3);  // Red
-    
+    // Vibrant blue and bright red
+    vec3 colorLow = vec3(0.008, 0.051, 0.671);  // Blue - rgb(2, 13, 171)
+    vec3 colorHigh = vec3(0.82, 0.008, 0.224);  // Red - rgb(209, 2, 57)
     vec3 lineColor = mix(colorLow, colorHigh, t);
     
-    // Dynamic contour lines
-    // Increased frequency for a more detailed "nexus" feel
-    float line = mod(vElevation * 8.0, 1.0);
-    float lineWeight = 0.06;
-    float lineHighlight = smoothstep(0.5 - lineWeight, 0.5, line) - smoothstep(0.5, 0.5 + lineWeight, line);
+    // ANTI-ALIASED Contour Lines
+    // Using screen-space derivatives to ensure lines remain smooth and 
+    // consistent regardless of slope or resolution.
+    float frequency = 10.0; // Higher frequency for a premium look
+    float val = vElevation * frequency;
     
-    // Only the lines are colored, everything else is black
-    // Boosted brightness on the lines for a "glow" effect
-    vec3 finalColor = lineColor * lineHighlight * 1.5;
+    // fract() is aliased, so we use screen-space derivatives for smoothing
+    float f = fract(val);
+    float df = fwidth(val); // change in val per screen pixel
+    
+    // Generate a mask for the lines using a smoothed distance to the center (0.5)
+    // The width is constant in screen pixels regardless of zoom
+    float thickness = 1.0; 
+    float lineMask = smoothstep(df * (thickness + 1.0), df * thickness, abs(f - 0.5));
+    
+    // Subdued glow/bloom for a more premium Feel
+    float glow = smoothstep(1.5, 0.0, abs(f - 0.5) / df) * 0.4;
+    
+    // Only the lines are colored, surface is black
+    vec3 finalColor = lineColor * (lineMask + glow);
     
     // Fade out towards the edges for a cleaner look
     float edgeFade = 1.0 - smoothstep(0.3, 0.5, length(vUv - 0.5));
