@@ -48,6 +48,7 @@ const fragmentShader = `
   varying vec2 vUv;
   varying float vElevation;
   uniform float uTime;
+  uniform vec2 uMouse;
 
   void main() {
     // Blue-to-Red mapping based on height
@@ -80,6 +81,13 @@ const fragmentShader = `
     // Only the lines are colored, surface is black
     vec3 finalColor = lineColor * (lineMask + glow);
     
+    // REACTIVE SPOTLIGHT
+    // A soft radial glow that follows the mouse in UV space
+    float spotlightDist = distance(vUv, uMouse);
+    float spotlightSpread = 20.0;
+    float spotlightGlow = exp(-spotlightDist * spotlightDist * spotlightSpread) * 0.6;
+    finalColor += lineColor * spotlightGlow;
+
     // Fade out towards the edges for a cleaner look
     float edgeFade = 1.0 - smoothstep(0.3, 0.5, length(vUv - 0.5));
     
@@ -92,12 +100,29 @@ const Terrain = () => {
   const uniforms = useMemo(
     () => ({
       uTime: { value: 0 },
+      uMouse: { value: new THREE.Vector2(0.5, 0.5) },
     }),
     []
   );
 
   useFrame((state) => {
     uniforms.uTime.value = state.clock.getElapsedTime();
+    
+    // Lerp mouse position for the spotlight (UV space 0 to 1)
+    const targetX = (state.mouse.x + 1.0) * 0.5;
+    const targetY = (state.mouse.y + 1.0) * 0.5;
+    uniforms.uMouse.value.x += (targetX - uniforms.uMouse.value.x) * 0.1;
+    uniforms.uMouse.value.y += (targetY - uniforms.uMouse.value.y) * 0.1;
+    
+    // Apply parallax tilt to the mesh
+    if (meshRef.current) {
+      const baseX = -Math.PI / 2.5;
+      const targetRotationX = baseX - state.mouse.y * 0.15;
+      const targetRotationY = state.mouse.x * 0.15;
+      
+      meshRef.current.rotation.x += (targetRotationX - meshRef.current.rotation.x) * 0.05;
+      meshRef.current.rotation.y += (targetRotationY - meshRef.current.rotation.y) * 0.05;
+    }
   });
 
   return (
@@ -118,7 +143,7 @@ const Terrain = () => {
 
 const ContourMap = () => {
   return (
-    <div className="w-full h-full pointer-events-none overflow-hidden">
+    <div className="w-full h-full overflow-hidden">
       <Canvas camera={{ position: [0, 5, 15], fov: 40 }}>
         {/* Black background to match theme */}
         <color attach="background" args={["#000000"]} />
