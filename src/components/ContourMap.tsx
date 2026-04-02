@@ -62,7 +62,7 @@ const fragmentShader = `
     // ANTI-ALIASED Contour Lines
     // Using screen-space derivatives to ensure lines remain smooth and 
     // consistent regardless of slope or resolution.
-    float frequency = 10.0; // Higher frequency for a premium look
+    float frequency = 14.0; // Higher frequency for a premium look
     float val = vElevation * frequency;
     
     // fract() is aliased, so we use screen-space derivatives for smoothing
@@ -102,7 +102,10 @@ const Terrain = () => {
 
   return (
     <mesh ref={meshRef} rotation={[-Math.PI / 2.5, 0, 0]} position={[0, -1.5, 0]}>
-      <planeGeometry args={[40, 40, 128, 128]} />
+      {/* for lower performance devices */}
+      {/* <planeGeometry args={[40, 40, 128, 128]} /> */}
+      {/* for higher performance devices */}
+      <planeGeometry args={[40, 40, 512, 512]} /> 
       <shaderMaterial
         vertexShader={vertexShader}
         fragmentShader={fragmentShader}
