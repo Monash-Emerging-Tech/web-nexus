@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import ContourMap from "./ContourMap";
 
 const Hero: React.FC = () => {
   const latestEvent = {
@@ -55,8 +56,14 @@ const Hero: React.FC = () => {
   }, [latestEvent.timestamp]);
 
   return (
-    <section className="top-0 bg-[url(/img/wireframe_2.png)] bg-center bg-cover w-screen h-screen flex justify-center items-center">
-      <div className="md:w-3/5 p-4 flex flex-col md:gap-0 gap-4">
+    <section className="relative w-screen h-screen overflow-hidden bg-black flex justify-center items-center">
+      {/* Background layer */}
+      <div className="absolute inset-0 z-0">
+        <ContourMap />
+      </div>
+      
+      {/* Content layer */}
+      <div className="relative z-10 md:w-3/5 p-4 flex flex-col md:gap-0 gap-4 text-white text-center md:text-left">
         {eventActive && (
           <p className="font-offbit font-bold md:text-2xl text-sm">
             {latestEvent.title}: {date.days}d {date.hours}h {date.minutes}m{" "}
@@ -71,7 +78,7 @@ const Hero: React.FC = () => {
         </h2>
         <br />
         <br />
-        <div className="w-full flex justify-center">
+        <div className="w-full flex justify-center md:justify-start">
           <button className="hover:cursor-pointer text-sm md:text-[1rem] font-offbit font-bold h-fit px-8 py-3 bg-primary rounded-md">
             OUR WORK -{">"}
           </button>
