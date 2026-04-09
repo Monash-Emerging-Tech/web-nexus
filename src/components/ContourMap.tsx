@@ -2,7 +2,7 @@
 
 import React, { useRef, useMemo, useState, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { ScrollControls, useScroll, Text, Html } from "@react-three/drei";
+import { ScrollControls, useScroll, Text3D, Center, Html, Billboard } from "@react-three/drei";
 import * as THREE from "three";
 import MnetCube from "./MnetCube";
 
@@ -92,7 +92,7 @@ const fragmentShader = `
     float distToCenter = length(vLocalPos);
     
     // Tighter circles as uScroll goes up (radius shrinks down to 6.5)
-    float maxRadius = mix(7.5, 5.0, uScroll); 
+    float maxRadius = mix(7.25, 7.0, uScroll); 
     
     // Add an edge fade when it's a circle
     float alpha = smoothstep(maxRadius, maxRadius - 1.5, distToCenter);
@@ -109,8 +109,10 @@ const fragmentShader = `
   }
 `;
 
-const Quadrant = ({ size, offset, dir, uniforms }:any) => {
-  const meshRef = useRef<THREE.Mesh>(null);
+const Quadrant = ({ size, offset, dir, uniforms, label }:any) => {
+  const groupRef = useRef<THREE.Group>(null);
+  const textGroupRef = useRef<THREE.Group>(null);
+  const textMaterialRef = useRef<THREE.MeshBasicMaterial>(null);
   const [hovered, setHover] = useState(false);
   
   useEffect(() => {
@@ -124,46 +126,89 @@ const Quadrant = ({ size, offset, dir, uniforms }:any) => {
     uOffset: { value: new THREE.Vector2(offset[0], offset[1]) }
   }), [uniforms, offset]);
 
-    useFrame(() => {
-    if (meshRef.current) {
+  useFrame(() => {
+    if (groupRef.current) {
       // Split distance (how far they push apart) - brought closer to cube (7.0)
       const splitAmt = uniforms.uScroll.value * 7.0; 
-      const popAmt = hovered && uniforms.uScroll.value > 0.8 ? 3.0 : 0;
-      const scaleAmt = hovered && uniforms.uScroll.value > 0.8 ? 1.1 : 1.0;
+      const popAmt = hovered && uniforms.uScroll.value > 0.8 ? 2.0 : 0;
+      const scaleAmt = hovered && uniforms.uScroll.value > 0.8 ? 1.05 : 1.0;
       
       const targetX = offset[0] + dir[0] * splitAmt;
       const targetY = offset[1] + dir[1] * splitAmt;
       
-      meshRef.current.position.x += (targetX - meshRef.current.position.x) * 0.1;
-      meshRef.current.position.y += (targetY - meshRef.current.position.y) * 0.1;
+      groupRef.current.position.x += (targetX - groupRef.current.position.x) * 0.1;
+      groupRef.current.position.y += (targetY - groupRef.current.position.y) * 0.1;
       // Z popup when hovering the interactive island
-      meshRef.current.position.z += (popAmt - meshRef.current.position.z) * 0.1;
-      meshRef.current.scale.setScalar(THREE.MathUtils.lerp(meshRef.current.scale.x, scaleAmt, 0.1));
+      groupRef.current.position.z += (popAmt - groupRef.current.position.z) * 0.1;
+      groupRef.current.scale.setScalar(THREE.MathUtils.lerp(groupRef.current.scale.x, scaleAmt, 0.1));
+    }
+
+    if (textGroupRef.current && textMaterialRef.current) {
+      // Show text as we scroll, max out slightly earlier
+      const scrollFactor = Math.max(0, Math.min(1, (uniforms.uScroll.value - 0.4) * 2.0)); 
+      
+      // Emerge text vertically (z-axis)
+      const targetZ = scrollFactor * 3.0 + (hovered ? 1.5 : 0.0);
+      textGroupRef.current.position.z += (targetZ - textGroupRef.current.position.z) * 0.1;
+      
+      // Scale and opacity
+      const targetScale = scrollFactor * (hovered ? 1.2 : 1.0);
+      textGroupRef.current.scale.setScalar(THREE.MathUtils.lerp(textGroupRef.current.scale.x, targetScale, 0.1));
+      
+      const targetOpacity = scrollFactor * (hovered ? 1.0 : 0.6);
+      textMaterialRef.current.opacity += (targetOpacity - textMaterialRef.current.opacity) * 0.1;
     }
   });
 
   return (
-    <mesh 
-      ref={meshRef} 
+    <group 
+      ref={groupRef} 
       position={[offset[0], offset[1], 0]}
-      onPointerOver={(e) => { e.stopPropagation(); setHover(true); }}
-      onPointerOut={() => setHover(false)}
-      onPointerDown={(e) => {
-        // Prevent drag from triggering clicks too easily
-        if (uniforms.uScroll.value > 0.8) {
-          console.log(`Quadrant clicked`);
-        }
-      }}
     >
-      <planeGeometry args={[size, size, 128, 128]} /> 
-      <shaderMaterial
-        vertexShader={vertexShader}
-        fragmentShader={fragmentShader}
-        uniforms={quadUniforms}
-        transparent
-        depthWrite={false}
-      />
-    </mesh>
+      <mesh
+        onPointerOver={(e) => { e.stopPropagation(); setHover(true); }}
+        onPointerOut={() => setHover(false)}
+        onPointerDown={(e) => {
+          // Prevent drag from triggering clicks too easily
+          if (uniforms.uScroll.value > 0.8) {
+            console.log(`Quadrant ${label} clicked`);
+          }
+        }}
+      >
+        <planeGeometry args={[size, size, 128, 128]} /> 
+        <shaderMaterial
+          vertexShader={vertexShader}
+          fragmentShader={fragmentShader}
+          uniforms={quadUniforms}
+          transparent
+          depthWrite={false}
+        />
+      </mesh>
+      {label && (
+        <group ref={textGroupRef}>
+          <Billboard>
+            <Center>
+              <Text3D
+                font="/fonts/helvetiker.json"
+                size={1}
+                height={0.4}
+                curveSegments={12}
+                bevelEnabled={false}
+              >
+                {label}
+                <meshBasicMaterial 
+                  ref={textMaterialRef}
+                  color="#f1f1f1" 
+                  wireframe={true} 
+                  transparent={true} 
+                  opacity={0} 
+                />
+              </Text3D>
+            </Center>
+          </Billboard>
+        </group>
+      )}
+    </group>
   );
 };
 
@@ -283,16 +328,16 @@ const Carousel = () => {
     <group ref={groupRef} position={[0, -1.5, 0]}>
       {/* 4 Quadrants summing up to 40x40. Each is 20x20. */}
       <Quadrant 
-        size={10} offset={[-5, 5]} dir={[-1, 1]} uniforms={uniforms} 
+        size={10} offset={[-5, 5]} dir={[-1, 1]} uniforms={uniforms} label="Projects"
       />
       <Quadrant 
-        size={10} offset={[5, 5]} dir={[1, 1]} uniforms={uniforms} 
+        size={10} offset={[5, 5]} dir={[1, 1]} uniforms={uniforms} label="Events"
       />
       <Quadrant 
-        size={10} offset={[-5, -5]} dir={[-1, -1]} uniforms={uniforms} 
+        size={10} offset={[-5, -5]} dir={[-1, -1]} uniforms={uniforms} label="Collaborators"
       />
       <Quadrant 
-        size={10} offset={[5, -5]} dir={[1, -1]} uniforms={uniforms} 
+        size={10} offset={[5, -5]} dir={[1, -1]} uniforms={uniforms} label="Team"
       />
 
       {/* Center 3D Logo */}
