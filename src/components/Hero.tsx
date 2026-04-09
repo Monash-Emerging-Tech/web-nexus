@@ -59,30 +59,31 @@ const Hero: React.FC = () => {
     <section className="relative w-screen h-screen overflow-hidden bg-black flex justify-center items-center">
       {/* Background layer */}
       <div className="absolute inset-0 z-0">
-        <ContourMap />
-      </div>
-      
-      {/* Content layer */}
-      <div className="relative z-10 md:w-3/5 p-4 flex flex-col md:gap-0 gap-4 text-white text-center md:text-left">
-        {eventActive && (
-          <p className="font-offbit font-bold md:text-2xl text-sm">
-            {latestEvent.title}: {date.days}d {date.hours}h {date.minutes}m{" "}
-            {date.seconds}s
-          </p>
-        )}
-        <h1 className="font-offbit-dot font-bold md:text-7xl text-5xl">
-          MONASH NEXUS FOR EMERGING TECHNOLOGIES
-        </h1>
-        <h2 className="font-offbit font-bold md:text-2xl text-sm">
-          A Monash University student team pushing the boundaries of XR.
-        </h2>
-        <br />
-        <br />
-        <div className="w-full flex justify-center md:justify-start">
-          <button className="hover:cursor-pointer text-sm md:text-[1rem] font-offbit font-bold h-fit px-8 py-3 bg-primary rounded-md">
-            OUR WORK -{">"}
-          </button>
-        </div>
+        <ContourMap>
+          <div className="w-screen h-screen flex flex-col justify-center items-center md:items-start md:px-32 pointer-events-none">
+            <div className="md:w-3/5 p-4 flex flex-col md:gap-0 gap-4 text-white text-center md:text-left pointer-events-auto">
+              {eventActive && (
+                <p className="font-offbit font-bold md:text-2xl text-sm">
+                  {latestEvent.title}: {date.days}d {date.hours}h {date.minutes}m{" "}
+                  {date.seconds}s
+                </p>
+              )}
+              <h1 className="font-offbit-dot font-bold md:text-7xl text-5xl">
+                MONASH NEXUS FOR EMERGING TECHNOLOGIES
+              </h1>
+              <h2 className="font-offbit font-bold md:text-2xl text-sm">
+                A Monash University student team pushing the boundaries of XR.
+              </h2>
+              <br />
+              <br />
+              <div className="w-full flex justify-center md:justify-start">
+                <button className="hover:cursor-pointer text-sm md:text-[1rem] font-offbit font-bold h-fit px-8 py-3 bg-primary rounded-md">
+                  OUR WORK -{">"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </ContourMap>
       </div>
     </section>
   );

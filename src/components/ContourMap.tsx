@@ -1,15 +1,19 @@
 "use client";
 
-import React, { useRef, useMemo } from "react";
+import React, { useRef, useMemo, useState, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
+import { ScrollControls, useScroll, Text, Html } from "@react-three/drei";
 import * as THREE from "three";
+import MnetCube from "./MnetCube";
 
-// --- Shader Helper ---
-// Using a simpler noise function directly in the shader for performance and reliability
+// --- Shader Helpers ---
 const vertexShader = `
   varying vec2 vUv;
   varying float vElevation;
+  varying vec2 vLocalPos;
+  
   uniform float uTime;
+  uniform vec2 uOffset;
   
   float hash(vec2 p) {
     return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
@@ -28,16 +32,17 @@ const vertexShader = `
 
   void main() {
     vUv = uv;
+    vLocalPos = position.xy;
     
-    // Create a dynamic "terrain" effect
-    float elevation = noise(position.xy * 0.15 + uTime * 0.1) * 2.5;
-    // Add multiple layers for more complexity
-    elevation += noise(position.xy * 0.4 - uTime * 0.05) * 0.8;
+    vec2 worldPos = position.xy + uOffset;
+    
+    // Create a dynamic "terrain" effect using the true world position for seamless edges
+    float elevation = noise(worldPos * 0.15 + uTime * 0.1) * 2.5;
+    elevation += noise(worldPos * 0.4 - uTime * 0.05) * 0.8;
     
     vElevation = elevation;
     
     vec3 newPosition = position;
-    // Move slightly towards the camera/away based on elevation
     newPosition.z += elevation;
     
     gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
@@ -47,110 +52,276 @@ const vertexShader = `
 const fragmentShader = `
   varying vec2 vUv;
   varying float vElevation;
+  varying vec2 vLocalPos;
+  
   uniform float uTime;
   uniform vec2 uMouse;
-
+  uniform float uScroll;
+  
   void main() {
-    // Blue-to-Red mapping based on height
-    // elevation is roughly between 0.0 and 3.5
     float t = clamp(vElevation / 3.0, 0.0, 1.0);
     
-    // Vibrant blue and bright red
-    vec3 colorLow = vec3(0.008, 0.051, 0.671);  // Blue - rgb(2, 13, 171)
-    vec3 colorHigh = vec3(0.82, 0.008, 0.224);  // Red - rgb(209, 2, 57)
+    vec3 colorLow = vec3(0.008, 0.051, 0.671);
+    vec3 colorHigh = vec3(0.82, 0.008, 0.224);
     vec3 lineColor = mix(colorLow, colorHigh, t);
     
-    // ANTI-ALIASED Contour Lines
-    // Using screen-space derivatives to ensure lines remain smooth and 
-    // consistent regardless of slope or resolution.
-    float frequency = 14.0; // Higher frequency for a premium look
+    float frequency = 14.0;
     float val = vElevation * frequency;
     
-    // fract() is aliased, so we use screen-space derivatives for smoothing
     float f = fract(val);
-    float df = fwidth(val); // change in val per screen pixel
+    float df = fwidth(val);
     
-    // Generate a mask for the lines using a smoothed distance to the center (0.5)
-    // The width is constant in screen pixels regardless of zoom
     float thickness = 1.0; 
     float lineMask = smoothstep(df * (thickness + 1.0), df * thickness, abs(f - 0.5));
-    
-    // Subdued glow/bloom for a more premium Feel
     float glow = smoothstep(1.5, 0.0, abs(f - 0.5) / df) * 0.4;
     
-    // Only the lines are colored, surface is black
     vec3 finalColor = lineColor * (lineMask + glow);
     
-    // REACTIVE SPOTLIGHT
-    // A soft radial glow that follows the mouse in UV space
     float spotlightDist = distance(vUv, uMouse);
     float spotlightSpread = 20.0;
     float spotlightGlow = exp(-spotlightDist * spotlightDist * spotlightSpread) * 0.6;
     finalColor += lineColor * spotlightGlow;
 
-    // Fade out towards the edges for a cleaner look
-    float edgeFade = 1.0 - smoothstep(0.3, 0.5, length(vUv - 0.5));
+    // Morph mask: from rectangle (1.0) to circle with border
+    float distToCenter = length(vLocalPos);
     
-    gl_FragColor = vec4(finalColor, edgeFade);
+    // Tighter circles as uScroll goes up (radius shrinks down to 6.5)
+    float maxRadius = mix(15.0, 6.5, uScroll); 
+    
+    // Add an edge fade when it's a circle
+    float alpha = smoothstep(maxRadius, maxRadius - 1.5, distToCenter);
+    
+    // Draw a prominent glowing ring around the circumference of the circle
+    float ringThickness = 0.5;
+    float ring = smoothstep(maxRadius - ringThickness, maxRadius - ringThickness * 2.0, distToCenter);
+    float ringAlpha = (1.0 - ring) * alpha * uScroll; // Only visible when scrolled
+    
+    vec3 circleColor = finalColor + colorLow * ringAlpha * 3.0; // Glow the ring slightly blue
+    
+    // Dim the section slightly based on uScroll to make the lines pop more when detached
+    gl_FragColor = vec4(circleColor, alpha);
   }
 `;
 
-const Terrain = () => {
+const Quadrant = ({ size, offset, dir, uniforms }:any) => {
   const meshRef = useRef<THREE.Mesh>(null);
-  const uniforms = useMemo(
-    () => ({
-      uTime: { value: 0 },
-      uMouse: { value: new THREE.Vector2(0.5, 0.5) },
-    }),
-    []
-  );
+  const [hovered, setHover] = useState(false);
+  
+  useEffect(() => {
+    document.body.style.cursor = hovered && uniforms.uScroll.value > 0.8 ? 'pointer' : 'auto';
+  }, [hovered, uniforms.uScroll.value]);
+  
+  const quadUniforms = useMemo(() => ({
+    uTime: uniforms.uTime,
+    uMouse: uniforms.uMouse,
+    uScroll: uniforms.uScroll,
+    uOffset: { value: new THREE.Vector2(offset[0], offset[1]) }
+  }), [uniforms, offset]);
 
-  useFrame((state) => {
-    uniforms.uTime.value = state.clock.getElapsedTime();
-    
-    // Lerp mouse position for the spotlight (UV space 0 to 1)
-    const targetX = (state.mouse.x + 1.0) * 0.5;
-    const targetY = (state.mouse.y + 1.0) * 0.5;
-    uniforms.uMouse.value.x += (targetX - uniforms.uMouse.value.x) * 0.1;
-    uniforms.uMouse.value.y += (targetY - uniforms.uMouse.value.y) * 0.1;
-    
-    // Apply parallax tilt to the mesh
+    useFrame(() => {
     if (meshRef.current) {
-      const baseX = -Math.PI / 2.5;
-      const targetRotationX = baseX - state.mouse.y * 0.15;
-      const targetRotationY = state.mouse.x * 0.15;
+      // Split distance (how far they push apart) - brought closer to cube (7.0)
+      const splitAmt = uniforms.uScroll.value * 7.0; 
+      const popAmt = hovered && uniforms.uScroll.value > 0.8 ? 3.0 : 0;
+      const scaleAmt = hovered && uniforms.uScroll.value > 0.8 ? 1.1 : 1.0;
       
-      meshRef.current.rotation.x += (targetRotationX - meshRef.current.rotation.x) * 0.05;
-      meshRef.current.rotation.y += (targetRotationY - meshRef.current.rotation.y) * 0.05;
+      const targetX = offset[0] + dir[0] * splitAmt;
+      const targetY = offset[1] + dir[1] * splitAmt;
+      
+      meshRef.current.position.x += (targetX - meshRef.current.position.x) * 0.1;
+      meshRef.current.position.y += (targetY - meshRef.current.position.y) * 0.1;
+      // Z popup when hovering the interactive island
+      meshRef.current.position.z += (popAmt - meshRef.current.position.z) * 0.1;
+      meshRef.current.scale.setScalar(THREE.MathUtils.lerp(meshRef.current.scale.x, scaleAmt, 0.1));
     }
   });
 
   return (
-    <mesh ref={meshRef} rotation={[-Math.PI / 2.5, 0, 0]} position={[0, -1.5, 0]}>
-      {/* for lower performance devices */}
-      {/* <planeGeometry args={[40, 40, 128, 128]} /> */}
-      {/* for higher performance devices */}
-      <planeGeometry args={[40, 40, 512, 512]} /> 
+    <mesh 
+      ref={meshRef} 
+      position={[offset[0], offset[1], 0]}
+      onPointerOver={(e) => { e.stopPropagation(); setHover(true); }}
+      onPointerOut={() => setHover(false)}
+      onPointerDown={(e) => {
+        // Prevent drag from triggering clicks too easily
+        if (uniforms.uScroll.value > 0.8) {
+          console.log(`Quadrant clicked`);
+        }
+      }}
+    >
+      <planeGeometry args={[size, size, 128, 128]} /> 
       <shaderMaterial
         vertexShader={vertexShader}
         fragmentShader={fragmentShader}
-        uniforms={uniforms}
+        uniforms={quadUniforms}
         transparent
+        depthWrite={false}
       />
     </mesh>
   );
 };
 
-const ContourMap = () => {
+const Carousel = () => {
+  const scroll = useScroll();
+  const groupRef = useRef<THREE.Group>(null);
+  const cubeRef = useRef<THREE.Group>(null);
+
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [isCasting, setIsCasting] = useState(false);
+  const [rotationVelocity, setRotationVelocity] = useState(0);
+
+  const swipeRotationRef = useRef(0);
+
+  const uniforms = useMemo(
+    () => ({
+      uTime: { value: 0 },
+      uMouse: { value: new THREE.Vector2(0.5, 0.5) },
+      uScroll: { value: 0 },
+    }),
+    []
+  );
+
+  // Swipe capture logic
+  useEffect(() => {
+    let lastX = 0;
+    
+    const onPointerDown = (e: MouseEvent | TouchEvent) => {
+      setIsCasting(true);
+      lastX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    };
+    
+    const onPointerUp = () => setIsCasting(false);
+    
+    const onPointerMove = (e: MouseEvent | TouchEvent) => {
+      if (isCasting && groupRef.current) {
+        const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+        const deltaX = clientX - lastX;
+        setRotationVelocity(deltaX * 0.005);
+        lastX = clientX;
+      }
+    };
+
+    window.addEventListener('mousedown', onPointerDown);
+    window.addEventListener('mouseup', onPointerUp);
+    window.addEventListener('mousemove', onPointerMove);
+    window.addEventListener('touchstart', onPointerDown);
+    window.addEventListener('touchend', onPointerUp);
+    window.addEventListener('touchmove', onPointerMove);
+
+    return () => {
+      window.removeEventListener('mousedown', onPointerDown);
+      window.removeEventListener('mouseup', onPointerUp);
+      window.removeEventListener('mousemove', onPointerMove);
+      window.removeEventListener('touchstart', onPointerDown);
+      window.removeEventListener('touchend', onPointerUp);
+      window.removeEventListener('touchmove', onPointerMove);
+    };
+  }, [isCasting]);
+
+
+  useFrame((state) => {
+    uniforms.uTime.value = state.clock.getElapsedTime();
+    // uScroll maps to how far we scrolled. With pages=4, let's make the transition
+    // last for the first 1.5 pages (offset of 0.375).
+    const scrollVal = Math.min(scroll.offset / 0.4, 1.0); 
+    // Smooth interpolator
+    uniforms.uScroll.value += (scrollVal - uniforms.uScroll.value) * 0.1;
+    
+    const targetX = (state.mouse.x + 1.0) * 0.5;
+    const targetY = (state.mouse.y + 1.0) * 0.5;
+    uniforms.uMouse.value.x += (targetX - uniforms.uMouse.value.x) * 0.1;
+    uniforms.uMouse.value.y += (targetY - uniforms.uMouse.value.y) * 0.1;
+    
+    // Accumulate swipe rotation and apply friction
+    swipeRotationRef.current += rotationVelocity;
+    if (!isCasting) {
+      setRotationVelocity(v => v * 0.95);
+    }
+    
+    // Dynamically animate camera position and FOV for better perspective
+    const camX = 0;
+    const camY = THREE.MathUtils.lerp(5, 18, uniforms.uScroll.value);
+    const camZ = THREE.MathUtils.lerp(15, 20, uniforms.uScroll.value);
+    const targetFov = THREE.MathUtils.lerp(45, 75, uniforms.uScroll.value);
+    
+    state.camera.position.set(camX, camY, camZ);
+    if ((state.camera as THREE.PerspectiveCamera).isPerspectiveCamera) {
+      (state.camera as THREE.PerspectiveCamera).fov = targetFov;
+      (state.camera as THREE.PerspectiveCamera).updateProjectionMatrix();
+    }
+    state.camera.lookAt(0, 0, 0);
+    
+    if (groupRef.current) {
+      const baseX = -Math.PI / 2.5; 
+      const targetRotationX = THREE.MathUtils.lerp(baseX, -Math.PI / 2, uniforms.uScroll.value);
+      
+      groupRef.current.rotation.x = targetRotationX;
+      
+      // Combine scroll-based rotation with manual swipe rotation
+      const scrollRotation = scroll.offset * Math.PI * 2.0; // One full rotation over the page
+      groupRef.current.rotation.z = scrollRotation + swipeRotationRef.current;
+    }
+
+    if (cubeRef.current) {
+      // Scale up the cube based on scroll
+      const cubeScale = THREE.MathUtils.lerp(0, 1.5, uniforms.uScroll.value);
+      cubeRef.current.scale.setScalar(cubeScale);
+      
+      // Float the cube higher on the page (Z pushes it UP globally when group is flat on X)
+      const targetCubeZ = THREE.MathUtils.lerp(0, 5, uniforms.uScroll.value);
+      cubeRef.current.position.z = targetCubeZ;
+    }
+  });
+
   return (
-    <div className="w-full h-full overflow-hidden">
-      <Canvas camera={{ position: [0, 5, 15], fov: 40 }}>
-        {/* Black background to match theme */}
+    <group ref={groupRef} position={[0, -1.5, 0]}>
+      {/* 4 Quadrants summing up to 40x40. Each is 20x20. */}
+      <Quadrant 
+        size={10} offset={[-5, 5]} dir={[-1, 1]} uniforms={uniforms} 
+      />
+      <Quadrant 
+        size={10} offset={[5, 5]} dir={[1, 1]} uniforms={uniforms} 
+      />
+      <Quadrant 
+        size={10} offset={[-5, -5]} dir={[-1, -1]} uniforms={uniforms} 
+      />
+      <Quadrant 
+        size={10} offset={[5, -5]} dir={[1, -1]} uniforms={uniforms} 
+      />
+
+      {/* Center 3D Logo */}
+      <group ref={cubeRef} rotation={[Math.PI / 2, 0, 0]}>
+        <MnetCube />
+      </group>
+    </group>
+  );
+};
+
+const ContourMap = ({ children }: { children?: React.ReactNode }) => {
+  return (
+    <div className="w-full h-[100dvh]">
+      <Canvas camera={{ position: [0, 15, 30], fov: 45 }} gl={{ antialias: true }}>
         <color attach="background" args={["#000000"]} />
-        <ambientLight intensity={1.0} />
-        <Terrain />
+        <ambientLight intensity={1.5} />
+        <directionalLight position={[10, 10, 5]} intensity={2} />
+        
+        {/* Increased length by setting pages to 4 */}
+        <ScrollControls pages={4} damping={0.1}>
+          <GridOverlay>{children}</GridOverlay>
+          <Carousel />
+        </ScrollControls>
       </Canvas>
     </div>
+  );
+};
+
+// We create a helper component to render the Scroll html since Scroll needs to be inside ScrollControls
+import { Scroll } from "@react-three/drei";
+const GridOverlay = ({ children }: { children?: React.ReactNode }) => {
+  return (
+    <Scroll html style={{ width: '100vw', height: '100vh' }}>
+      {children}
+    </Scroll>
   );
 };
 
