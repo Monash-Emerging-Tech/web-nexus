@@ -57,6 +57,7 @@ const fragmentShader = `
   uniform float uTime;
   uniform vec2 uMouse;
   uniform float uScroll;
+  uniform vec2 uOffset;
   
   void main() {
     float t = clamp(vElevation / 3.0, 0.0, 1.0);
@@ -77,7 +78,12 @@ const fragmentShader = `
     
     vec3 finalColor = lineColor * (lineMask + glow);
     
-    float spotlightDist = distance(vUv, uMouse);
+    // Fix spotlight repetition: Use world-space UV instead of local mesh UV
+    // The total plane spans -10 to 10 (size 20 total)
+    vec2 worldPos = vLocalPos + uOffset;
+    vec2 globalUv = (worldPos + 10.0) / 20.0;
+    
+    float spotlightDist = distance(globalUv, uMouse);
     float spotlightSpread = 20.0;
     float spotlightGlow = exp(-spotlightDist * spotlightDist * spotlightSpread) * 0.6;
     finalColor += lineColor * spotlightGlow;
