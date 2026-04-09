@@ -303,31 +303,50 @@ const Carousel = () => {
   );
 };
 
-const ContourMap = ({ children }: { children?: React.ReactNode }) => {
-  return (
-    <div className="w-full h-[100dvh]">
-      <Canvas camera={{ position: [0, 15, 30], fov: 45 }} gl={{ antialias: true }}>
-        <color attach="background" args={["#000000"]} />
-        <ambientLight intensity={1.5} />
-        <directionalLight position={[10, 10, 5]} intensity={2} />
-        
-        {/* Increased length by setting pages to 4 */}
-        <ScrollControls pages={4} damping={0.1}>
-          <GridOverlay>{children}</GridOverlay>
-          <Carousel />
-        </ScrollControls>
-      </Canvas>
-    </div>
-  );
+// Component to sync scroll state to DOM without using <Scroll html> to avoid React 18 createRoot bugs
+const ScrollTracker = ({ overlayRef }: { overlayRef: React.RefObject<HTMLDivElement | null> }) => {
+  const scroll = useScroll();
+  useFrame(() => {
+    if (overlayRef.current) {
+      // pages=4 means total scrollable height is 300vh. 
+      // We translate the DOM overlay cleanly based on physical scroll offset.
+      const scrollAmountVh = scroll.offset * 300;
+      overlayRef.current.style.transform = `translate3d(0, ${-scrollAmountVh}vh, 0)`;
+      // Fade out the hero text quickly over the first 0.15 of scroll offset
+      const opacity = Math.max(1.0 - scroll.offset * (1.0 / 0.15), 0);
+      overlayRef.current.style.opacity = opacity.toString();
+    }
+  });
+  return null;
 };
 
-// We create a helper component to render the Scroll html since Scroll needs to be inside ScrollControls
-import { Scroll } from "@react-three/drei";
-const GridOverlay = ({ children }: { children?: React.ReactNode }) => {
+const ContourMap = ({ children }: { children?: React.ReactNode }) => {
+  const overlayRef = useRef<HTMLDivElement>(null);
+
   return (
-    <Scroll html style={{ width: '100vw', height: '100vh' }}>
-      {children}
-    </Scroll>
+    <div className="w-full h-[100dvh] relative">
+      {/* 3D Canvas layer */}
+      <div className="absolute inset-0 z-0">
+        <Canvas camera={{ position: [0, 15, 30], fov: 45 }} gl={{ antialias: true }}>
+          <color attach="background" args={["#000000"]} />
+          <ambientLight intensity={1.5} />
+          <directionalLight position={[10, 10, 5]} intensity={2} />
+          
+          <ScrollControls pages={4} damping={0.1}>
+            <ScrollTracker overlayRef={overlayRef} />
+            <Carousel />
+          </ScrollControls>
+        </Canvas>
+      </div>
+
+      {/* DOM layer for Hero text, synchronized manually to avoid drei Html root bugs */}
+      <div 
+        ref={overlayRef} 
+        className="absolute inset-0 z-10 pointer-events-none will-change-transform"
+      >
+        {children}
+      </div>
+    </div>
   );
 };
 
