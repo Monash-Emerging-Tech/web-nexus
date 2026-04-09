@@ -92,7 +92,7 @@ const fragmentShader = `
     float distToCenter = length(vLocalPos);
     
     // Tighter circles as uScroll goes up (radius shrinks down to 6.5)
-    float maxRadius = mix(15.0, 6.5, uScroll); 
+    float maxRadius = mix(7.5, 5.0, uScroll); 
     
     // Add an edge fade when it's a circle
     float alpha = smoothstep(maxRadius, maxRadius - 1.5, distToCenter);
