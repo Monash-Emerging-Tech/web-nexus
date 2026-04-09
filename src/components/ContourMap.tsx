@@ -92,7 +92,7 @@ const fragmentShader = `
     float distToCenter = length(vLocalPos);
     
     // Tighter circles as uScroll goes up (radius shrinks down to 6.5)
-    float maxRadius = mix(7.25, 7.0, uScroll); 
+    float maxRadius = mix(7.0, 6.0, uScroll); 
     
     // Add an edge fade when it's a circle
     float alpha = smoothstep(maxRadius, maxRadius - 1.5, distToCenter);
@@ -328,16 +328,16 @@ const Carousel = () => {
     <group ref={groupRef} position={[0, -1.5, 0]}>
       {/* 4 Quadrants summing up to 40x40. Each is 20x20. */}
       <Quadrant 
-        size={10} offset={[-5, 5]} dir={[-1, 1]} uniforms={uniforms} label="Projects"
+        size={10} offset={[-5, 5]} dir={[-0.6, 0.7]} uniforms={uniforms} label="Projects"
       />
       <Quadrant 
-        size={10} offset={[5, 5]} dir={[1, 1]} uniforms={uniforms} label="Events"
+        size={10} offset={[5, 5]} dir={[0.6, 0.7]} uniforms={uniforms} label="Events"
       />
       <Quadrant 
-        size={10} offset={[-5, -5]} dir={[-1, -1]} uniforms={uniforms} label="Collaborators"
+        size={10} offset={[-5, -5]} dir={[-0.6, -0.7]} uniforms={uniforms} label="Collaborators"
       />
       <Quadrant 
-        size={10} offset={[5, -5]} dir={[1, -1]} uniforms={uniforms} label="Team"
+        size={10} offset={[5, -5]} dir={[0.6, -0.7]} uniforms={uniforms} label="Team"
       />
 
       {/* Center 3D Logo */}
