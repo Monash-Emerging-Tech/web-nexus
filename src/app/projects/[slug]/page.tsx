@@ -15,6 +15,7 @@ export default async function Page({ params } : { params: { slug: string } }) {
 	}
 
 	return (
+		//Naailah - I will be editing this section for projects detail page
 		<div className='bg-white text-black w-full h-min-screen gap-4 flex flex-col items-center justify-start'>
 			<div className='relative w-full h-[40vh]'>
 				<span className='absolute left-0 bottom-0 z-10 text-white text-5xl font-offbit-101 font-semibold px-16 py-6'>
