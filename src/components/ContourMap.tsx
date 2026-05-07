@@ -2,10 +2,71 @@
 
 import React, { useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
+import { ScrollControls, useScroll, Scroll, Float } from "@react-three/drei";
 import * as THREE from "three";
+import MnetCube from "./MnetCube";
+
+// --- Speed Lines Component ---
+const SpeedLines = ({ count = 200, scrollOffset }: { count?: number; scrollOffset: number }) => {
+  const groupRef = useRef<THREE.Group>(null);
+  
+  const lines = useMemo(() => {
+    const temp = [];
+    for (let i = 0; i < count; i++) {
+      temp.push({
+        x: (Math.random() - 0.5) * 60,
+        y: (Math.random() - 0.5) * 60,
+        z: Math.random() * 200 - 100,
+        speed: Math.random() * 2 + 1,
+        length: Math.random() * 15 + 5
+      });
+    }
+    return temp;
+  }, [count]);
+
+  useFrame((state) => {
+    if (groupRef.current) {
+      // Rotate group to be perpendicular to map (Map is at -Math.PI / 2.5 on X)
+      groupRef.current.rotation.x = -Math.PI / 2.5;
+      
+      groupRef.current.children.forEach((child, i) => {
+        const line = lines[i];
+        // Move lines towards camera based on scroll velocity + constant speed
+        const speed = line.speed * (1 + scrollOffset * 10);
+        child.position.z += speed * 0.1;
+        
+        // Loop lines back to the distance
+        if (child.position.z > 50) {
+          child.position.z = -150;
+        }
+      });
+      groupRef.current.rotation.z += 0.0005;
+    }
+  });
+
+  // Fade in instantly as we scroll, peak fast, fade out at the very end
+  const opacity = Math.sin(Math.pow(scrollOffset, 0.5) * Math.PI);
+
+
+  return (
+    <group ref={groupRef}>
+      {lines.map((line, i) => (
+        <mesh key={i} position={[line.x, line.y, line.z]}>
+          <boxGeometry args={[0.03, 0.03, line.length]} />
+          <meshBasicMaterial 
+            color="#ffffff" 
+            transparent 
+            opacity={opacity * 0.4} 
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+
 
 // --- Shader Helper ---
-// Using a simpler noise function directly in the shader for performance and reliability
 const vertexShader = `
   varying vec2 vUv;
   varying float vElevation;
@@ -28,18 +89,12 @@ const vertexShader = `
 
   void main() {
     vUv = uv;
-    
-    // Create a dynamic "terrain" effect
-    float elevation = noise(position.xy * 0.15 + uTime * 0.1) * 2.5;
-    // Add multiple layers for more complexity
-    elevation += noise(position.xy * 0.4 - uTime * 0.05) * 0.8;
-    
+    vec2 pos = position.xy;
+    float elevation = noise(pos * 0.15 + uTime * 0.1) * 2.5;
+    elevation += noise(pos * 0.4 - uTime * 0.05) * 0.8;
     vElevation = elevation;
-    
     vec3 newPosition = position;
-    // Move slightly towards the camera/away based on elevation
     newPosition.z += elevation;
-    
     gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
   }
 `;
@@ -49,109 +104,193 @@ const fragmentShader = `
   varying float vElevation;
   uniform float uTime;
   uniform vec2 uMouse;
+  uniform float uScroll;
 
   void main() {
-    // Blue-to-Red mapping based on height
-    // elevation is roughly between 0.0 and 3.5
     float t = clamp(vElevation / 3.0, 0.0, 1.0);
-    
-    // Vibrant blue and bright red
-    vec3 colorLow = vec3(0.008, 0.051, 0.671);  // Blue - rgb(2, 13, 171)
-    vec3 colorHigh = vec3(0.82, 0.008, 0.224);  // Red - rgb(209, 2, 57)
+    vec3 colorLow = vec3(0.008, 0.051, 0.671);
+    vec3 colorHigh = vec3(0.82, 0.008, 0.224);
     vec3 lineColor = mix(colorLow, colorHigh, t);
     
-    // ANTI-ALIASED Contour Lines
-    // Using screen-space derivatives to ensure lines remain smooth and 
-    // consistent regardless of slope or resolution.
-    float frequency = 14.0; // Higher frequency for a premium look
+    float frequency = 14.0;
     float val = vElevation * frequency;
-    
-    // fract() is aliased, so we use screen-space derivatives for smoothing
     float f = fract(val);
-    float df = fwidth(val); // change in val per screen pixel
-    
-    // Generate a mask for the lines using a smoothed distance to the center (0.5)
-    // The width is constant in screen pixels regardless of zoom
+    float df = fwidth(val);
     float thickness = 1.0; 
     float lineMask = smoothstep(df * (thickness + 1.0), df * thickness, abs(f - 0.5));
-    
-    // Subdued glow/bloom for a more premium Feel
     float glow = smoothstep(1.5, 0.0, abs(f - 0.5) / df) * 0.4;
     
-    // Only the lines are colored, surface is black
     vec3 finalColor = lineColor * (lineMask + glow);
     
-    // REACTIVE SPOTLIGHT
-    // A soft radial glow that follows the mouse in UV space
     float spotlightDist = distance(vUv, uMouse);
     float spotlightSpread = 20.0;
     float spotlightGlow = exp(-spotlightDist * spotlightDist * spotlightSpread) * 0.6;
     finalColor += lineColor * spotlightGlow;
 
-    // Fade out towards the edges for a cleaner look
     float edgeFade = 1.0 - smoothstep(0.3, 0.5, length(vUv - 0.5));
     
-    gl_FragColor = vec4(finalColor, edgeFade);
+    // Fade out faster as we warp
+    float scrollFade = smoothstep(0.6, 0.2, uScroll);
+    gl_FragColor = vec4(finalColor, edgeFade * scrollFade);
   }
 `;
 
-const Terrain = () => {
+const Experience = () => {
   const meshRef = useRef<THREE.Mesh>(null);
+  const planetRef = useRef<THREE.Group>(null);
+  const scroll = useScroll();
+  
   const uniforms = useMemo(
     () => ({
       uTime: { value: 0 },
       uMouse: { value: new THREE.Vector2(0.5, 0.5) },
+      uScroll: { value: 0 },
     }),
     []
   );
 
   useFrame((state) => {
+    const scrollOffset = scroll.offset;
     uniforms.uTime.value = state.clock.getElapsedTime();
+    uniforms.uScroll.value = scrollOffset;
     
-    // Lerp mouse position for the spotlight (UV space 0 to 1)
     const targetX = (state.mouse.x + 1.0) * 0.5;
     const targetY = (state.mouse.y + 1.0) * 0.5;
     uniforms.uMouse.value.x += (targetX - uniforms.uMouse.value.x) * 0.1;
     uniforms.uMouse.value.y += (targetY - uniforms.uMouse.value.y) * 0.1;
     
-    // Apply parallax tilt to the mesh
+    // Warp Intensity: Start immediately, peak fast, fade out at the very end
+    const warpIntensity = Math.sin(Math.pow(scrollOffset, 0.5) * Math.PI); 
+    
+    // FOV stretches immediately during the warp
+    const targetFov = 40 + warpIntensity * 60; 
+    (state.camera as THREE.PerspectiveCamera).fov = THREE.MathUtils.lerp((state.camera as THREE.PerspectiveCamera).fov, targetFov, 0.15);
+    (state.camera as THREE.PerspectiveCamera).updateProjectionMatrix();
+
+    // Map Angle
+    const mapAngle = -Math.PI / 2.5;
+
+    // Perpendicular Movement Vector (The Normal)
+    // For a plane rotated around X by 'theta', the normal is [0, -sin(theta), cos(theta)]
+    const nx = 0;
+    const ny = -Math.sin(mapAngle); // positive
+    const nz = Math.cos(mapAngle);  // positive
+    
+    // Move along the normal
+    const distance = THREE.MathUtils.lerp(20, 120, scrollOffset);
+    const targetCamX = 0;
+    const targetCamY = ny * distance - 5; // offset to stay centered
+    const targetCamZ = nz * distance;
+    
+    // Camera shake starts immediately
+    const shake = warpIntensity * 0.2;
+    const shakeX = (Math.random() - 0.5) * shake;
+    const shakeY = (Math.random() - 0.5) * shake;
+    const shakeZ = (Math.random() - 0.5) * shake;
+    
+    state.camera.position.set(targetCamX + shakeX, targetCamY + shakeY, targetCamZ + shakeZ);
+    state.camera.lookAt(0, 0, 0);
+
+    // Terrain parallax and tilt
     if (meshRef.current) {
-      const baseX = -Math.PI / 2.5;
-      const targetRotationX = baseX - state.mouse.y * 0.15;
-      const targetRotationY = state.mouse.x * 0.15;
-      
+      const targetRotationX = mapAngle - state.mouse.y * 0.1;
+      const targetRotationY = state.mouse.x * 0.1;
       meshRef.current.rotation.x += (targetRotationX - meshRef.current.rotation.x) * 0.05;
       meshRef.current.rotation.y += (targetRotationY - meshRef.current.rotation.y) * 0.05;
+      
+      // Sink terrain down immediately along its own negative normal? 
+      // Or just sink it globally Y. Let's do globally Y but faster.
+      meshRef.current.position.y = -1.5 - scrollOffset * 60;
+    }
+
+
+    // Planet (MnetCube) logic
+    if (planetRef.current) {
+      // Appear later, once we are deep in the warp
+      const appearance = smoothstep(0.6, 1.0, scrollOffset);
+      planetRef.current.scale.setScalar(appearance * 3.5);
+      
+      // Position it further along the normal
+      planetRef.current.position.y = ny * 80 * appearance;
+      planetRef.current.position.z = nz * 80 * appearance;
+      
+      // Rotate about 2 axes slowly
+      planetRef.current.rotation.y += 0.005;
+      planetRef.current.rotation.x += 0.003;
+    }
+
+  });
+
+
+  function smoothstep(min: number, max: number, value: number) {
+    const x = Math.max(0, Math.min(1, (value - min) / (max - min)));
+    return x * x * (3 - 2 * x);
+  }
+
+  return (
+    <>
+      <SpeedLines scrollOffset={scroll.offset} />
+      
+      <mesh ref={meshRef} rotation={[-Math.PI / 2.5, 0, 0]} position={[0, -1.5, 0]}>
+        <planeGeometry args={[40, 40, 256, 256]} /> 
+        <shaderMaterial
+          vertexShader={vertexShader}
+          fragmentShader={fragmentShader}
+          uniforms={uniforms}
+          transparent
+          depthWrite={false}
+        />
+      </mesh>
+
+      <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
+        <group ref={planetRef} position={[0, 8, 0]} scale={[0, 0, 0]}>
+          <MnetCube />
+        </group>
+      </Float>
+    </>
+  );
+};
+
+const Overlay = ({ children }: { children: React.ReactNode }) => {
+  const scroll = useScroll();
+  const overlayRef = useRef<HTMLDivElement>(null);
+
+  useFrame(() => {
+    if (overlayRef.current) {
+      // Fade out the hero content as we start to warp (0.0 to 0.4)
+      const opacity = Math.max(0, 1 - scroll.offset * 2.5);
+      overlayRef.current.style.opacity = opacity.toString();
+      overlayRef.current.style.visibility = opacity <= 0 ? 'hidden' : 'visible';
     }
   });
 
   return (
-    <mesh ref={meshRef} rotation={[-Math.PI / 2.5, 0, 0]} position={[0, -1.5, 0]}>
-      {/* for lower performance devices */}
-      {/* <planeGeometry args={[40, 40, 128, 128]} /> */}
-      {/* for higher performance devices */}
-      <planeGeometry args={[40, 40, 512, 512]} /> 
-      <shaderMaterial
-        vertexShader={vertexShader}
-        fragmentShader={fragmentShader}
-        uniforms={uniforms}
-        transparent
-      />
-    </mesh>
+    <div ref={overlayRef} className="w-full h-full">
+      {children}
+    </div>
   );
 };
 
-const ContourMap = () => {
+const ContourMap = ({ children }: { children?: React.ReactNode }) => {
   return (
-    <div className="w-full h-full overflow-hidden">
-      <Canvas camera={{ position: [0, 5, 15], fov: 40 }}>
-        {/* Black background to match theme */}
-        <color attach="background" args={["#000000"]} />
-        <ambientLight intensity={1.0} />
-        <Terrain />
+    <div className="w-full h-full overflow-hidden bg-black">
+      <Canvas camera={{ position: [0, 5, 15], fov: 40 }} gl={{ antialias: true }}>
+        <ambientLight intensity={1.5} />
+        <pointLight position={[10, 10, 10]} intensity={2} />
+        <pointLight position={[-10, -10, -10]} color="#0033ff" intensity={1} />
+        
+        <ScrollControls pages={4} damping={0.1}>
+          <Experience />
+          {children && (
+            <Scroll html style={{ width: '100%', height: '100%' }}>
+              <Overlay>{children}</Overlay>
+            </Scroll>
+          )}
+        </ScrollControls>
       </Canvas>
     </div>
   );
 };
+
 
 export default ContourMap;
