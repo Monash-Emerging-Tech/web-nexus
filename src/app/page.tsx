@@ -18,10 +18,10 @@ const Home = async () => {
       <Nav />
       <div className="relative">
         <Hero />
-        <div className="bg-[url(/img/wireframe_1.png)] bg-[length:120%] bg-no-repeat bg-[position:-100px_50px] ">
+        {/* <div className="bg-[url(/img/wireframe_1.png)] bg-[length:120%] bg-no-repeat bg-[position:-100px_50px] ">
           <Projects data={projectData} />
           <EventsHolder data={eventData} />
-        </div>
+        </div> */}
       </div>
       <Footer />
     </div>

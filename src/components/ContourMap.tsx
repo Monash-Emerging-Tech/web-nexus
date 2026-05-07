@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useRef, useMemo } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import React, { useRef, useMemo, useCallback } from "react";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { ScrollControls, useScroll, Scroll, Float, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import MnetCube from "./MnetCube";
@@ -135,10 +135,19 @@ const fragmentShader = `
   }
 `;
 
-const Experience = () => {
+// --- Anatomical Label Config ---
+const LABEL_CONFIG = [
+  { text: "PROJECTS",      diag: [55, -45],  shelf: 70  },
+  { text: "EVENTS",        diag: [-55, -45], shelf: -70 },
+  { text: "TEAM",          diag: [55, 45],   shelf: 70  },
+  { text: "COLLABORATORS", diag: [-55, 45],  shelf: -70 },
+];
+
+const Experience = ({ overlayRef }: { overlayRef: React.RefObject<HTMLDivElement | null> }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const planetRef = useRef<THREE.Group>(null);
   const scroll = useScroll();
+  const { size } = useThree();
   
   const uniforms = useMemo(
     () => ({
@@ -208,7 +217,7 @@ const Experience = () => {
     if (planetRef.current) {
       // Appear later, once we are deep in the warp
       const appearance = smoothstep(0.6, 1.0, scrollOffset);
-      planetRef.current.scale.setScalar(appearance * 3.5);
+      planetRef.current.scale.setScalar(appearance * 1.5); // final cube size at end of transition
       
       // Position it further along the normal
       planetRef.current.position.y = ny * 80 * appearance;
@@ -217,6 +226,24 @@ const Experience = () => {
       // Rotate about 2 axes slowly
       planetRef.current.rotation.y += 0.005;
       planetRef.current.rotation.x += 0.003;
+    }
+
+    // --- Project cube position to screen for HTML overlay labels ---
+    if (planetRef.current && overlayRef.current) {
+      const worldPos = new THREE.Vector3();
+      planetRef.current.getWorldPosition(worldPos);
+
+      const projected = worldPos.clone().project(state.camera);
+      const screenX = (projected.x * 0.5 + 0.5) * size.width;
+      const screenY = (-projected.y * 0.5 + 0.5) * size.height;
+      const cubeScale = planetRef.current.scale.x;
+
+      if (cubeScale > 0.3) {
+        overlayRef.current.style.opacity = '1';
+        overlayRef.current.style.transform = `translate(${screenX}px, ${screenY}px)`;
+      } else {
+        overlayRef.current.style.opacity = '0';
+      }
     }
 
   });
@@ -279,8 +306,10 @@ const Overlay = ({ children }: { children: React.ReactNode }) => {
 };
 
 const ContourMap = ({ children }: { children?: React.ReactNode }) => {
+  const overlayRef = useRef<HTMLDivElement>(null);
+
   return (
-    <div className="w-full h-full overflow-hidden bg-black">
+    <div className="w-full h-full overflow-hidden bg-black relative">
       <Canvas camera={{ position: [0, 5, 15], fov: 40 }} gl={{ antialias: true }}>
         <color attach="background" args={["#000000"]} />
         <Environment preset="city" />
@@ -291,7 +320,7 @@ const ContourMap = ({ children }: { children?: React.ReactNode }) => {
         <pointLight position={[-10, -10, -10]} color="#0033ff" intensity={30} />
         
         <ScrollControls pages={4} damping={0.1}>
-          <Experience />
+          <Experience overlayRef={overlayRef} />
           {children && (
             <Scroll html style={{ width: '100%', height: '100%' }}>
               <Overlay>{children}</Overlay>
@@ -299,6 +328,82 @@ const ContourMap = ({ children }: { children?: React.ReactNode }) => {
           )}
         </ScrollControls>
       </Canvas>
+
+      {/* 2D Anatomical Labels — rendered outside Canvas, positioned via projected coords */}
+      <div
+        ref={overlayRef}
+        className="absolute top-0 left-0 pointer-events-none"
+        style={{ opacity: 0, transition: 'opacity 0.4s' }}
+      >
+        {LABEL_CONFIG.map((label) => {
+          const isRight = label.shelf > 0;
+          const endX = label.diag[0] + label.shelf;
+          const endY = label.diag[1];
+
+          return (
+            <div key={label.text} style={{ position: 'absolute', left: 0, top: 0 }}>
+              {/* Anchor dot */}
+              <div style={{
+                width: 6, height: 6, borderRadius: '50%',
+                background: '#fff',
+                boxShadow: '0 0 8px rgba(255,255,255,0.8)',
+                position: 'absolute', left: -3, top: -3,
+              }} />
+
+              {/* Leader line: diagonal + horizontal shelf */}
+              <svg style={{
+                position: 'absolute', left: 0, top: 0,
+                overflow: 'visible', width: 1, height: 1,
+                pointerEvents: 'none',
+              }}>
+                <polyline
+                  points={`0,0 ${label.diag[0]},${label.diag[1]} ${endX},${endY}`}
+                  fill="none"
+                  stroke="rgba(255,255,255,0.6)"
+                  strokeWidth={1}
+                />
+                <line
+                  x1={endX} y1={endY - 4}
+                  x2={endX} y2={endY + 4}
+                  stroke="rgba(255,255,255,0.6)"
+                  strokeWidth={1}
+                />
+              </svg>
+
+              {/* Text label */}
+              <div
+                style={{
+                  position: 'absolute',
+                  left: isRight ? endX + 10 : endX - 10,
+                  top: endY - 8,
+                  whiteSpace: 'nowrap',
+                  color: '#fff',
+                  fontFamily: 'var(--font-offbit, monospace)',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  letterSpacing: '0.2em',
+                  textAlign: isRight ? 'left' : 'right',
+                  transform: isRight ? 'none' : 'translateX(-100%)',
+                  cursor: 'pointer',
+                  pointerEvents: 'auto',
+                  textShadow: '0 0 10px rgba(255,255,255,0.3)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = '#f21';
+                  e.currentTarget.style.textShadow = '0 0 16px rgba(68,170,255,0.7)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = '#fff';
+                  e.currentTarget.style.textShadow = '0 0 10px rgba(255,255,255,0.3)';
+                }}
+                onClick={() => console.log(`Navigate to: ${label.text}`)}
+              >
+                {label.text}
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };
