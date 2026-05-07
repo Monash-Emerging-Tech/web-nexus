@@ -2,7 +2,7 @@
 
 import React, { useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { ScrollControls, useScroll, Scroll, Float } from "@react-three/drei";
+import { ScrollControls, useScroll, Scroll, Float, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import MnetCube from "./MnetCube";
 
@@ -231,6 +231,9 @@ const Experience = () => {
     <>
       <SpeedLines scrollOffset={scroll.offset} />
       
+      {/* Light that follows the camera's view */}
+      <directionalLight position={[0, 0, 1]} intensity={1.5} />
+      
       <mesh ref={meshRef} rotation={[-Math.PI / 2.5, 0, 0]} position={[0, -1.5, 0]}>
         <planeGeometry args={[40, 40, 256, 256]} /> 
         <shaderMaterial
@@ -245,11 +248,15 @@ const Experience = () => {
       <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
         <group ref={planetRef} position={[0, 8, 0]} scale={[0, 0, 0]}>
           <MnetCube />
+          {/* Light that travels with the planet */}
+          <pointLight intensity={500} distance={50} color="#ffffff" />
+          <pointLight position={[2, 2, 2]} intensity={200} color="#0033ff" />
         </group>
       </Float>
     </>
   );
 };
+
 
 const Overlay = ({ children }: { children: React.ReactNode }) => {
   const scroll = useScroll();
@@ -275,9 +282,13 @@ const ContourMap = ({ children }: { children?: React.ReactNode }) => {
   return (
     <div className="w-full h-full overflow-hidden bg-black">
       <Canvas camera={{ position: [0, 5, 15], fov: 40 }} gl={{ antialias: true }}>
-        <ambientLight intensity={1.5} />
-        <pointLight position={[10, 10, 10]} intensity={2} />
-        <pointLight position={[-10, -10, -10]} color="#0033ff" intensity={1} />
+        <color attach="background" args={["#000000"]} />
+        <Environment preset="city" />
+        <ambientLight intensity={2.0} />
+        
+        {/* Global lights */}
+        <pointLight position={[10, 10, 10]} intensity={50} />
+        <pointLight position={[-10, -10, -10]} color="#0033ff" intensity={30} />
         
         <ScrollControls pages={4} damping={0.1}>
           <Experience />
@@ -291,6 +302,7 @@ const ContourMap = ({ children }: { children?: React.ReactNode }) => {
     </div>
   );
 };
+
 
 
 export default ContourMap;
