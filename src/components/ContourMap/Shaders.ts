@@ -97,7 +97,7 @@ export const fragmentShader = `
     // Spotlight effect (fades out as we morph into a ball)
     float spotlightFade = smoothstep(0.15, 0.05, uScroll);
     float spotlightDist = distance(vUv, uMouse);
-    float spotlightSpread = 20.0;
+    float spotlightSpread = 100.0;
     float spotlightGlow = exp(-spotlightDist * spotlightDist * spotlightSpread) * 0.6;
     finalColor += lineColor * spotlightGlow * spotlightFade;
 
