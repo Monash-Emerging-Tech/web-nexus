@@ -3,9 +3,11 @@
 import { useEffect, useRef } from "react";
 import { StarfieldInstance } from "./types";
 import { initializeStarColors, startSparkleEffect } from "./effects";
+import { usePerformanceTier } from "../ContourMap/usePerformanceTier";
 
 export function Starfield() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const perf = usePerformanceTier();
 
   useEffect(() => {
     let mounted = true;
@@ -21,14 +23,14 @@ export function Starfield() {
         const bg = swarmBackground({
           el: container,
           eventsEl: container,
-          gpgpuSize: 60,
+          gpgpuSize: perf.starfieldGpgpuSize,
           geometry: "cube",
         }) as StarfieldInstance;
 
         bg.three.camera.position.set(0, 0, 100);
 
         const sceneData = initializeStarColors(bg.three.scene);
-        const sparkleInterval = startSparkleEffect(sceneData);
+        const sparkleInterval = startSparkleEffect(sceneData, perf);
 
         (window as any).updateStarfield = (
           opacity: number,

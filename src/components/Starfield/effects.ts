@@ -41,15 +41,18 @@ export function initializeStarColors(scene: any): {
   return { instancedMesh, baseColors, meshes, meshBaseColors };
 }
 
+import type { PerformanceConfig } from "../ContourMap/usePerformanceTier";
+
 export function startSparkleEffect(
   sceneData: ReturnType<typeof initializeStarColors>,
+  perf: PerformanceConfig
 ) {
   const { instancedMesh, baseColors, meshes, meshBaseColors } = sceneData;
 
   if (instancedMesh) {
     const count = instancedMesh.count;
     return setInterval(() => {
-      const numSparkles = Math.max(1, Math.floor(count / 100));
+      const numSparkles = Math.max(1, Math.floor(count * perf.sparkleFraction));
       const sparkledIndices: number[] = [];
 
       for (let i = 0; i < numSparkles; i++) {
@@ -65,13 +68,13 @@ export function startSparkleEffect(
           instancedMesh.setColorAt(idx, baseColors[idx]);
         if (instancedMesh.instanceColor)
           instancedMesh.instanceColor.needsUpdate = true;
-      }, 100);
-    }, 250);
+      }, perf.sparkleDurationMs);
+    }, perf.sparkleIntervalMs);
   }
 
   if (meshes.length > 0) {
     return setInterval(() => {
-      const numSparkles = Math.max(1, Math.floor(meshes.length / 100));
+      const numSparkles = Math.max(1, Math.floor(meshes.length * perf.sparkleFraction));
       const sparkledIndices: number[] = [];
 
       for (let i = 0; i < numSparkles; i++) {
@@ -92,7 +95,7 @@ export function startSparkleEffect(
             mat.emissiveIntensity = 0;
           }
         }
-      }, 100);
-    }, 250);
+      }, perf.sparkleDurationMs);
+    }, perf.sparkleIntervalMs);
   }
 }
