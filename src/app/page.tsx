@@ -10,22 +10,19 @@ import Nav from "@/components/navbar_test/Nav";
 
 const Home = async () => {
   // Switching to server component for initial data fetch for faster load
-  // const projectData: Portfolio[] = await getFeaturedPortfolios(3);
-  // const eventData: Portfolio[] = await getPastEventPortfolios(3);
+  const projectData: Portfolio[] = await getFeaturedPortfolios(3);
+  const eventData: Portfolio[] = await getPastEventPortfolios(3);
 
   return (
-    <div className="bg-black w-full min-h-screen">
+    <div className="bg-black min-h-screen w-full">
       <Nav />
-      {/* Hero will now manage the global 3D scroll experience */}
-      <div className="w-full h-screen">
+      <div className="relative">
         <Hero />
-      </div>
-      {/* 
-        <div className="bg-[url(/img/wireframe_1.png)] bg-[length:120%] bg-no-repeat bg-[position:-100px_50px] ">
+        {/* <div className="bg-[url(/img/wireframe_1.png)] bg-[length:120%] bg-no-repeat bg-[position:-100px_50px] ">
           <Projects data={projectData} />
           <EventsHolder data={eventData} />
-        </div>
-      */}
+        </div> */}
+      </div>
       <Footer />
     </div>
   );
