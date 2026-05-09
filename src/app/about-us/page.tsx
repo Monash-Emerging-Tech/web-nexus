@@ -1,12 +1,9 @@
-import Footer from "@/components/Footer";
-import Nav from "@/components/navbar_test/Nav";
 import Image from "next/image"
 
 export default function AboutUs() {
 
   return (
     <div className="w-full h-full flex flex-col">
-      <Nav />
       <div className="flex flex-col p-[4vw] pb-0 md:p-[8vw] pt-[25vh] md:pt-[30vh] gap-2 md:gap-4 items-center justify-center">
         <h1 className="text-white text-4xl md:text-5xl font-offbit-dot font-bold text-center">Our Story</h1>
         <p className="text-white text-lg md:text-lg font-offbit text-center md:max-w-2/3">
@@ -74,7 +71,6 @@ export default function AboutUs() {
           className="md:max-w-1/2 flex-1 rounded-3xl object-cover border-[#DC003B] border-4"
         />
       </div>
-      <Footer />
     </div>
   );
 }

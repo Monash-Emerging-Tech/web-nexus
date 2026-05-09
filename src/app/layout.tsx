@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { offbit, offbit101, offbitDot } from "@/lib/fonts";
 import "./globals.css";
-import { NavBarProvider } from "@/components/navbar_test/NavProvider";
+import { NavbarProvider } from "@/components/Navbar/NavbarProvider";
 import Footer from "@/components/Footer";
-import Nav from "@/components/navbar_test/Nav";
+import Navbar from "@/components/Navbar/Navbar";
 
 export const metadata: Metadata = {
   title: "Monash Nexus for Emerging Technologies",
@@ -27,13 +27,13 @@ export default function RootLayout({
       <body
         className={`${offbit.variable} ${offbit101.variable} ${offbitDot.variable} antialiased w-full h-auto`}
       >
-        <NavBarProvider>
+        <NavbarProvider>
           <div className="bg-black min-h-screen w-full">
-            <Nav />
+            <Navbar />
             {children}
             <Footer />
           </div>
-        </NavBarProvider>
+        </NavbarProvider>
       </body>
     </html>
   );

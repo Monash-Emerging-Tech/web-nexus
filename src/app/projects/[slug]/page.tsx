@@ -1,15 +1,9 @@
 "use server"
 
-import BlockHandler from "@/components/notion/BlockHandler";
-import { getBlogBySlug } from "@/lib/notion/pages";
-import { PageObject } from "@/lib/notion/types";
-import { notFound } from "next/navigation";
 import ProjectHero from "@/components/projects/ProjectHero";
-import ProjectInfo from "@/components/projects/ProjectInfo";
-import Navbar from "@/components/NavBar";
 
 export default async function Page({ params } : { params: { slug: string } }) {
-	const { slug: projectSlug } = await params;
+	const { slug: _projectSlug } = await params;
 
 	//to be used when we have notion data, for now we will use placeholder data
 	//const projectData: PageObject | null = await getBlogBySlug({ slug: projectSlug });
@@ -55,8 +49,6 @@ export default async function Page({ params } : { params: { slug: string } }) {
 
 	return (
 		//Naailah - I will be editing this section for projects detail page
-		<>
-		<Navbar />
 		<main className="flex min-h-screen bg-black px-8 py-12 text-white items-center pt-32">
 			<div className="mx-auto flex max-w-7xl flex-col gap-2">
 				<ProjectHero
@@ -67,6 +59,5 @@ export default async function Page({ params } : { params: { slug: string } }) {
 				/>
       		</div>
     	</main>
-		</>
 	);
 }

@@ -16,17 +16,7 @@ const eventsHolderStyles = cva(
   }
 );
 
-export interface EventData {
-  title: string;
-  description: string;
-  date: {
-    day: number;
-    month: number;
-    year: number;
-  };
-  type: string;
-  image: string;
-}
+
 
 function EventsCard({
   style,
