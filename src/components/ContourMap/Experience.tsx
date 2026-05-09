@@ -110,6 +110,11 @@ const Experience: React.FC<ExperienceProps> = ({ overlayRef, perf }) => {
       
       planetRef.current.rotation.y += 0.005;
       planetRef.current.rotation.x += 0.003;
+
+      if ((window as any).updateStarfield) {
+        const zoom = 100 + appearance * 100;
+        (window as any).updateStarfield(appearance, zoom);
+      }
     }
 
     // --- Project cube position to screen for HTML overlay labels ---
@@ -158,14 +163,12 @@ const Experience: React.FC<ExperienceProps> = ({ overlayRef, perf }) => {
         />
       </mesh>
 
-      <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
-        <group ref={planetRef} position={[0, 8, 0]} scale={[0, 0, 0]}>
-          <MnetCube />
-          {/* Light that travels with the planet */}
-          <pointLight intensity={500} distance={50} color="#ffffff" />
-          <pointLight position={[2, 2, 2]} intensity={200} color="#0033ff" />
-        </group>
-      </Float>
+      <group ref={planetRef} position={[0, 8, 0]} scale={[0, 0, 0]}>
+        <MnetCube />
+        {/* Light that travels with the planet */}
+        <pointLight intensity={500} distance={50} color="#ffffff" />
+        <pointLight position={[2, 2, 2]} intensity={200} color="#0033ff" />
+      </group>
     </>
   );
 };

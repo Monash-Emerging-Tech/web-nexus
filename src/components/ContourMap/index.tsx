@@ -7,6 +7,7 @@ import Experience from "./Experience";
 import Overlay from "./Overlay";
 import { LABEL_CONFIG } from "./Labels";
 import usePerformanceTier from "./usePerformanceTier";
+import { Starfield } from "../Starfield";
 
 interface ContourMapProps {
   children?: React.ReactNode;
@@ -27,12 +28,12 @@ const ContourMap: React.FC<ContourMapProps> = ({ children }) => {
 
   return (
     <div className="w-full h-full overflow-hidden bg-black relative">
+      <Starfield />
       <Canvas 
         camera={{ position: [0, 5, 15], fov: 40 }} 
         gl={{ antialias: perf.antialias }}
         dpr={perf.dpr}
       >
-        <color attach="background" args={["#000000"]} />
         {perf.enableEnvironment && <Environment preset="city" />}
         <ambientLight intensity={2.0} />
         

@@ -44,6 +44,9 @@ importers:
       three:
         specifier: ^0.183.2
         version: 0.183.2
+      threejs-toys:
+        specifier: ^0.0.8
+        version: 0.0.8
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3
@@ -2000,6 +2003,9 @@ packages:
 
   three@0.183.2:
     resolution: {integrity: sha512-di3BsL2FEQ1PA7Hcvn4fyJOlxRRgFYBpMTcyOgkwJIaDOdJMebEFPA+t98EvjuljDx4hNulAGwF6KIjtwI5jgQ==}
+
+  threejs-toys@0.0.8:
+    resolution: {integrity: sha512-FTlSVbNJQA4KhMTvDrcsSrfUH5hQzzzyZ9HQk76p6V4kY5O7zoH1zb0tAnir4kDaMupANNW5Ra7ur98+Fjg4bQ==}
 
   tinyglobby@0.2.14:
     resolution: {integrity: sha512-tX5e7OM1HnYr2+a2C/4V0htOcSQcoSTH9KgJnVvNm5zm/cyEWKJ7j7YutsH9CxMdtOkkLFy2AHrMci9IM8IPZQ==}
@@ -4204,6 +4210,8 @@ snapshots:
       three: 0.183.2
 
   three@0.183.2: {}
+
+  threejs-toys@0.0.8: {}
 
   tinyglobby@0.2.14:
     dependencies:
