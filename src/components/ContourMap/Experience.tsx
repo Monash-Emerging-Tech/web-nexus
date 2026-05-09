@@ -16,6 +16,7 @@ interface ExperienceProps {
 
 const Experience: React.FC<ExperienceProps> = ({ overlayRef, perf }) => {
   const meshRef = useRef<THREE.Mesh>(null);
+  const materialRef = useRef<THREE.ShaderMaterial>(null);
   const planetRef = useRef<THREE.Group>(null);
   const scroll = useScroll();
   const { size } = useThree();
@@ -31,19 +32,21 @@ const Experience: React.FC<ExperienceProps> = ({ overlayRef, perf }) => {
     []
   );
 
-  // Keep the contour frequency in sync if the tier changes
-  // (shouldn't happen at runtime, but defensive)
-  uniforms.uContourFrequency.value = perf.contourFrequency;
-
   useFrame((state) => {
     const scrollOffset = scroll.offset;
-    uniforms.uTime.value = state.clock.getElapsedTime();
-    uniforms.uScroll.value = scrollOffset;
+    const time = state.clock.elapsedTime;
     
-    const targetX = (state.mouse.x + 1.0) * 0.5;
-    const targetY = (state.mouse.y + 1.0) * 0.5;
-    uniforms.uMouse.value.x += (targetX - uniforms.uMouse.value.x) * perf.lerpFactor;
-    uniforms.uMouse.value.y += (targetY - uniforms.uMouse.value.y) * perf.lerpFactor;
+    // Update uniforms via ref for maximum reliability
+    if (materialRef.current) {
+      materialRef.current.uniforms.uTime.value = time;
+      materialRef.current.uniforms.uScroll.value = scrollOffset;
+      materialRef.current.uniforms.uContourFrequency.value = perf.contourFrequency;
+      
+      const targetMouseX = (state.mouse.x + 1.0) * 0.5;
+      const targetMouseY = (state.mouse.y + 1.0) * 0.5;
+      materialRef.current.uniforms.uMouse.value.x += (targetMouseX - materialRef.current.uniforms.uMouse.value.x) * perf.lerpFactor;
+      materialRef.current.uniforms.uMouse.value.y += (targetMouseY - materialRef.current.uniforms.uMouse.value.y) * perf.lerpFactor;
+    }
     
     // Warp Intensity: Start immediately, peak fast, fade out at the very end
     const warpIntensity = Math.sin(Math.pow(scrollOffset, 0.5) * Math.PI); 
@@ -78,14 +81,23 @@ const Experience: React.FC<ExperienceProps> = ({ overlayRef, perf }) => {
     state.camera.position.set(targetCamX + shakeX, targetCamY + shakeY, targetCamZ + shakeZ);
     state.camera.lookAt(0, 0, 0);
 
-    // Terrain parallax and tilt
+    // Terrain parallax, tilt, and positioning
     if (meshRef.current) {
       const targetRotationX = mapAngle - state.mouse.y * 0.1;
       const targetRotationY = state.mouse.x * 0.1;
       meshRef.current.rotation.x += (targetRotationX - meshRef.current.rotation.x) * 0.05;
       meshRef.current.rotation.y += (targetRotationY - meshRef.current.rotation.y) * 0.05;
       
-      meshRef.current.position.y = -1.5 - scrollOffset * 60;
+      // Initially move down for parallax, but bring it back to origin as it becomes a sphere
+      // so the camera (which flies away and looks at origin) sees it perfectly centered.
+      const parallaxY = -1.5 - scrollOffset * 60;
+      // 0.5 pages out of 4 total pages = 0.125 scroll range
+      const warpProgress = smoothstep(0.0, 0.125, scrollOffset);
+      meshRef.current.position.y = THREE.MathUtils.lerp(parallaxY, 0.0, warpProgress);
+
+      // Shrink the ball as we zoom out instead of fading
+      const shrink = smoothstep(0.8, 0.2, scrollOffset);
+      meshRef.current.scale.setScalar(shrink);
     }
 
     // Planet (MnetCube) logic
@@ -102,10 +114,13 @@ const Experience: React.FC<ExperienceProps> = ({ overlayRef, perf }) => {
 
     // --- Project cube position to screen for HTML overlay labels ---
     if (planetRef.current && overlayRef.current) {
-      const worldPos = new THREE.Vector3();
-      planetRef.current.getWorldPosition(worldPos);
+      // Reuse vectors to avoid GC
+      const worldPos = state.camera.userData.worldPos || (state.camera.userData.worldPos = new THREE.Vector3());
+      const projected = state.camera.userData.projected || (state.camera.userData.projected = new THREE.Vector3());
 
-      const projected = worldPos.clone().project(state.camera);
+      planetRef.current.getWorldPosition(worldPos);
+      projected.copy(worldPos).project(state.camera);
+      
       const screenX = (projected.x * 0.5 + 0.5) * size.width;
       const screenY = (-projected.y * 0.5 + 0.5) * size.height;
       const cubeScale = planetRef.current.scale.x;
@@ -126,7 +141,7 @@ const Experience: React.FC<ExperienceProps> = ({ overlayRef, perf }) => {
 
   return (
     <>
-      <SpeedLines scrollOffset={scroll.offset} count={perf.speedLineCount} />
+      <SpeedLines count={perf.speedLineCount} />
       
       {/* Light that follows the camera's view */}
       <directionalLight position={[0, 0, 1]} intensity={1.5} />
@@ -134,6 +149,7 @@ const Experience: React.FC<ExperienceProps> = ({ overlayRef, perf }) => {
       <mesh ref={meshRef} rotation={[-Math.PI / 2.5, 0, 0]} position={[0, -1.5, 0]}>
         <planeGeometry args={[40, 40, perf.terrainSegments, perf.terrainSegments]} />
         <shaderMaterial
+          ref={materialRef}
           vertexShader={vertexShader}
           fragmentShader={fragmentShader}
           uniforms={uniforms}
