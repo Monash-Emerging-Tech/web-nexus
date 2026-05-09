@@ -36,6 +36,7 @@ export const fragmentShader = `
   uniform float uTime;
   uniform vec2 uMouse;
   uniform float uScroll;
+  uniform float uContourFrequency;
 
   void main() {
     float t = clamp(vElevation / 3.0, 0.0, 1.0);
@@ -43,7 +44,7 @@ export const fragmentShader = `
     vec3 colorHigh = vec3(0.82, 0.008, 0.224);
     vec3 lineColor = mix(colorLow, colorHigh, t);
     
-    float frequency = 14.0;
+    float frequency = uContourFrequency;
     float val = vElevation * frequency;
     float f = fract(val);
     float df = fwidth(val);

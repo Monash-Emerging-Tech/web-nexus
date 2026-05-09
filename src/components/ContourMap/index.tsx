@@ -6,6 +6,7 @@ import { ScrollControls, Scroll, Environment } from "@react-three/drei";
 import Experience from "./Experience";
 import Overlay from "./Overlay";
 import { LABEL_CONFIG } from "./Labels";
+import usePerformanceTier from "./usePerformanceTier";
 
 interface ContourMapProps {
   children?: React.ReactNode;
@@ -14,6 +15,7 @@ interface ContourMapProps {
 const ContourMap: React.FC<ContourMapProps> = ({ children }) => {
   const overlayRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
+  const perf = usePerformanceTier();
 
   useEffect(() => {
     setMounted(true);
@@ -27,19 +29,19 @@ const ContourMap: React.FC<ContourMapProps> = ({ children }) => {
     <div className="w-full h-full overflow-hidden bg-black relative">
       <Canvas 
         camera={{ position: [0, 5, 15], fov: 40 }} 
-        gl={{ antialias: true }}
-        dpr={[1, 2]} // Performance optimization
+        gl={{ antialias: perf.antialias }}
+        dpr={perf.dpr}
       >
         <color attach="background" args={["#000000"]} />
-        <Environment preset="city" />
+        {perf.enableEnvironment && <Environment preset="city" />}
         <ambientLight intensity={2.0} />
         
         {/* Global lights */}
         <pointLight position={[10, 10, 10]} intensity={50} />
         <pointLight position={[-10, -10, -10]} color="#0033ff" intensity={30} />
         
-        <ScrollControls pages={4} damping={0.1}>
-          <Experience overlayRef={overlayRef} />
+        <ScrollControls pages={4} damping={perf.scrollDamping}>
+          <Experience overlayRef={overlayRef} perf={perf} />
           {children && (
             <Scroll html style={{ width: '100%', height: '100%' }}>
               <Overlay>{children}</Overlay>
@@ -128,4 +130,3 @@ const ContourMap: React.FC<ContourMapProps> = ({ children }) => {
 };
 
 export default ContourMap;
-

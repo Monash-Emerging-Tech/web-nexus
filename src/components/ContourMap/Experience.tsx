@@ -7,12 +7,14 @@ import * as THREE from "three";
 import MnetCube from "../MnetCube";
 import SpeedLines from "./SpeedLines";
 import { vertexShader, fragmentShader } from "./Shaders";
+import type { PerformanceConfig } from "./usePerformanceTier";
 
 interface ExperienceProps {
   overlayRef: React.RefObject<HTMLDivElement | null>;
+  perf: PerformanceConfig;
 }
 
-const Experience: React.FC<ExperienceProps> = ({ overlayRef }) => {
+const Experience: React.FC<ExperienceProps> = ({ overlayRef, perf }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const planetRef = useRef<THREE.Group>(null);
   const scroll = useScroll();
@@ -23,9 +25,15 @@ const Experience: React.FC<ExperienceProps> = ({ overlayRef }) => {
       uTime: { value: 0 },
       uMouse: { value: new THREE.Vector2(0.5, 0.5) },
       uScroll: { value: 0 },
+      uContourFrequency: { value: perf.contourFrequency },
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
+
+  // Keep the contour frequency in sync if the tier changes
+  // (shouldn't happen at runtime, but defensive)
+  uniforms.uContourFrequency.value = perf.contourFrequency;
 
   useFrame((state) => {
     const scrollOffset = scroll.offset;
@@ -34,8 +42,8 @@ const Experience: React.FC<ExperienceProps> = ({ overlayRef }) => {
     
     const targetX = (state.mouse.x + 1.0) * 0.5;
     const targetY = (state.mouse.y + 1.0) * 0.5;
-    uniforms.uMouse.value.x += (targetX - uniforms.uMouse.value.x) * 0.1;
-    uniforms.uMouse.value.y += (targetY - uniforms.uMouse.value.y) * 0.1;
+    uniforms.uMouse.value.x += (targetX - uniforms.uMouse.value.x) * perf.lerpFactor;
+    uniforms.uMouse.value.y += (targetY - uniforms.uMouse.value.y) * perf.lerpFactor;
     
     // Warp Intensity: Start immediately, peak fast, fade out at the very end
     const warpIntensity = Math.sin(Math.pow(scrollOffset, 0.5) * Math.PI); 
@@ -58,11 +66,14 @@ const Experience: React.FC<ExperienceProps> = ({ overlayRef }) => {
     const targetCamY = ny * distance - 5; // offset to stay centered
     const targetCamZ = nz * distance;
     
-    // Camera shake starts immediately
-    const shake = warpIntensity * 0.2;
-    const shakeX = (Math.random() - 0.5) * shake;
-    const shakeY = (Math.random() - 0.5) * shake;
-    const shakeZ = (Math.random() - 0.5) * shake;
+    // Camera shake — skip entirely on low-end devices
+    let shakeX = 0, shakeY = 0, shakeZ = 0;
+    if (perf.cameraShake) {
+      const shake = warpIntensity * 0.2;
+      shakeX = (Math.random() - 0.5) * shake;
+      shakeY = (Math.random() - 0.5) * shake;
+      shakeZ = (Math.random() - 0.5) * shake;
+    }
     
     state.camera.position.set(targetCamX + shakeX, targetCamY + shakeY, targetCamZ + shakeZ);
     state.camera.lookAt(0, 0, 0);
@@ -115,13 +126,13 @@ const Experience: React.FC<ExperienceProps> = ({ overlayRef }) => {
 
   return (
     <>
-      <SpeedLines scrollOffset={scroll.offset} />
+      <SpeedLines scrollOffset={scroll.offset} count={perf.speedLineCount} />
       
       {/* Light that follows the camera's view */}
       <directionalLight position={[0, 0, 1]} intensity={1.5} />
       
       <mesh ref={meshRef} rotation={[-Math.PI / 2.5, 0, 0]} position={[0, -1.5, 0]}>
-        <planeGeometry args={[40, 40, 256, 256]} /> 
+        <planeGeometry args={[40, 40, perf.terrainSegments, perf.terrainSegments]} />
         <shaderMaterial
           vertexShader={vertexShader}
           fragmentShader={fragmentShader}
