@@ -3,6 +3,7 @@
 import EventsCard from "@/components/events/EventsCard";
 import { Portfolio } from "@/lib/notion/types";
 
+
 const mockUpcoming: Portfolio[] = [
   {
     id: "1",
@@ -56,7 +57,7 @@ const SectionHeader: React.FC<{ title: string }> = ({ title }) => (
   </div>
 );
 
-const EventsPage = ({ pastEvents, futureEvents } : { pastEvents : Portfolio[], futureEvents: Portfolio[] }) => {
+const EventsPage = ({ pastEvents = [], futureEvents = [] } : { pastEvents : Portfolio[], futureEvents: Portfolio[] }) => {
   return (
     <div className="mb-25">
       <div className="bg-[url(/img/events-background.png)] bg-cover bg-bottom w-full h-[30vh] md:h-[40vh] flex items-end">
