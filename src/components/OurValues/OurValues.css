@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+@layer components {
+    .our-values-card {
+        position: relative;
+        overflow: hidden;
+        transform: rotate(0deg);
+        transition: transform 500ms ease-out, box-shadow 500ms ease-out, background-color 500ms ease-out,
+        border-color 500ms ease-out;
+        background-image: none;
+        will-change: transform;
+    }
+
+    .our-values-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        border-radius: inherit;
+        pointer-events: none;
+        background-image: radial-gradient(circle at top right, rgba(225, 27, 82, 0.42), transparent 58%),
+        radial-gradient(circle at bottom left, rgba(3, 12, 171, 0.3), transparent 62%);
+        opacity: 0;
+        transition: opacity 500ms ease-out;
+    }
+
+    .our-values-card.tilt-left {
+        transform: rotate(-1.2deg);
+    }
+
+    .our-values-card.tilt-right {
+        transform: rotate(1.2deg);
+    }
+
+    .our-values-card:hover {
+        transform: translateY(-16px) scale(1.03) rotate(0deg);
+        background-color: #fff;
+        border-color: color-mix(in srgb, #000 20%, transparent);
+        box-shadow: 0 22px 44px rgba(0, 0, 0, 0.42);
+    }
+
+    .our-values-card:hover::before {
+        opacity: 1;
+    }
+
+    .our-values-shift {
+        transition: transform 500ms ease-out;
+    }
+
+    .our-values-card:hover .our-values-shift {
+        transform: translateX(4px);
+    }
+
+    .our-values-icon {
+        transition: transform 500ms ease-out;
+    }
+
+    .our-values-card:hover .our-values-icon {
+        transform: rotate(6deg);
+    }
+
+    .our-values-card:hover .our-values-footer {
+        opacity: 1;
+    }
+}
