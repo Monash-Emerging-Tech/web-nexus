@@ -57,7 +57,22 @@ export default async function Page({ params } : { params: { slug: string } }) {
 		//Naailah - I will be editing this section for projects detail page
 		<>
 		<Navbar />
-		<main className="flex min-h-screen bg-black px-8 py-12 text-white items-center pt-32">
+		<main className="relative isolate flex min-h-screen overflow-hidden bg-black px-8 py-12 pt-32 text-white items-center">
+			<img
+				src="/img/projects-bg-2.png"
+				alt=""
+				className="
+				absolute
+				top-0
+				left-0
+				-z-10
+				w-full
+				opacity-80
+				pointer-events-none
+				select-none
+				"
+			/>
+
 			<div className="mx-auto flex max-w-7xl flex-col gap-2">
 				<ProjectHero
 				title={projectPlaceholder.title}
@@ -66,6 +81,21 @@ export default async function Page({ params } : { params: { slug: string } }) {
 				sections={projectPlaceholder.sections}
 				/>
       		</div>
+
+			<img
+				src="/img/projects-bg.png"
+				alt=""
+				className="
+				absolute
+				bottom-0
+				left-0
+				-z-10
+				w-full
+				opacity-80
+				pointer-events-none
+				select-none
+				"
+			/>
     	</main>
 		</>
 	);
