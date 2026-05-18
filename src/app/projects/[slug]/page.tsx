@@ -22,7 +22,10 @@ export default async function Page({ params } : { params: { slug: string } }) {
 		title: "Wastewater Treatment Digital Twinning",
 		description:
 		"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-		image: "/img/Nav-Team.JPG",
+		images: [
+		"/img/Nav-Team.JPG",
+		"/img/About-Team.JPG",
+		],
 
 		sections: [
 		{
@@ -76,7 +79,7 @@ export default async function Page({ params } : { params: { slug: string } }) {
 				<ProjectHero
 				title={projectPlaceholder.title}
 				description={projectPlaceholder.description}
-				image={projectPlaceholder.image}
+				images={projectPlaceholder.images}
 				sections={projectPlaceholder.sections}
 				/>
       		</div>

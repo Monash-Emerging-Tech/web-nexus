@@ -1,4 +1,7 @@
+"use client";
 import ProjectInfo from "./ProjectInfo";
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 
 type Section = {
   title: string;
@@ -8,16 +11,26 @@ type Section = {
 type ProjectHeroProps = {
   title: string;
   description: string;
-  image: string;
+  images: string[];
   sections: Section[];
 };
 
 export default function ProjectHero({
   title,
   description,
-  image,
+  images,
   sections,
 }: ProjectHeroProps) {
+  const [currentImage, setCurrentImage] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImage((prev) => (prev + 1) % images.length);
+    }, 3500);
+
+    return () => clearInterval(interval);
+  }, [images.length]);
+
   return (
     <section className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between md:gap-[110px]">
         <div className="order-2 md:order-1">
@@ -35,11 +48,23 @@ export default function ProjectHero({
         </div>
 
         <div className="order-1 h-[260px] w-full overflow-hidden rounded-[12.826px] md:order-2 md:h-[372.996px] md:w-[502.68px]">
-            <img
-                src={image}
-                alt={title}
-                className="w-full h-full object-cover"
-            />
+            <div className="relative h-[260px] w-full overflow-hidden rounded-[12.826px] md:h-[372.996px] md:w-[502.68px]">
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={currentImage}
+                  src={images[currentImage]}
+                  alt={`${title} image ${currentImage + 1}`}
+                  initial={{ x: 100, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  exit={{ x: -100, opacity: 0 }}
+                  transition={{
+                    duration: 0.47,
+                    ease: "easeInOut",
+                  }}
+                  className="absolute h-full w-full object-cover"
+                />
+              </AnimatePresence>
+            </div>
         </div>
     </section>
   );
