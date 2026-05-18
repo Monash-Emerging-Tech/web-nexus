@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { offbit, offbit101, offbitDot } from "@/lib/fonts";
+import { offbit, offbit101, offbitDot, exo2,} from "@/lib/fonts";
 import "./globals.css";
 import { NavBarProvider } from "@/components/navbar_test/NavProvider";
 
@@ -20,7 +20,7 @@ export default function RootLayout({
         <link rel="icon" href="/img/favicon.ico" sizes="any" />
       </head>
       <body
-        className={`${offbit.variable} ${offbit101.variable} ${offbitDot.variable} antialiased w-full h-auto`}
+        className={`${offbit.variable} ${offbit101.variable} ${offbitDot.variable} ${exo2.variable} antialiased w-full h-auto`}
       >
         <NavBarProvider>
           {children}

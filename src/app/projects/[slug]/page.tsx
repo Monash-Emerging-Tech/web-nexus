@@ -54,10 +54,9 @@ export default async function Page({ params } : { params: { slug: string } }) {
 	};
 
 	return (
-		//Naailah - I will be editing this section for projects detail page
 		<>
 		<Navbar />
-		<main className="relative isolate flex min-h-screen overflow-hidden bg-black px-8 py-12 pt-32 text-white items-center">
+		<main className="relative isolate flex min-h-screen overflow-hidden bg-black px-4 py-8 pt-28 text-white md:items-center md:px-8 md:py-12 md:pt-32">
 			<img
 				src="/img/projects-bg-2.png"
 				alt=""
@@ -73,7 +72,7 @@ export default async function Page({ params } : { params: { slug: string } }) {
 				"
 			/>
 
-			<div className="mx-auto flex max-w-7xl flex-col gap-2">
+			<div className="mx-auto flex w-full max-w-7xl flex-col gap-2">
 				<ProjectHero
 				title={projectPlaceholder.title}
 				description={projectPlaceholder.description}
