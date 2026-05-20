@@ -1,14 +1,24 @@
+// "use client";
+
+// import NavbarContent from "./NavbarContent";
+
+// const Navbar = () => {
+
+//   return (
+//     <>
+//       <NavbarContent />
+//     </>
+//   )
+// }
+
+// export default Navbar;
+
 "use client";
 
-import NavbarContent from "./NavbarContent";
+import { Navbar as OldNavbar } from "./OldNavbar";
 
 const Navbar = () => {
-
-  return (
-    <>
-      <NavbarContent />
-    </>
-  )
-}
+  return <OldNavbar disableContextCursor={true} />;
+};
 
 export default Navbar;

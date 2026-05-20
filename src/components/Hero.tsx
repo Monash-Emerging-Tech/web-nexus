@@ -16,6 +16,7 @@ const Hero: React.FC = () => {
     seconds: 0,
   });
   const [eventActive, setEventActive] = useState(false);
+  const [typedText, setTypedText] = useState("");
 
   useEffect(() => {
     const updateCountdown = () => {
@@ -25,39 +26,66 @@ const Hero: React.FC = () => {
 
       if (countdown < 0) {
         setEventActive(false);
-        setDate({
-          days: 0,
-          hours: 0,
-          minutes: 0,
-          seconds: 0,
-        });
+        setDate({ days: 0, hours: 0, minutes: 0, seconds: 0 });
         return;
       }
 
       setEventActive(true);
       setDate({
         days: Math.floor(countdown / (1000 * 60 * 60 * 24)),
-        hours: Math.floor(
-          (countdown % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-        ),
+        hours: Math.floor((countdown % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
         minutes: Math.floor((countdown % (1000 * 60 * 60)) / (1000 * 60)),
         seconds: Math.floor((countdown % (1000 * 60)) / 1000),
       });
     };
 
-    // Update immediately
     updateCountdown();
-
-    // Set up interval to update every second
     const interval = setInterval(updateCountdown, 1000);
-
-    // Cleanup interval on unmount
     return () => clearInterval(interval);
   }, [latestEvent.timestamp]);
 
+  useEffect(() => {
+    const words = ["Virtual Reality", "Augmented Reality", "Mixed Reality", "Extended Reality"];
+    let wordIndex = 0;
+    let charIndex = 0;
+    let removing = false;
+    let timeoutId = 0;
+
+    const run = () => {
+      const currentWord = words[wordIndex] ?? "";
+
+      if (!removing) {
+        charIndex += 1;
+        setTypedText(currentWord.slice(0, charIndex));
+
+        if (charIndex >= currentWord.length) {
+          removing = true;
+          timeoutId = window.setTimeout(run, 1000);
+          return;
+        }
+        timeoutId = window.setTimeout(run, 200);
+        return;
+      }
+
+      charIndex -= 1;
+      setTypedText(currentWord.slice(0, Math.max(charIndex, 0)));
+
+      if (charIndex <= 0) {
+        removing = false;
+        wordIndex = (wordIndex + 1) % words.length;
+        timeoutId = window.setTimeout(run, 500);
+        return;
+      }
+
+      timeoutId = window.setTimeout(run, 100);
+    };
+
+    timeoutId = window.setTimeout(run, 500);
+    return () => window.clearTimeout(timeoutId);
+  }, []);
+
   return (
     <section className="relative w-screen h-screen overflow-hidden bg-black flex justify-center items-center">
-      {/* Background layer */}
       <div className="absolute inset-0 z-0">
         <ContourMap>
           <div className="w-screen h-screen flex flex-col justify-center items-center md:items-start md:px-32 pointer-events-none">
@@ -74,7 +102,12 @@ const Hero: React.FC = () => {
               <h2 className="font-offbit font-bold md:text-2xl text-sm">
                 A Monash University student team pushing the boundaries of XR.
               </h2>
-              <br />
+              <div className="flex items-center mt-1">
+                <p className="font-offbit md:text-xl text-sm tracking-wide">
+                  {typedText}
+                </p>
+                <span className="ml-1 w-2 h-0.5 bg-white animate-pulse" />
+              </div>
               <br />
               <div className="w-full flex justify-center md:justify-start">
                 <button className="hover:cursor-pointer text-sm md:text-[1rem] font-offbit font-bold h-fit px-8 py-3 bg-primary rounded-md">
