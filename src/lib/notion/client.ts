@@ -2,10 +2,11 @@ import { Client } from "@notionhq/client";
 
 let notionClient: Client | null = null;
 
-export function getNotionClient(): Client {
+export function getNotionClient(): Client | null {
   if (!notionClient) {
     if (!process.env.NOTION_API_KEY) {
-      throw new Error("NOTION_API_KEY is not defined");
+      console.warn("NOTION_API_KEY is not defined — using dummy data fallback");
+      return null;
     }
     notionClient = new Client({
        auth: process.env.NOTION_API_KEY,
