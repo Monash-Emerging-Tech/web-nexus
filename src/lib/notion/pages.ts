@@ -1,22 +1,56 @@
 import { getNotionClient, NOTION_CONFIG } from "./client";
-import {
-  BlogPageObject,
-  BulletedListItemBlock,
-  PageBlock,
-  PageObject,
-} from "./types";
+import { type QueryDatabaseParameters } from "@notionhq/client/build/src/api-endpoints";
+import { BlogPageObject, PageBlock, PageMetadata, PageObject } from "./types";
 
-async function getBlogContent({ blogId }: { blogId: string }) {
+async function getBlogPagePublic({
+  filter,
+  sorts,
+}: {
+  filter?: QueryDatabaseParameters["filter"];
+  sorts?: QueryDatabaseParameters["sorts"];
+}): Promise<PageMetadata[]> {
   const notion = getNotionClient();
-  if (!notion) {
-    throw new Error("Notion client unavailable");
+  if (!NOTION_CONFIG.MEMBERS_DB_ID) {
+	throw new Error("NOTION_MEMBERS_DB_ID is not defined");
   }
+  const blogs: PageMetadata[] = [];
+  const response = await notion.databases.query({
+    database_id: NOTION_CONFIG.MEMBERS_DB_ID,
+    filter,
+    sorts,
+  });
+
+  for (const result of response.results) {
+  try {
+    const blogpage = result as BlogPageObject;
+    blogs.push({
+      id: blogpage.id,
+      title: blogpage["properties"]["Title"]["title"][0]?.["text"][
+          "content"
+        ],
+      in_archive: blogpage.archived,
+      in_trash: blogpage.in_trash,
+      cover: blogpage.cover,
+    });
+  } catch (error) {
+    console.error("Error processing blog page:", error);
+  }
+  }
+  return blogs;
+}
+
+async function getBlogContent({
+  blogId,
+} : {
+  blogId: string;
+}) {
+  const notion = getNotionClient();
 
   async function fetchBlocks(blockId: string): Promise<PageBlock[]> {
     let cursor: string | undefined = undefined;
     const blocks: PageBlock[] = [];
 
-    while (notion) {
+    while (true) {
       const response = await notion.blocks.children.list({
         block_id: blockId,
         start_cursor: cursor,
@@ -25,7 +59,7 @@ async function getBlogContent({ blogId }: { blogId: string }) {
       for (const block of response.results) {
         if ("has_children" in block && block.has_children) {
           const childBlocks = await fetchBlocks(block.id);
-          (block as unknown as BulletedListItemBlock).children = childBlocks;
+          (block as any).children = childBlocks;
         }
 
         if ("type" in block) {
@@ -36,7 +70,7 @@ async function getBlogContent({ blogId }: { blogId: string }) {
       if (!response.has_more) break;
 
       cursor = response.next_cursor ?? undefined;
-    }
+    };
 
     return blocks;
   }
@@ -44,17 +78,23 @@ async function getBlogContent({ blogId }: { blogId: string }) {
   return fetchBlocks(blogId);
 }
 
-async function getBlogMetadata({ blogId }: { blogId: string }) {
+async function getBlogMetadata({
+  blogId,
+} : {
+  blogId: string;
+}) {
   const notion = getNotionClient();
-  if (!notion) {
-    throw new Error("Notion client unavailable");
-  }
   const response = await notion.pages.retrieve({ page_id: blogId });
 
   return response as BlogPageObject;
 }
 
-export async function getBlogBySlug({ slug }: { slug: string }) {
+export async function getBlogBySlug({
+  slug,
+} : {
+  slug: string;
+}) {
+
   // TODO: Revert to Slug based fetching once that's implemented in Notion
   /*
   const blog = await getBlogPagePublic({
@@ -68,11 +108,10 @@ export async function getBlogBySlug({ slug }: { slug: string }) {
   */
 
   function isValidUUID(uuid: string) {
-    const uuidRegex =
-      /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+    const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
     return uuidRegex.test(uuid);
   }
-
+  
   if (!isValidUUID(slug)) {
     console.error(`Invalid slug format: ${slug}`);
     return null;
@@ -96,18 +135,17 @@ export async function getBlogBySlug({ slug }: { slug: string }) {
     } as PageObject;
   } catch (error) {
     console.error("Error fetching blog by slug:", error);
-
+    
     return null;
   }
 }
 
 export async function getUserById(userId: string) {
   const notion = getNotionClient();
-  if (!notion || !NOTION_CONFIG.MEMBERS_DB_ID) {
-    console.warn("Notion client unavailable for user lookup");
-    return null;
+  if (!NOTION_CONFIG.MEMBERS_DB_ID) {
+    throw new Error("NOTION_MEMBERS_DB_ID is not defined");
   }
-
+  
   const response = await notion.users.retrieve({ user_id: userId });
   return response;
 }

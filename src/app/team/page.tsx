@@ -3,6 +3,8 @@
 import { Member } from "@/lib/notion/types";
 import { getAcademicAdvisors, getLeads, getMembersByDepartment, getSeniorMembers } from "@/lib/notion/members";
 import Image from "next/image";
+import Footer from "@/components/Footer";
+import Nav from "@/components/navbar_test/Nav";
 
 enum TeamLeadOrder {
 	"Team Lead",
@@ -40,6 +42,7 @@ const TeamPage = async () => {
 
 	return (
 		<div className="bg-[#0E0E0E] min-h-screen w-full flex flex-col">
+			<Nav />
 			<div className="pt-[25vh] md:pt-[30vh] px-8 md:px-16 py-8 md:py-16">
 				<h1 className="text-white font-offbit-101 font-bold text-4xl md:text-7xl">Meet the team</h1>
 			</div>
@@ -315,6 +318,7 @@ const TeamPage = async () => {
 					</div>
 				</div>
 			</div>
+			<Footer />
 		</div>
 	);
 }
