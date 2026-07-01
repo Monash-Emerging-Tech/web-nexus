@@ -14,8 +14,9 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef }) => {
   const planetRef = useRef<THREE.Group>(null);
   const scroll = useScroll();
   const { size } = useThree();
+  const springRef = useRef({ scale: 0, velocity: 0 });
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     const scrollOffset = scroll.offset;
     
     if (planetRef.current) {
@@ -23,18 +24,30 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef }) => {
       const ny = -Math.sin(mapAngle);
       const nz = Math.cos(mapAngle);
       
-      const appearance = smoothstep(0.6, 1.0, scrollOffset);
-      planetRef.current.scale.setScalar(appearance * 2.3);
+      const targetScale = smoothstep(0.6, 1.0, scrollOffset);
       
-      planetRef.current.position.y = ny * 80 * appearance;
-      planetRef.current.position.z = nz * 80 * appearance;
+      // Spring physics: stiffness = 250, damping = 10 (explosive/springy overshoot)
+      const stiffness = 250;
+      const damping = 10;
+      const force = stiffness * (targetScale - springRef.current.scale) - damping * springRef.current.velocity;
+      
+      // Limit dt to avoid spikes
+      const dt = Math.min(delta, 0.1);
+      springRef.current.velocity += force * dt;
+      springRef.current.scale += springRef.current.velocity * dt;
+      
+      const animatedScale = springRef.current.scale;
+      planetRef.current.scale.setScalar(animatedScale * 2.3);
+      
+      planetRef.current.position.y = ny * 80 * animatedScale;
+      planetRef.current.position.z = nz * 80 * animatedScale;
       
       planetRef.current.rotation.y += 0.005;
       planetRef.current.rotation.x += 0.003;
 
       if ((window as any).updateStarfield) {
-        const zoom = 100 + appearance * 100;
-        (window as any).updateStarfield(appearance, zoom);
+        const zoom = 100 + animatedScale * 100;
+        (window as any).updateStarfield(animatedScale, zoom);
       }
 
       // Project cube position to screen for HTML overlay labels
@@ -52,7 +65,7 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef }) => {
         if (cubeScale > 0.3) {
           overlayRef.current.style.opacity = '1';
           overlayRef.current.style.transform = `translate(${screenX}px, ${screenY}px)`;
-          overlayRef.current.style.setProperty('--nav-scale', appearance.toString());
+          overlayRef.current.style.setProperty('--nav-scale', animatedScale.toString());
         } else {
           overlayRef.current.style.opacity = '0';
           overlayRef.current.style.setProperty('--nav-scale', '0');

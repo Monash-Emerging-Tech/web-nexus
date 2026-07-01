@@ -15,6 +15,7 @@ const Terrain: React.FC<TerrainProps> = ({ perf }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const materialRef = useRef<THREE.ShaderMaterial>(null);
   const scroll = useScroll();
+  const springRef = useRef({ scale: 1, velocity: 0 });
 
   const uniforms = React.useMemo(
     () => ({
@@ -27,7 +28,7 @@ const Terrain: React.FC<TerrainProps> = ({ perf }) => {
     []
   );
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     const scrollOffset = scroll.offset;
     const time = state.clock.elapsedTime;
 
@@ -53,8 +54,18 @@ const Terrain: React.FC<TerrainProps> = ({ perf }) => {
       const warpProgress = smoothstep(0.0, 0.125, scrollOffset);
       meshRef.current.position.y = THREE.MathUtils.lerp(parallaxY, 0.0, warpProgress);
 
-      const shrink = smoothstep(0.8, 0.2, scrollOffset);
-      meshRef.current.scale.setScalar(shrink);
+      const targetScale = smoothstep(0.8, 0.2, scrollOffset);
+      
+      // Spring physics: stiffness = 250, damping = 10 (explosive/springy overshoot)
+      const stiffness = 250;
+      const damping = 10;
+      const force = stiffness * (targetScale - springRef.current.scale) - damping * springRef.current.velocity;
+      
+      const dt = Math.min(delta, 0.1);
+      springRef.current.velocity += force * dt;
+      springRef.current.scale += springRef.current.velocity * dt;
+
+      meshRef.current.scale.setScalar(springRef.current.scale);
     }
   });
 

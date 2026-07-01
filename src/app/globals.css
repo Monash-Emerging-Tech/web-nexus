@@ -161,3 +161,139 @@ Codepen for the effect: https://codepen.io/jh3y/pen/jOXgxaj
   pointer-events: auto;
 }
 
+/* Spider-Verse Glitch Effects */
+
+/* 1. Component Glitch (Hero Text Card) */
+.spiderverse-component-glitch {
+  position: relative;
+  animation: label-base-shake 0.15s infinite linear, component-chromatic-glitch 0.2s infinite steps(2);
+}
+
+@keyframes component-chromatic-glitch {
+  0% {
+    filter: drop-shadow(-2px 0 0 #DC003B) drop-shadow(-1px 0 0 #a855f7) drop-shadow(2px 0 0 #00d2ff) drop-shadow(1px 0 0 #00ff66);
+  }
+  33% {
+    filter: drop-shadow(-3px -1px 0 #DC003B) drop-shadow(-2px 1px 0 #a855f7) drop-shadow(3px 1px 0 #00d2ff) drop-shadow(2px -1px 0 #00ff66);
+  }
+  66% {
+    filter: drop-shadow(2px 1px 0 #DC003B) drop-shadow(1px -1px 0 #a855f7) drop-shadow(-2px -1px 0 #00d2ff) drop-shadow(-1px 1px 0 #00ff66);
+  }
+  100% {
+    filter: drop-shadow(-2px 0 0 #DC003B) drop-shadow(-1px 0 0 #a855f7) drop-shadow(2px 0 0 #00d2ff) drop-shadow(1px 0 0 #00ff66);
+  }
+}
+
+/* 2. Text Label Glitch (Cube Nav Section Labels) */
+.spiderverse-label-glitch {
+  position: relative;
+  display: inline-block;
+  color: #fff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  transition: text-shadow 0.2s, color 0.2s;
+}
+
+.spiderverse-label-glitch::before,
+.spiderverse-label-glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.spiderverse-label-glitch::before {
+  /* Red & Purple channel */
+  color: #DC003B;
+  text-shadow: -2px 0 #a855f7;
+}
+
+.spiderverse-label-glitch::after {
+  /* Blue & Green channel */
+  color: #00d2ff;
+  text-shadow: 2px 0 #00ff66;
+}
+
+.spiderverse-label-wrapper:hover .spiderverse-label-glitch {
+  color: #fff;
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
+  animation: label-base-shake 0.15s infinite linear;
+}
+
+.spiderverse-label-wrapper:hover .spiderverse-label-glitch::before {
+  opacity: 0.85;
+  animation: label-glitch-1 0.2s infinite steps(2);
+  mix-blend-mode: screen;
+}
+
+.spiderverse-label-wrapper:hover .spiderverse-label-glitch::after {
+  opacity: 0.85;
+  animation: label-glitch-2 0.25s infinite steps(2) reverse;
+  mix-blend-mode: screen;
+}
+
+
+@keyframes label-base-shake {
+  0% { transform: translate(0, 0) skew(0deg); }
+  20% { transform: translate(-1px, 1px) skew(-0.5deg); }
+  40% { transform: translate(1px, -1px) skew(0.5deg); }
+  60% { transform: translate(-1px, -1px) skew(0deg); }
+  80% { transform: translate(1px, 1px) skew(1deg); }
+  100% { transform: translate(0, 0) skew(0deg); }
+}
+
+@keyframes label-glitch-1 {
+  0% {
+    clip-path: inset(0% 0 75% 0);
+    transform: translate(-2px, -1px);
+  }
+  20% {
+    clip-path: inset(25% 0 50% 0);
+    transform: translate(1.5px, 0.5px);
+  }
+  40% {
+    clip-path: inset(50% 0 25% 0);
+    transform: translate(-0.5px, -1.5px);
+  }
+  60% {
+    clip-path: inset(70% 0 15% 0);
+    transform: translate(2px, 1px);
+  }
+  80% {
+    clip-path: inset(85% 0 0% 0);
+    transform: translate(-1px, 0.5px);
+  }
+  100% {
+    clip-path: inset(0% 0 75% 0);
+    transform: translate(-2px, -1px);
+  }
+}
+
+@keyframes label-glitch-2 {
+  0% {
+    clip-path: inset(5% 0 80% 0);
+    transform: translate(1.5px, 2px);
+  }
+  25% {
+    clip-path: inset(30% 0 55% 0);
+    transform: translate(-1px, -0.5px);
+  }
+  50% {
+    clip-path: inset(60% 0 20% 0);
+    transform: translate(0.5px, 1px);
+  }
+  75% {
+    clip-path: inset(80% 0 10% 0);
+    transform: translate(-2px, -1px);
+  }
+  100% {
+    clip-path: inset(5% 0 80% 0);
+    transform: translate(1.5px, 2px);
+  }
+}
+
+

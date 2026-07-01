@@ -131,12 +131,12 @@ const ContourMap: React.FC<ContourMapProps> = ({ children }) => {
 
               {/* Text label */}
               <div
+                className="spiderverse-label-wrapper"
                 style={{
                   position: 'absolute',
                   left: isRight ? endX + 14 : endX - 14,
                   top: endY - 11,
                   whiteSpace: 'nowrap',
-                  color: '#fff',
                   fontFamily: 'var(--font-offbit, monospace)',
                   fontSize: 18,
                   fontWeight: 700,
@@ -145,15 +145,6 @@ const ContourMap: React.FC<ContourMapProps> = ({ children }) => {
                   transform: isRight ? 'none' : 'translateX(-100%)',
                   cursor: 'pointer',
                   pointerEvents: 'auto',
-                  textShadow: '0 0 10px rgba(255,255,255,0.3)',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = '#f21';
-                  e.currentTarget.style.textShadow = '0 0 16px rgba(68,170,255,0.7)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = '#fff';
-                  e.currentTarget.style.textShadow = '0 0 10px rgba(255,255,255,0.3)';
                 }}
                 onClick={() => {
                   const routes: Record<string, string> = {
@@ -172,7 +163,12 @@ const ContourMap: React.FC<ContourMapProps> = ({ children }) => {
                   }
                 }}
               >
-                {label.text}
+                <span
+                  data-text={label.text}
+                  className="spiderverse-label-glitch"
+                >
+                  {label.text}
+                </span>
               </div>
             </div>
           );
