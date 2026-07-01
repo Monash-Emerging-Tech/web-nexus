@@ -104,220 +104,186 @@ const DUMMY_UPCOMING_EVENTS: Portfolio[] = [
 ];
 
 // ── Notion fetcher ───────────────────────────────────────────────────
-async function getPortfolioData({
-  filter,
-  sorts,
-  limit
+export async function getPortfolios({
+  department,
+  timeWindow,
+  limit,
 }: {
-  filter?: QueryDatabaseParameters["filter"];
-  sorts?: QueryDatabaseParameters["sorts"];
-  limit: number | undefined;
-}): Promise<Portfolio[]> {
+  department?: "Projects" | "Education" | "Marketing";
+  timeWindow?: "past" | "upcoming";
+  limit?: number;
+} = {}): Promise<Portfolio[]> {
   const notion = getNotionClient();
   if (!notion || !NOTION_CONFIG.PORTFOLIOS_DB_ID) {
-    console.warn("Notion client or PORTFOLIOS_DB_ID unavailable — returning dummy data");
-    return [];
+    console.warn("Notion client or PORTFOLIOS_DB_ID unavailable — returning dummy data fallback");
+    let fallback = [...DUMMY_PROJECTS, ...DUMMY_UPCOMING_EVENTS, ...DUMMY_PAST_EVENTS];
+    if (department === "Projects") fallback = DUMMY_PROJECTS;
+    else if (department === "Education") fallback = DUMMY_PROJECTS.filter(d => d.tags.some(t => t.toLowerCase().includes("workshop")));
+    else if (department === "Marketing") {
+      fallback = timeWindow === "past" ? DUMMY_PAST_EVENTS : DUMMY_UPCOMING_EVENTS;
+    }
+    const sortedFallback = fallback.sort((a, b) => {
+      const dateA = a.date?.start ? new Date(a.date.start).getTime() : 0;
+      const dateB = b.date?.start ? new Date(b.date.start).getTime() : 0;
+      return dateB - dateA;
+    });
+    return limit ? sortedFallback.slice(0, limit) : sortedFallback;
   }
 
-  const portfolios: Portfolio[] = [];
-  const response = await notion.databases.query({
-    database_id: NOTION_CONFIG.PORTFOLIOS_DB_ID,
-    filter,
-    sorts,
-  });
-
-  for (const result of response.results) {
-    try {
-      const portfolioPage = result as PortfolioPageObject;
-      portfolios.push({
-        id: portfolioPage.id,
-        name: portfolioPage["properties"]["Project name"]["title"][0]?.["text"][
-          "content"
+  try {
+    const filters: any[] = [
+      {
+        or: [
+          {
+            property: "Status",
+            status: {
+              equals: "In progress",
+            },
+          },
+          {
+            property: "Status",
+            status: {
+              equals: "Done",
+            },
+          },
         ],
-        oneliner:
-          portfolioPage["properties"]["One Liner"]["rich_text"][0]?.["text"][
-            "content"
-          ],
-        description:
-          portfolioPage["properties"]["Description"]["rich_text"][0]?.["text"][
-            "content"
-          ],
-        githubUrl:
-          portfolioPage["properties"]["GitHub Repository"]["url"] || undefined,
-        tags: portfolioPage["properties"]["Project Type"]["multi_select"].map(
-          (item) => item.name
-        ),
-        tech: portfolioPage["properties"]["Tech Used"]["multi_select"].map(
-          (item) => item.name
-        ),
-        members: portfolioPage["properties"]["Assignee(s)"]["people"].map(
-          (item) => item.name
-        ),
-        imageUrl:
-          (portfolioPage["cover"]?.["type"] === "external" &&
-            portfolioPage["cover"]["external"]["url"]) ||
-          (portfolioPage["cover"]?.["type"] === "file" &&
-            portfolioPage["cover"]["file"]["url"]) ||
-          undefined,
-        status: portfolioPage["properties"]["Web Status"]["select"]?.["name"],
-        date: {
-          start: portfolioPage["properties"]["Dates"]["date"]?.["start"],
-          end: portfolioPage["properties"]["Dates"]["date"]?.["end"],
+      },
+    ];
+
+    if (department) {
+      filters.push({
+        property: "Department",
+        multi_select: {
+          contains: department,
         },
       });
-    } catch (error) {
-      console.error("Error processing portfolio page:", error);
     }
-  }
 
-  if (limit === undefined) {
-    return portfolios;
-  }
-
-  return portfolios.slice(0, limit);
-}
-
-export async function getFeaturedPortfolios(limit? : number) {
-  try {
-    const filter: QueryDatabaseParameters["filter"] = {
-      property: "Web Status",
-      select: {
-        equals: "Featured",
-      },
-    };
-    const sorts: QueryDatabaseParameters["sorts"] = [
-      {
+    if (timeWindow === "past") {
+      filters.push({
         property: "Dates",
-        direction: "descending",
-      },
-    ];
-    const data = await getPortfolioData({ filter, sorts, limit });
-    if (data.length > 0) return data;
-  } catch (error) {
-    console.error("Error fetching featured portfolios, using fallback:", error);
-  }
-  return (limit ? DUMMY_PROJECTS.slice(0, limit) : DUMMY_PROJECTS);
-}
-
-export async function getActivePortfolios(limit? : number) {
-  try {
-    const filter: QueryDatabaseParameters["filter"] = {
-      or: [
-        {
-          property: "Web Status",
-          select: {
-            equals: "Active",
-          },
+        date: {
+          before: new Date().toISOString(),
         },
-        {
-          property: "Web Status",
-          select: {
-            equals: "Featured",
-          },
-        },
-      ],
-    };
-    const sorts: QueryDatabaseParameters["sorts"] = [
-      {
+      });
+    } else if (timeWindow === "upcoming") {
+      filters.push({
         property: "Dates",
-        direction: "descending",
-      },
-    ];
-    const data = await getPortfolioData({ filter, sorts, limit });
-    if (data.length > 0) return data;
-  } catch (error) {
-    console.error("Error fetching active portfolios, using fallback:", error);
-  }
-  return (limit ? DUMMY_PROJECTS.slice(0, limit) : DUMMY_PROJECTS);
-}
-
-export async function getAllEventsPortfolios(limit? : number) {
-  try {
-    const filter: QueryDatabaseParameters["filter"] = {
-      and: [
-        {
-          property: "Parent Portfolio",
-          relation: {
-            contains: "1a81d8933ee3806b92bfef94fd02634e",
-          },
+        date: {
+          after: new Date().toISOString(),
         },
-      ],
-    };
-    const sorts: QueryDatabaseParameters["sorts"] = [
-      {
-        property: "Dates",
-        direction: "descending",
-      },
-    ];
-    const data = await getPortfolioData({ filter, sorts, limit });
-    if (data.length > 0) return data;
-  } catch (error) {
-    console.error("Error fetching all events, using fallback:", error);
-  }
-  const all = [...DUMMY_UPCOMING_EVENTS, ...DUMMY_PAST_EVENTS];
-  return (limit ? all.slice(0, limit) : all);
-}
+      });
+    }
 
-export async function getPastEventPortfolios(limit? : number) {
-  try {
-    const filter: QueryDatabaseParameters["filter"] = {
-      and: [
-        {
-          property: "Parent Portfolio",
-          relation: {
-            contains: "1a81d8933ee3806b92bfef94fd02634e",
-          },
-        },
+    const queryParams: any = {
+      database_id: NOTION_CONFIG.PORTFOLIOS_DB_ID,
+      sorts: [
         {
           property: "Dates",
-          date: {
-            before: new Date().toISOString(),
-          },
+          direction: "descending",
         },
       ],
     };
-    const sorts: QueryDatabaseParameters["sorts"] = [
-      {
-        property: "Dates",
-        direction: "descending",
-      },
-    ];
-    const data = await getPortfolioData({ filter, sorts, limit });
-    if (data.length > 0) return data;
+
+    if (filters.length > 0) {
+      queryParams.filter = { and: filters };
+    }
+
+    const response = await notion.databases.query(queryParams);
+
+    const portfolios: Portfolio[] = [];
+    for (const result of response.results) {
+      try {
+        const portfolioPage = result as PortfolioPageObject;
+        portfolios.push({
+          id: portfolioPage.id,
+          name: portfolioPage["properties"]["Project name"]?.["title"]?.[0]?.["text"]?.["content"] || "No name",
+          oneliner: portfolioPage["properties"]["One Liner"]?.["rich_text"]?.[0]?.["text"]?.["content"] || "",
+          description: portfolioPage["properties"]["Description"]?.["rich_text"]?.[0]?.["text"]?.["content"] || "",
+          githubUrl: portfolioPage["properties"]["GitHub Repository"]?.["url"] || undefined,
+          tags: portfolioPage["properties"]["Project Type"]?.["multi_select"]?.map((item) => item.name) || [],
+          tech: portfolioPage["properties"]["Tech Used"]?.["multi_select"]?.map((item) => item.name) || [],
+          members: portfolioPage["properties"]["Assignee(s)"]?.["people"]?.map((item) => item.name) || [],
+          imageUrl:
+            (portfolioPage["cover"]?.["type"] === "external" && portfolioPage["cover"]["external"]["url"]) ||
+            (portfolioPage["cover"]?.["type"] === "file" && portfolioPage["cover"]["file"]["url"]) ||
+            undefined,
+          status: (portfolioPage["properties"] as any)["Status"]?.["status"]?.["name"],
+          date: {
+            start: portfolioPage["properties"]["Dates"]?.["date"]?.["start"],
+            end: portfolioPage["properties"]["Dates"]?.["date"]?.["end"],
+          },
+          parentPortfolioIds: (portfolioPage["properties"] as any)["Parent Portfolio"]?.["relation"]?.map(
+            (item: any) => item.id
+          ) || [],
+          department: (portfolioPage["properties"] as any)["Department"]?.["multi_select"]?.map(
+            (item: any) => item.name
+          ) || [],
+        });
+      } catch (err) {
+        console.error("Error parsing page:", err);
+      }
+    }
+
+    const sortedPortfolios = portfolios.sort((a, b) => {
+      const dateA = a.date?.start ? new Date(a.date.start).getTime() : 0;
+      const dateB = b.date?.start ? new Date(b.date.start).getTime() : 0;
+      return dateB - dateA;
+    });
+
+    return limit ? sortedPortfolios.slice(0, limit) : sortedPortfolios;
   } catch (error) {
-    console.error("Error fetching past events, using fallback:", error);
+    console.error("Error querying Notion portfolios, returning dummy data:", error);
+    let fallback = [...DUMMY_PROJECTS, ...DUMMY_UPCOMING_EVENTS, ...DUMMY_PAST_EVENTS];
+    if (department === "Projects") fallback = DUMMY_PROJECTS;
+    else if (department === "Education") fallback = DUMMY_PROJECTS.filter(d => d.tags.some(t => t.toLowerCase().includes("workshop")));
+    else if (department === "Marketing") {
+      fallback = timeWindow === "past" ? DUMMY_PAST_EVENTS : DUMMY_UPCOMING_EVENTS;
+    }
+    const sortedFallback = fallback.sort((a, b) => {
+      const dateA = a.date?.start ? new Date(a.date.start).getTime() : 0;
+      const dateB = b.date?.start ? new Date(b.date.start).getTime() : 0;
+      return dateB - dateA;
+    });
+    return limit ? sortedFallback.slice(0, limit) : sortedFallback;
   }
-  return (limit ? DUMMY_PAST_EVENTS.slice(0, limit) : DUMMY_PAST_EVENTS);
 }
 
-export async function getUpcomingEventPortfolios(limit? : number) {
+export async function getPortfolioById(id: string): Promise<Portfolio | null> {
+  const notion = getNotionClient();
+  if (!notion) return null;
   try {
-    const filter: QueryDatabaseParameters["filter"] = {
-      and: [
-        {
-          property: "Parent Portfolio",
-          relation: {
-            contains: "1a81d8933ee3806b92bfef94fd02634e",
-          },
-        },
-        {
-          property: "Dates",
-          date: {
-            after: new Date().toISOString(),
-          },
-        },
-      ],
-    };
-    const sorts: QueryDatabaseParameters["sorts"] = [
-      {
-        property: "Dates",
-        direction: "descending",
+    const response = await notion.pages.retrieve({ page_id: id });
+    const portfolioPage = response as PortfolioPageObject;
+    return {
+      id: portfolioPage.id,
+      name: portfolioPage["properties"]["Project name"]?.["title"][0]?.["text"]?.["content"] || "Unnamed Project",
+      oneliner: portfolioPage["properties"]["One Liner"]?.["rich_text"][0]?.["text"]?.["content"] || "",
+      description: portfolioPage["properties"]["Description"]?.["rich_text"][0]?.["text"]?.["content"] || "",
+      githubUrl: portfolioPage["properties"]["GitHub Repository"]?.["url"] || undefined,
+      tags: portfolioPage["properties"]["Project Type"]?.["multi_select"].map((item) => item.name) || [],
+      tech: portfolioPage["properties"]["Tech Used"]?.["multi_select"].map((item) => item.name) || [],
+      members: portfolioPage["properties"]["Assignee(s)"]?.["people"].map((item) => item.name) || [],
+      imageUrl:
+        (portfolioPage["cover"]?.["type"] === "external" &&
+          portfolioPage["cover"]["external"]["url"]) ||
+        (portfolioPage["cover"]?.["type"] === "file" &&
+          portfolioPage["cover"]["file"]["url"]) ||
+        undefined,
+      status: (portfolioPage["properties"] as any)["Status"]?.["status"]?.["name"],
+      date: {
+        start: portfolioPage["properties"]["Dates"]?.["date"]?.["start"],
+        end: portfolioPage["properties"]["Dates"]?.["date"]?.["end"],
       },
-    ];
-    const data = await getPortfolioData({ filter, sorts, limit });
-    if (data.length > 0) return data;
+      parentPortfolioIds: (portfolioPage["properties"] as any)["Parent Portfolio"]?.["relation"]?.map(
+        (item: any) => item.id
+      ) || [],
+      department: (portfolioPage["properties"] as any)["Department"]?.["multi_select"]?.map(
+        (item: any) => item.name
+      ) || [],
+    };
   } catch (error) {
-    console.error("Error fetching upcoming events, using fallback:", error);
+    console.error("Error fetching portfolio by id:", error);
+    return null;
   }
-  return (limit ? DUMMY_UPCOMING_EVENTS.slice(0, limit) : DUMMY_UPCOMING_EVENTS);
 }

@@ -86,12 +86,12 @@ export interface PortfolioPageObject
         };
       }>;
     };
-    "Web Status": {
+    "Status": {
       id: string;
-      type: "select";
-      select: {
+      type: "status";
+      status: {
         id: string;
-        name: "Active" | "Featured" | "Inactive" | undefined;
+        name: "Active" | "Featured" | "Inactive" | "In progress" | "Done" | string | undefined;
         color: string;
       } | null;
     };
@@ -103,6 +103,15 @@ export interface PortfolioPageObject
         end: string | null;
         time_zone: string | null;
       } | null;
+    };
+    Department?: {
+      id: string;
+      type: "multi_select";
+      multi_select: Array<{
+        id: string;
+        name: string;
+        color: string;
+      }>;
     };
   };
 }
@@ -122,6 +131,8 @@ export interface Portfolio {
     start: string | undefined;
     end: string | null | undefined;
   };
+  parentPortfolioIds?: string[];
+  department?: string[];
 }
 
 
@@ -241,6 +252,7 @@ export interface Member {
   phone?: string | undefined;
   discord?: string | undefined;
   icon?: string | undefined;
+  linkedin?: string | undefined;
 }
 
 export interface BlogPageObject

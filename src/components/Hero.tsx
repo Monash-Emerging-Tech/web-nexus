@@ -1,7 +1,30 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useScroll } from "@react-three/drei";
 import ContourMap from "./ContourMap";
+
+const OurWorkButton = () => {
+  const scroll = useScroll();
+
+  const handleClick = () => {
+    if (scroll && scroll.el) {
+      scroll.el.scrollTo({
+        top: scroll.el.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  return (
+    <button
+      onClick={handleClick}
+      className="hover:cursor-pointer text-sm md:text-[1rem] font-offbit font-bold h-fit px-8 py-3 bg-primary rounded-md pointer-events-auto"
+    >
+      OUR WORK -{">"}
+    </button>
+  );
+};
 
 const Hero: React.FC = () => {
   const latestEvent = {
@@ -110,9 +133,7 @@ const Hero: React.FC = () => {
               </div>
               <br />
               <div className="w-full flex justify-center md:justify-start">
-                <button className="hover:cursor-pointer text-sm md:text-[1rem] font-offbit font-bold h-fit px-8 py-3 bg-primary rounded-md">
-                  OUR WORK -{">"}
-                </button>
+                <OurWorkButton />
               </div>
             </div>
           </div>

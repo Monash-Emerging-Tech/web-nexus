@@ -23,6 +23,8 @@ export function getNotionClient(): Client | null {
 
 export const NOTION_CONFIG = {
   PORTFOLIOS_DB_ID: process.env.NOTION_PORTFOLIOS_DB_ID,
+  PORTFOLIOS_DS_ID: process.env.NOTION_PORTFOLIOS_DS_ID,
   MEMBERS_DB_ID: process.env.NOTION_MEMBERS_DB_ID,
+  MEMBERS_DS_ID: process.env.NOTION_MEMBERS_DS_ID,
   EVENTS_DB_ID: process.env.NOTION_EVENTS_DB_ID,
 };

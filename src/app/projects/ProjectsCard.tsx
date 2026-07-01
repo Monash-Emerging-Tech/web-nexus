@@ -1,40 +1,59 @@
 import React from "react";
+import Link from "next/link";
+import { Portfolio } from "@/lib/notion/types";
 
-const ProjectsCard = () => {
-    return (
-        <div className="border-2 border-[#DC003B] rounded-3xl p-4 flex flex-col">
+interface ProjectsCardProps {
+  data: Portfolio;
+}
 
-            {/* Project Card Heading */}
-            <div className="flex flex-col">
-            <h2 className="text-white text-[2em] font-offbit-dot font-bold">MNET Geoguessr</h2>
-
-            <p style={{fontSize: "1.6em"}}
-                className="text-whie-text font-offbit">Location guessing game for the Monash campus, on web and VR
-            </p>
-            </div>
-
-            {/* Project Image */}
-            <div className="w-full aspect-video overflow-hidden rounded-xl">
-            <img 
-                src="/img/About-Focus-Temp.jpg" 
-                className="w-full h-full object-cover" 
-                alt={"Project Name"}
-            />
-            </div>
-
-            {/* Description Tags */}
-            <div className="flex justify-between items-center mt-auto">
-            <span className="text-[1.6em] text-white font-offbit font-bold">Prototyping • VR • Digital Twin • 3D</span>
-
-            {/* GitHub Icon */}
-            <a href="https://github.com/Monash-Emerging-Tech" 
-                style={{ marginLeft: 'auto', color: 'white', fontSize: '2.5em' }} 
-                aria-label="Github"><i className="fab fa-github"></i>
-            </a>
-            </div>
-
+const ProjectsCard: React.FC<ProjectsCardProps> = ({ data }) => {
+  return (
+    <div className="relative group h-full">
+      <div className="border-2 border-[#DC003B] rounded-3xl p-4 flex flex-col h-full bg-white/5 backdrop-blur-md transition-all duration-300 group-hover:scale-[1.02] group-hover:bg-white/10 group-hover:shadow-[0_0_20px_rgba(220,0,59,0.3)]">
+        {/* Project Card Heading */}
+        <div className="flex flex-col mb-4">
+          <h2 className="text-white text-[2em] font-offbit-dot font-bold group-hover:text-[#DC003B] transition-colors duration-300">
+            <Link href={`/projects/${data.id}`} className="after:absolute after:inset-0 after:z-0">
+              {data.name}
+            </Link>
+          </h2>
+          <p style={{ fontSize: "1.4em" }} className="text-white/80 font-offbit mt-2 line-clamp-2">
+            {data.oneliner || data.description}
+          </p>
         </div>
-    );
+
+        {/* Project Image */}
+        <div className="w-full aspect-video overflow-hidden rounded-xl mb-4 relative bg-neutral-900">
+          <img
+            src={data.imageUrl || "/img/About-Focus-Temp.jpg"}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            alt={data.name}
+          />
+        </div>
+
+        {/* Description Tags */}
+        <div className="flex justify-between items-center mt-auto pt-2 z-10">
+          <span className="text-[1.2em] text-white/60 font-offbit font-bold line-clamp-1">
+            {data.tags.join(" • ")}
+          </span>
+
+          {/* GitHub Icon */}
+          {data.githubUrl && (
+            <a
+              href={data.githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ marginLeft: 'auto', color: 'white', fontSize: '2em' }}
+              aria-label="Github"
+              className="hover:text-[#DC003B] transition-colors duration-300 relative z-20"
+            >
+              <i className="fab fa-github"></i>
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default ProjectsCard;

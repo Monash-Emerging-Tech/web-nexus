@@ -1,11 +1,11 @@
 "use server"
 
 import EventsPage from "@/components/events/EventsPage";
-import { getPastEventPortfolios, getUpcomingEventPortfolios } from "@/lib/notion/portfolios";
+import { getPortfolios } from "@/lib/notion/portfolios";
 
 const EventsRoute = async () => {
-  const pastEvents = await getPastEventPortfolios();
-  const futureEvents = await getUpcomingEventPortfolios();
+  const pastEvents = await getPortfolios({ department: "Marketing", timeWindow: "past" });
+  const futureEvents = await getPortfolios({ department: "Marketing", timeWindow: "upcoming" });
 
   return (
     <EventsPage pastEvents={pastEvents} futureEvents={futureEvents} />

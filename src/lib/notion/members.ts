@@ -91,6 +91,18 @@ async function getMemberDataPublic({
               ? memberpage.icon.emoji
               : undefined
         ),
+        linkedin: (() => {
+          const props = memberpage.properties as any;
+          const linkedinProp = props["LinkedIn"] || props["linkedin"] || props["LinkedIn Profile"] || props["Linkedin"];
+          if (!linkedinProp) return undefined;
+          if (linkedinProp.type === "url" && linkedinProp.url) {
+            return linkedinProp.url;
+          }
+          if (linkedinProp.type === "rich_text" && linkedinProp.rich_text?.[0]?.text?.content) {
+            return linkedinProp.rich_text[0].text.content;
+          }
+          return undefined;
+        })(),
       });
     } catch (error) {
       console.error("Error processing members page:", error);

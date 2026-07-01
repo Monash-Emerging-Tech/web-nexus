@@ -8,12 +8,14 @@ import Overlay from "./Overlay";
 import { LABEL_CONFIG } from "./Labels";
 import usePerformanceTier from "./usePerformanceTier";
 import { Starfield } from "../Starfield";
+import { useRouter } from "next/navigation";
 
 interface ContourMapProps {
   children?: React.ReactNode;
 }
 
 const ContourMap: React.FC<ContourMapProps> = ({ children }) => {
+  const router = useRouter();
   const overlayRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
   const perf = usePerformanceTier();
@@ -118,7 +120,18 @@ const ContourMap: React.FC<ContourMapProps> = ({ children }) => {
                   e.currentTarget.style.color = '#fff';
                   e.currentTarget.style.textShadow = '0 0 10px rgba(255,255,255,0.3)';
                 }}
-                onClick={() => console.log(`Navigate to: ${label.text}`)}
+                onClick={() => {
+                  const routes: Record<string, string> = {
+                    PROJECTS: "/projects",
+                    EVENTS: "/events",
+                    TEAM: "/team",
+                    COLLABORATORS: "/about-us"
+                  };
+                  const route = routes[label.text.toUpperCase()];
+                  if (route) {
+                    router.push(route);
+                  }
+                }}
               >
                 {label.text}
               </div>
