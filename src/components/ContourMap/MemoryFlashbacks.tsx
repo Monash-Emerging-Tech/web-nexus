@@ -291,7 +291,7 @@ const FlashbackOrb: React.FC<FlashbackOrbProps> = ({
 
     // Smoothly scale up/down depending on opacity and hover states
     const targetBaseScale = isMobile
-      ? (hovered ? 2.5 : 2.0)
+      ? (hovered ? 1.5 : 1.1)
       : (hovered ? 3.8 : 3.0);
     const finalTargetScale = targetBaseScale * opacity;
     meshRef.current.scale.lerp(new THREE.Vector3(finalTargetScale, finalTargetScale, finalTargetScale), 0.12);

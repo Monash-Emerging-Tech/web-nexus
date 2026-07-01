@@ -18,10 +18,17 @@ const ContourMap: React.FC<ContourMapProps> = ({ children }) => {
   const router = useRouter();
   const overlayRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const perf = usePerformanceTier();
 
   useEffect(() => {
     setMounted(true);
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   if (!mounted) {
@@ -60,9 +67,33 @@ const ContourMap: React.FC<ContourMapProps> = ({ children }) => {
         style={{ opacity: 0, transition: 'opacity 0.4s' }}
       >
         {LABEL_CONFIG.map((label) => {
-          const isRight = label.shelf > 0;
-          const endX = label.diag[0] + label.shelf;
-          const endY = label.diag[1];
+          let diagX = label.diag[0];
+          let diagY = label.diag[1];
+          let shelf = label.shelf;
+
+          if (isMobile) {
+            // Push labels higher/lower and compress horizontal distance (smaller diagX) to prevent cutoffs
+            if (label.text === "ABOUT US") {
+              diagX = 30;
+              diagY = -320;
+            } else if (label.text === "PORTFOLIO") {
+              diagX = 55;
+              diagY = -190;
+            } else if (label.text === "OUTREACH") {
+              diagX = -55;
+              diagY = 320;
+            } else if (label.text === "COLLABORATORS") {
+              diagX = -30;
+              diagY = 190;
+            }
+            diagX *= 0.65;
+            diagY *= 0.65;
+            shelf *= 0.45; // Shorter shelf to prevent spilling off-screen
+          }
+
+          const isRight = shelf > 0;
+          const endX = diagX + shelf;
+          const endY = diagY;
 
           return (
             <div 
@@ -76,12 +107,12 @@ const ContourMap: React.FC<ContourMapProps> = ({ children }) => {
               }}
             >
               {(() => {
-                const dx = label.diag[0];
-                const dy = label.diag[1];
+                const dx = diagX;
+                const dy = diagY;
                 const theta = Math.atan2(dy, dx);
                 
                 // Radius of imaginary circle around the cube (larger than rotation scope)
-                const R = 160;
+                const R = isMobile ? 65 : 160;
                 
                 // Arc span in radians (approx 15 degrees total)
                 const deltaTheta = 0.13; 
@@ -109,21 +140,21 @@ const ContourMap: React.FC<ContourMapProps> = ({ children }) => {
                       d={`M ${xArc1},${yArc1} A ${R},${R} 0 0,1 ${xArc2},${yArc2}`}
                       fill="none"
                       stroke="rgba(255,255,255,0.7)"
-                      strokeWidth={2}
+                      strokeWidth={isMobile ? 1.25 : 2}
                     />
                     {/* Leader Line starting from the arc */}
                     <polyline
                       points={`${xStart},${yStart} ${dx},${dy} ${endX},${endY}`}
                       fill="none"
                       stroke="rgba(255,255,255,0.7)"
-                      strokeWidth={2}
+                      strokeWidth={isMobile ? 1.25 : 2}
                     />
                     {/* Horizontal tick marker */}
                     <line
-                      x1={endX} y1={endY - 6}
-                      x2={endX} y2={endY + 6}
+                      x1={endX} y1={endY - (isMobile ? 3 : 6)}
+                      x2={endX} y2={endY + (isMobile ? 3 : 6)}
                       stroke="rgba(255,255,255,0.7)"
-                      strokeWidth={2}
+                      strokeWidth={isMobile ? 1.25 : 2}
                     />
                   </svg>
                 );
@@ -134,11 +165,11 @@ const ContourMap: React.FC<ContourMapProps> = ({ children }) => {
                 className="spiderverse-label-wrapper"
                 style={{
                   position: 'absolute',
-                  left: isRight ? endX + 14 : endX - 14,
-                  top: endY - 11,
+                  left: isRight ? endX + (isMobile ? 6 : 14) : endX - (isMobile ? 6 : 14),
+                  top: endY - (isMobile ? 7 : 11),
                   whiteSpace: 'nowrap',
                   fontFamily: 'var(--font-offbit, monospace)',
-                  fontSize: 18,
+                  fontSize: isMobile ? 10 : 18,
                   fontWeight: 700,
                   letterSpacing: '0.2em',
                   textAlign: isRight ? 'left' : 'right',

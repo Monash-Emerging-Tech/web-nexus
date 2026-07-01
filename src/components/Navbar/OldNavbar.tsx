@@ -253,15 +253,19 @@ export function Navbar({ disableContextCursor = false }: NavbarProps) {
 
       <div
         id="mobileMenu"
-        className="fixed top-32 left-1/2 z-50 flex w-screen -translate-x-1/2 flex-col gap-4 px-[24px] md:left-auto md:right-0 md:w-auto md:-translate-x-0"
-        style={{
-          transition: "all 1s cubic-bezier(0,-0.03,0,1)",
-          pointerEvents: menuOpen ? "auto" : "none",
-        }}
+        className={`fixed z-50 flex w-screen flex-col gap-4 px-[24px] left-1/2 -translate-x-1/2 md:left-auto md:right-6 md:w-auto md:translate-x-0 transition-all duration-500 [transition-timing-function:cubic-bezier(0,-0.03,0,1)] ${
+          scrolled 
+            ? "top-[68px] md:top-[96px]" 
+            : "top-[88px] md:top-[128px]"
+        } ${
+          menuOpen 
+            ? "opacity-100 translate-y-0 scale-100 pointer-events-auto" 
+            : "opacity-0 -translate-y-4 scale-95 pointer-events-none"
+        }`}
       >
         <div
-          id="mobileMenuDiv1"
-          className={`mobile-menu-panel-primary text-2xl uppercase shadow-2xl drop-shadow-2xl md:w-56 ${menuOpen ? "mobileMenuDiv1Visible" : "mobileMenuDiv1Hidden"}`}
+          id="mobileMenuDiv"
+          className="mobile-menu-panel text-2xl uppercase shadow-2xl drop-shadow-2xl md:w-56"
         >
           {homeContent.nav.menuGroups[0].links.map((link) => {
             const isInternal = link.href.startsWith("/");
@@ -278,16 +282,17 @@ export function Navbar({ disableContextCursor = false }: NavbarProps) {
               link.label
             );
 
+            const itemClass = "font-offbit-bold m-auto h-min w-full rounded-lg py-2 text-center text-base text-white block";
+
             if (isInternal) {
               return (
                 <Link
                   key={link.label}
                   data-ccursor
+                  data-text={link.label.toUpperCase()}
                   href={link.href}
                   onClick={handleOverlayClose}
-                  className={`font-offbit-bold m-auto h-min w-full rounded-lg p-1 pl-4 text-center text-base text-white ${
-                    menuOpen ? "" : "hidden"
-                  }`}
+                  className={itemClass}
                 >
                   {linkContent}
                 </Link>
@@ -298,30 +303,28 @@ export function Navbar({ disableContextCursor = false }: NavbarProps) {
               <a
                 key={link.label}
                 data-ccursor
+                data-text={link.label.toUpperCase()}
                 target="_blank"
                 rel="noreferrer"
                 href={link.href}
-                className={`font-offbit-bold m-auto h-min w-full rounded-lg p-1 pl-4 text-center text-base text-white ${
-                  menuOpen ? "" : "hidden"
-                }`}
+                className={itemClass}
               >
                 {linkContent}
               </a>
             );
           })}
-        </div>
 
-        <div
-          id="mobileMenuDiv2"
-          className={`mobile-menu-panel-secondary font-offbit-bold md:w-56 ${menuOpen ? "mobileMenuDiv2Visible" : "mobileMenuDiv2Hidden"}`}
-        >
+          <div className="w-full h-px bg-white/10 my-1" />
+
           <a
             href={homeContent.nav.contactHref}
             data-ccursor
-            className={`m-auto mx-4 ml-0 mb-4 flex h-min w-full place-content-center rounded-lg text-xl ${menuOpen ? "" : "hidden"}`}
+            data-text="CONTACT US"
+            onClick={handleOverlayClose}
+            className="font-offbit-bold m-auto flex h-min w-full justify-center items-center gap-2 rounded-lg py-2 text-base text-white"
           >
-            <span className="font-offbit-bold m-auto translate-y-0.5 text-lg">Contact Us</span>
-            <svg className="m-auto mr-4 h-8 w-8" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <span className="font-offbit-bold m-auto translate-y-0.5 text-base">Contact Us</span>
+            <svg className="m-auto mr-4 h-5 w-5" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
               <path
                 d="M22 4H2v16h20V4zM4 18V6h16v12H4zM8 8H6v2h2v2h2v2h4v-2h2v-2h2V8h-2v2h-2v2h-4v-2H8V8z"
                 fill="currentColor"

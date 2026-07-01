@@ -42,8 +42,10 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef }) => {
         springRef.current.velocity = 0;
       }
       
+      const isMobile = size.width < 768;
+      const baseScale = isMobile ? 0.85 : 2.3;
       const animatedScale = springRef.current.scale;
-      planetRef.current.scale.setScalar(animatedScale * 2.3);
+      planetRef.current.scale.setScalar(animatedScale * baseScale);
       planetRef.current.visible = animatedScale > 0.001;
       
       planetRef.current.position.y = ny * 80 * animatedScale;

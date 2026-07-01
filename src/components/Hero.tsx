@@ -19,7 +19,7 @@ const OurWorkButton = () => {
   return (
     <button
       onClick={handleClick}
-      className="hover:cursor-pointer text-sm md:text-[1rem] font-offbit font-bold h-fit px-8 py-3 bg-primary rounded-md pointer-events-auto"
+      className="hover:cursor-pointer text-xs md:text-[1rem] font-offbit font-bold h-fit px-5 py-2.5 md:px-8 md:py-3 bg-primary rounded-md pointer-events-auto transition-all duration-300"
     >
       LEARN MORE
     </button>
@@ -157,32 +157,32 @@ const Hero: React.FC = () => {
       <div className="absolute inset-0 z-0">
         <ContourMap>
           <div className="w-screen h-screen flex flex-col justify-center items-center md:items-start md:px-32 pointer-events-none">
-            <div className="md:w-[70%] p-4 flex flex-col md:gap-0 gap-4 text-white text-center md:text-left pointer-events-auto">
+            <div className="md:w-[70%] p-4 flex flex-col md:gap-0 gap-2.5 text-white text-center md:text-left pointer-events-auto">
               {eventActive && (
-                <p className="font-offbit font-bold md:text-2xl text-sm">
+                <p className="font-offbit font-bold md:text-2xl text-xs md:text-sm">
                   {latestEvent.title}: {date.days}d {date.hours}h {date.minutes}m{" "}
                   {date.seconds}s
                 </p>
               )}
-              <h1 className="font-offbit-dot font-bold md:text-7xl text-5xl leading-tight">
+              <h1 className="font-offbit-dot font-bold md:text-7xl text-3xl leading-tight">
                 MONASH NEXUS FOR <br className="hidden md:inline" /> EMERGING TECHNOLOGIES
               </h1>
-              <h2 className="font-offbit font-bold md:text-2xl text-sm">
+              <h2 className="font-offbit font-bold md:text-2xl text-xs md:text-sm">
                 A Monash University student team pushing the boundaries of XR.
               </h2>
-              <div className={`flex items-center justify-center md:justify-start mt-1 ${isGlitching ? "spiderverse-component-glitch" : ""}`}>
-                <p className="font-offbit md:text-xl text-sm tracking-wide">
+              <div className={`flex items-center justify-center md:justify-start mt-0.5 ${isGlitching ? "spiderverse-component-glitch" : ""}`}>
+                <p className="font-offbit md:text-xl text-xs md:text-sm tracking-wide">
                   {typedText}
                 </p>
-                <span className="ml-1 w-2 h-0.5 bg-white animate-pulse" />
+                <span className="ml-1 w-1.5 h-0.5 bg-white animate-pulse" />
               </div>
-              <div className="w-full flex flex-col md:flex-row items-center gap-6 justify-center md:justify-start mt-2">
+              <div className="w-full flex flex-row items-center gap-4 justify-center md:justify-start mt-3">
                 <OurWorkButton />
                 <a
                   href="https://docs.google.com/forms/d/e/1FAIpQLSej1jyIYU_dy2uJqEs5zUvNY1GUN-6eN2DqxCbb2ucnYrTI7Q/viewform"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:cursor-pointer text-sm md:text-[1rem] font-offbit font-bold h-fit px-8 py-3 bg-[#040dc1] rounded-md pointer-events-auto transition-all duration-500 [transition-timing-function:cubic-bezier(0,-0.03,0,1)] md:hover:-translate-y-0.5 flex items-center justify-center text-white"
+                  className="hover:cursor-pointer text-xs md:text-[1rem] font-offbit font-bold h-fit px-5 py-2.5 md:px-8 md:py-3 bg-[#040dc1] rounded-md pointer-events-auto transition-all duration-500 [transition-timing-function:cubic-bezier(0,-0.03,0,1)] md:hover:-translate-y-0.5 flex items-center justify-center text-white"
                 >
                   JOIN US
                 </a>
