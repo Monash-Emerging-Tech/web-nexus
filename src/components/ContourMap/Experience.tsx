@@ -11,9 +11,10 @@ import type { PerformanceConfig } from "./usePerformanceTier";
 interface ExperienceProps {
   overlayRef: React.RefObject<HTMLDivElement | null>;
   perf: PerformanceConfig;
+  flashbackUrls?: string[];
 }
 
-const Experience: React.FC<ExperienceProps> = ({ overlayRef, perf }) => {
+const Experience: React.FC<ExperienceProps> = ({ overlayRef, perf, flashbackUrls = [] }) => {
   return (
     <>
       <CameraHandler perf={perf} />
@@ -23,7 +24,7 @@ const Experience: React.FC<ExperienceProps> = ({ overlayRef, perf }) => {
       <directionalLight position={[0, 0, 1]} intensity={1.5} />
       
       <Terrain perf={perf} />
-      <MemoryFlashbacks />
+      <MemoryFlashbacks flashbackUrls={flashbackUrls} />
       <Planet overlayRef={overlayRef} />
     </>
   );

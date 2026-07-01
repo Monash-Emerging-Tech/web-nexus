@@ -28,7 +28,7 @@ function EventsCard({
   const displayDate = data.date.end ?? data.date.start;
 
   return (
-    <Link href={`/projects/${data.id}`} className="relative block h-full group">
+    <Link href={`/portfolios/${data.id}`} className="relative block h-full group">
       <div className={cn(eventsHolderStyles({ style }), "h-full")}>
         <div className="absolute pt-7 z-10">
           <p className={`${badgeClass} pt-2 pb-2 pl-4 pr-4 text-2xl font-bold`}>
@@ -37,9 +37,11 @@ function EventsCard({
         </div>
         <div className="p-8 flex flex-col gap-2 h-full justify-start">
           <div className="w-full h-[200px] overflow-hidden rounded-3xl mb-2 relative bg-neutral-900">
-            <img
+            <Image
               src={data.imageUrl ?? "https://placehold.co/600x400.png"}
               alt={data.name}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
           </div>

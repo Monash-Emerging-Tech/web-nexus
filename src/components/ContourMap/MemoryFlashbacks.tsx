@@ -296,6 +296,9 @@ const FlashbackOrb: React.FC<FlashbackOrbProps> = ({
     const finalTargetScale = targetBaseScale * opacity;
     meshRef.current.scale.lerp(new THREE.Vector3(finalTargetScale, finalTargetScale, finalTargetScale), 0.12);
 
+    // Toggle visibility to save draw calls when mesh is invisible
+    meshRef.current.visible = opacity > 0.001;
+
     // Local rotation roll
     meshRef.current.rotation.z += Math.sin(time * 0.3 + phase) * 0.08;
 
@@ -350,8 +353,12 @@ const FlashbackOrb: React.FC<FlashbackOrbProps> = ({
   );
 };
 
-const MemoryFlashbacks: React.FC = () => {
-  const [urls, setUrls] = useState<string[]>([]);
+interface MemoryFlashbacksProps {
+  flashbackUrls?: string[];
+}
+
+const MemoryFlashbacks: React.FC<MemoryFlashbacksProps> = ({ flashbackUrls = [] }) => {
+  const [urls, setUrls] = useState<string[]>(flashbackUrls);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -365,6 +372,8 @@ const MemoryFlashbacks: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    if (urls.length > 0) return;
+
     const parseCache = (): boolean => {
       if (typeof window === "undefined") return false;
       const raw = sessionStorage.getItem("mnet_notion_cache");

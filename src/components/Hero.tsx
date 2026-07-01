@@ -26,7 +26,11 @@ const OurWorkButton = () => {
   );
 };
 
-const Hero: React.FC = () => {
+interface HeroProps {
+  flashbackUrls?: string[];
+}
+
+const Hero: React.FC<HeroProps> = ({ flashbackUrls = [] }) => {
   const latestEvent = {
     title: "MNET x MDN Tech Futures Industries",
     timestamp: new Date("2025-05-24T03:24:00").getTime(),
@@ -112,6 +116,9 @@ const Hero: React.FC = () => {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
+      // Skip background cache fetch and image preloading on mobile to save TBT and bandwidth
+      if (window.innerWidth < 768) return;
+
       const cached = sessionStorage.getItem("mnet_notion_cache");
       const preloadImages = (data: any) => {
         const urls = new Set<string>();
@@ -155,7 +162,7 @@ const Hero: React.FC = () => {
   return (
     <section className="relative w-screen h-screen overflow-hidden bg-black flex justify-center items-center">
       <div className="absolute inset-0 z-0">
-        <ContourMap>
+        <ContourMap flashbackUrls={flashbackUrls}>
           <div className="w-screen h-screen flex flex-col justify-center items-center md:items-start md:px-32 pointer-events-none">
             <div className="md:w-[70%] p-4 flex flex-col md:gap-0 gap-2.5 text-white text-center md:text-left pointer-events-auto">
               {eventActive && (

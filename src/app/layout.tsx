@@ -19,8 +19,20 @@ export default function RootLayout({
     <html lang="en" className="w-full h-full">
       <head>
         <link
-          rel="stylesheet"
+          rel="preload"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+          as="style"
+        />
+        <link
+          rel="stylesheet"
+          id="font-awesome-css"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+          media="print"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: "document.getElementById('font-awesome-css').media='all'",
+          }}
         />
         <link rel="icon" href="/img/favicon.ico" sizes="any" />
       </head>

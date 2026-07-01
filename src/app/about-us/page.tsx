@@ -53,23 +53,29 @@ const MemberCard = ({
   size?: "normal" | "small";
   borderColorClass?: string;
 }) => {
-  const imgSizeClass = size === "small" ? "w-32 h-32 md:w-32 md:h-32" : "w-40 h-40 md:w-40 md:h-40";
-  const mobileImgSizeClass = "w-24 h-24";
+  const widthVal = size === "small" ? 128 : 160;
+  const heightVal = size === "small" ? 128 : 160;
+  const mobileWidthVal = 96;
+  const mobileHeightVal = 96;
 
   const cardContent = (
     <div className="flex flex-col items-center gap-2 group transition-all duration-300">
       <div className={`hidden md:block relative rounded-full overflow-hidden border-4 ${borderColorClass} transition-transform duration-300 group-hover:scale-105 group-hover:rotate-1`}>
-        <img
+        <Image
           src={member.photo}
           alt={member.name}
-          className={`${imgSizeClass} rounded-full object-cover`}
+          width={widthVal}
+          height={heightVal}
+          className="rounded-full object-cover w-32 h-32 md:w-40 md:h-40"
         />
       </div>
       <div className={`md:hidden relative rounded-full overflow-hidden border-4 ${borderColorClass}`}>
-        <img
+        <Image
           src={member.photo}
           alt={member.name}
-          className={`${mobileImgSizeClass} rounded-full object-cover`}
+          width={mobileWidthVal}
+          height={mobileHeightVal}
+          className="rounded-full object-cover w-24 h-24"
         />
       </div>
       <div className="flex flex-col items-center">

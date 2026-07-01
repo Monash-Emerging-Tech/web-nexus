@@ -51,6 +51,7 @@ interface SpeedLinesProps {
 }
 
 const SpeedLines: React.FC<SpeedLinesProps> = ({ count = 100 }) => {
+  const meshRef = useRef<THREE.InstancedMesh>(null);
   const materialRef = useRef<THREE.ShaderMaterial>(null);
   const scroll = useScroll();
 
@@ -80,10 +81,15 @@ const SpeedLines: React.FC<SpeedLinesProps> = ({ count = 100 }) => {
       materialRef.current.uniforms.uTime.value = state.clock.elapsedTime;
       materialRef.current.uniforms.uScroll.value = scroll.offset;
     }
+    if (meshRef.current) {
+      // Speed lines are only visible during active warp scroll transition
+      meshRef.current.visible = scroll.offset > 0.001 && scroll.offset < 0.999;
+    }
   });
 
   return (
     <instancedMesh
+      ref={meshRef}
       args={[undefined, undefined, count]}
       rotation={[-Math.PI / 2.5, 0, 0]}
     >

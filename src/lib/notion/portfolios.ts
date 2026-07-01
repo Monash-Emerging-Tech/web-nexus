@@ -1,6 +1,7 @@
 import { getNotionClient, NOTION_CONFIG } from "./client";
 import { type QueryDatabaseParameters } from "@notionhq/client/build/src/api-endpoints";
 import { type PortfolioPageObject, Portfolio } from "../notion/types";
+import { unstable_cache } from "next/cache";
 
 // ── Dummy data fallback ──────────────────────────────────────────────
 const DUMMY_PROJECTS: Portfolio[] = [
@@ -104,92 +105,37 @@ const DUMMY_UPCOMING_EVENTS: Portfolio[] = [
 ];
 
 // ── Notion fetcher ───────────────────────────────────────────────────
-export async function getPortfolios({
-  department,
-  timeWindow,
-  limit,
-}: {
-  department?: "Projects" | "Education" | "Marketing";
-  timeWindow?: "past" | "upcoming";
-  limit?: number;
-} = {}): Promise<Portfolio[]> {
+const ALL_DUMMY_PORTFOLIOS = [...DUMMY_PROJECTS, ...DUMMY_UPCOMING_EVENTS, ...DUMMY_PAST_EVENTS];
+
+async function getAllPortfoliosRaw(): Promise<Portfolio[]> {
   const notion = getNotionClient();
   if (!notion || !NOTION_CONFIG.PORTFOLIOS_DB_ID) {
     console.warn("Notion client or PORTFOLIOS_DB_ID unavailable — returning dummy data fallback");
-    let fallback = [...DUMMY_PROJECTS, ...DUMMY_UPCOMING_EVENTS, ...DUMMY_PAST_EVENTS];
-    if (department === "Projects") fallback = DUMMY_PROJECTS;
-    else if (department === "Education") fallback = DUMMY_PROJECTS.filter(d => d.tags.some(t => t.toLowerCase().includes("workshop")));
-    else if (department === "Marketing") {
-      fallback = timeWindow === "past" ? DUMMY_PAST_EVENTS : DUMMY_UPCOMING_EVENTS;
-    }
-    const sortedFallback = fallback.sort((a, b) => {
-      const dateA = a.date?.start ? new Date(a.date.start).getTime() : 0;
-      const dateB = b.date?.start ? new Date(b.date.start).getTime() : 0;
-      return dateB - dateA;
-    });
-    return limit ? sortedFallback.slice(0, limit) : sortedFallback;
+    return ALL_DUMMY_PORTFOLIOS;
   }
 
   try {
-    const filters: any[] = [
-      {
+    const response = await notion.databases.query({
+      database_id: NOTION_CONFIG.PORTFOLIOS_DB_ID,
+      filter: {
         or: [
           {
             property: "Status",
-            status: {
-              equals: "In progress",
-            },
+            status: { equals: "In progress" },
           },
           {
             property: "Status",
-            status: {
-              equals: "Done",
-            },
+            status: { equals: "Done" },
           },
         ],
       },
-    ];
-
-    if (department) {
-      filters.push({
-        property: "Department",
-        multi_select: {
-          contains: department,
-        },
-      });
-    }
-
-    if (timeWindow === "past") {
-      filters.push({
-        property: "Dates",
-        date: {
-          before: new Date().toISOString(),
-        },
-      });
-    } else if (timeWindow === "upcoming") {
-      filters.push({
-        property: "Dates",
-        date: {
-          after: new Date().toISOString(),
-        },
-      });
-    }
-
-    const queryParams: any = {
-      database_id: NOTION_CONFIG.PORTFOLIOS_DB_ID,
       sorts: [
         {
           property: "Dates",
           direction: "descending",
         },
       ],
-    };
-
-    if (filters.length > 0) {
-      queryParams.filter = { and: filters };
-    }
-
-    const response = await notion.databases.query(queryParams);
+    });
 
     const portfolios: Portfolio[] = [];
     for (const result of response.results) {
@@ -224,6 +170,48 @@ export async function getPortfolios({
         console.error("Error parsing page:", err);
       }
     }
+    return portfolios;
+  } catch (error) {
+    console.error("Error querying Notion portfolios, returning dummy data:", error);
+    return ALL_DUMMY_PORTFOLIOS;
+  }
+}
+
+// Cache all portfolios fetch for 1 hour
+export const getCachedAllPortfolios = unstable_cache(
+  async () => getAllPortfoliosRaw(),
+  ["notion-all-portfolios"],
+  { revalidate: 3600, tags: ["notion-all-portfolios"] }
+);
+
+export async function getPortfolios({
+  department,
+  timeWindow,
+  limit,
+}: {
+  department?: "Projects" | "Education" | "Marketing";
+  timeWindow?: "past" | "upcoming";
+  limit?: number;
+} = {}): Promise<Portfolio[]> {
+  try {
+    let portfolios = await getCachedAllPortfolios();
+
+    if (department) {
+      portfolios = portfolios.filter(
+        (p) => p.department && p.department.includes(department)
+      );
+    }
+
+    const now = new Date();
+    if (timeWindow === "past") {
+      portfolios = portfolios.filter(
+        (p) => !p.date?.start || new Date(p.date.start) < now
+      );
+    } else if (timeWindow === "upcoming") {
+      portfolios = portfolios.filter(
+        (p) => p.date?.start && new Date(p.date.start) >= now
+      );
+    }
 
     const sortedPortfolios = portfolios.sort((a, b) => {
       const dateA = a.date?.start ? new Date(a.date.start).getTime() : 0;
@@ -233,26 +221,20 @@ export async function getPortfolios({
 
     return limit ? sortedPortfolios.slice(0, limit) : sortedPortfolios;
   } catch (error) {
-    console.error("Error querying Notion portfolios, returning dummy data:", error);
-    let fallback = [...DUMMY_PROJECTS, ...DUMMY_UPCOMING_EVENTS, ...DUMMY_PAST_EVENTS];
-    if (department === "Projects") fallback = DUMMY_PROJECTS;
-    else if (department === "Education") fallback = DUMMY_PROJECTS.filter(d => d.tags.some(t => t.toLowerCase().includes("workshop")));
-    else if (department === "Marketing") {
-      fallback = timeWindow === "past" ? DUMMY_PAST_EVENTS : DUMMY_UPCOMING_EVENTS;
-    }
-    const sortedFallback = fallback.sort((a, b) => {
-      const dateA = a.date?.start ? new Date(a.date.start).getTime() : 0;
-      const dateB = b.date?.start ? new Date(b.date.start).getTime() : 0;
-      return dateB - dateA;
-    });
-    return limit ? sortedFallback.slice(0, limit) : sortedFallback;
+    console.error("Error getting portfolios:", error);
+    return [];
   }
 }
 
 export async function getPortfolioById(id: string): Promise<Portfolio | null> {
-  const notion = getNotionClient();
-  if (!notion) return null;
   try {
+    const portfolios = await getCachedAllPortfolios();
+    const portfolio = portfolios.find((p) => p.id === id);
+    if (portfolio) return portfolio;
+
+    // Fallback: Query direct page if not found in list cache (e.g., new items)
+    const notion = getNotionClient();
+    if (!notion) return null;
     const response = await notion.pages.retrieve({ page_id: id });
     const portfolioPage = response as PortfolioPageObject;
     return {

@@ -12,9 +12,10 @@ import { useRouter } from "next/navigation";
 
 interface ContourMapProps {
   children?: React.ReactNode;
+  flashbackUrls?: string[];
 }
 
-const ContourMap: React.FC<ContourMapProps> = ({ children }) => {
+const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] }) => {
   const router = useRouter();
   const overlayRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
@@ -32,7 +33,14 @@ const ContourMap: React.FC<ContourMapProps> = ({ children }) => {
   }, []);
 
   if (!mounted) {
-    return <div className="w-full h-full bg-black" />;
+    return (
+      <div className="w-full h-full bg-black relative">
+        {/* SSR Static Layout Overlay: painted immediately by browser for instant FCP/LCP */}
+        <div className="absolute inset-0 z-10 w-full h-full">
+          {children}
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -51,7 +59,7 @@ const ContourMap: React.FC<ContourMapProps> = ({ children }) => {
         <pointLight position={[-10, -10, -10]} color="#0033ff" intensity={30} />
         
         <ScrollControls pages={4} damping={perf.scrollDamping}>
-          <Experience overlayRef={overlayRef} perf={perf} />
+          <Experience overlayRef={overlayRef} perf={perf} flashbackUrls={flashbackUrls} />
           {children && (
             <Scroll html style={{ width: '100%', height: '100%' }}>
               <Overlay>{children}</Overlay>

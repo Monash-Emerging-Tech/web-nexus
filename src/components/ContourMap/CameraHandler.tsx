@@ -21,12 +21,16 @@ const CameraHandler: React.FC<CameraHandlerProps> = ({ perf }) => {
     
     // FOV stretches immediately during the warp
     const targetFov = 40 + warpIntensity * 60; 
-    (state.camera as THREE.PerspectiveCamera).fov = THREE.MathUtils.lerp(
-      (state.camera as THREE.PerspectiveCamera).fov, 
+    const camera = state.camera as THREE.PerspectiveCamera;
+    const prevFov = camera.fov;
+    camera.fov = THREE.MathUtils.lerp(
+      prevFov, 
       targetFov, 
       0.15
     );
-    (state.camera as THREE.PerspectiveCamera).updateProjectionMatrix();
+    if (Math.abs(camera.fov - prevFov) > 0.01) {
+      camera.updateProjectionMatrix();
+    }
 
     // Map Angle
     const mapAngle = -Math.PI / 2.5;

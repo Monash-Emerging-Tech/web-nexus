@@ -1,17 +1,9 @@
-import { cache } from "react";
+import { unstable_cache } from "next/cache";
 
 /**
  * Scrapes a public LinkedIn profile page for the og:image meta tag content.
- * Utilizes React cache to prevent duplicate fetches in a single render pass.
  */
-export const getLinkedInProfilePic = cache(async (linkedinUrl: string | undefined): Promise<string | null> => {
-  if (!linkedinUrl) return null;
-  
-  // Basic validation of URL
-  if (!linkedinUrl.startsWith("http://") && !linkedinUrl.startsWith("https://")) {
-    return null;
-  }
-  
+const scrapeLinkedIn = async (linkedinUrl: string): Promise<string | null> => {
   try {
     const response = await fetch(linkedinUrl, {
       headers: {
@@ -19,7 +11,7 @@ export const getLinkedInProfilePic = cache(async (linkedinUrl: string | undefine
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
         "Accept-Language": "en-US,en;q=0.5",
       },
-      next: { revalidate: 86400 } // Cache for 24 hours
+      next: { revalidate: 86400 } // Fetch cache for 24 hours
     });
     
     if (!response.ok) {
@@ -37,6 +29,20 @@ export const getLinkedInProfilePic = cache(async (linkedinUrl: string | undefine
   } catch (error) {
     console.error(`Error fetching/scraping LinkedIn URL ${linkedinUrl}:`, error);
   }
-  
   return null;
-});
+};
+
+export const getLinkedInProfilePic = unstable_cache(
+  async (linkedinUrl: string | undefined): Promise<string | null> => {
+    if (!linkedinUrl) return null;
+    
+    // Basic validation of URL
+    if (!linkedinUrl.startsWith("http://") && !linkedinUrl.startsWith("https://")) {
+      return null;
+    }
+    
+    return scrapeLinkedIn(linkedinUrl);
+  },
+  ["linkedin-profile-pic"],
+  { revalidate: 86400 } // Cache for 24 hours
+);

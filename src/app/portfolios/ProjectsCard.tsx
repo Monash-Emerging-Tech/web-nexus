@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Portfolio } from "@/lib/notion/types";
 
 interface ProjectsCardProps {
@@ -13,7 +14,7 @@ const ProjectsCard: React.FC<ProjectsCardProps> = ({ data }) => {
         {/* Project Card Heading */}
         <div className="flex flex-col mb-4">
           <h2 className="text-white text-[2em] font-offbit-dot font-bold group-hover:text-[#DC003B] transition-colors duration-300">
-            <Link href={`/projects/${data.id}`} className="after:absolute after:inset-0 after:z-0">
+            <Link href={`/portfolios/${data.id}`} className="after:absolute after:inset-0 after:z-0">
               {data.name}
             </Link>
           </h2>
@@ -24,10 +25,13 @@ const ProjectsCard: React.FC<ProjectsCardProps> = ({ data }) => {
 
         {/* Project Image */}
         <div className="w-full aspect-video overflow-hidden rounded-xl mb-4 relative bg-neutral-900">
-          <img
+          <Image
             src={data.imageUrl || "/img/About-Focus-Temp.jpg"}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 30vw"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             alt={data.name}
+            priority={data.status === "Featured"}
           />
         </div>
 

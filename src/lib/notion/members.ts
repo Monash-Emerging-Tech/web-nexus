@@ -1,6 +1,7 @@
 import { getNotionClient, NOTION_CONFIG } from "./client";
 import { type QueryDatabaseParameters } from "@notionhq/client/build/src/api-endpoints";
 import { type MemberPageObject, Member } from "../notion/types";
+import { unstable_cache } from "next/cache";
 
 // ── Dummy data fallback ──────────────────────────────────────────────
 const DUMMY_LEADS: Member[] = [
@@ -111,154 +112,105 @@ async function getMemberDataPublic({
   return members;
 }
 
+export async function getAllMembers(): Promise<Member[]> {
+  try {
+    const data = await getMemberDataPublic({});
+    if (data && data.length > 0) return data;
+  } catch (error) {
+    console.error("Error fetching all members from Notion:", error);
+  }
+
+  // Combine fallback datasets if Notion fails
+  return [
+    ...DUMMY_LEADS,
+    ...DUMMY_SENIOR_MEMBERS,
+    ...DUMMY_ACADEMIC_ADVISORS,
+    ...Object.values(DUMMY_DEPT_MEMBERS).flat(),
+  ];
+}
+
+// Cache the single members fetch for 1 hour
+export const getCachedAllMembers = unstable_cache(
+  async () => getAllMembers(),
+  ["notion-all-members"],
+  { revalidate: 3600, tags: ["notion-all-members"] }
+);
+
 export async function getActiveMembers() {
   try {
-    const filter: QueryDatabaseParameters["filter"] = {
-      and: [
-        {
-          property: "Department",
-          multi_select: {
-            does_not_contain: "Away",
-          },
-        },
-        {
-          property: "Department",
-          multi_select: {
-            does_not_contain: "Alumni",
-          },
-        },
-        {
-          property: "Department",
-          multi_select: {
-            does_not_contain: "Academic Advisors",
-          },
-        },
-      ],
-    };
-    const data = await getMemberDataPublic({ filter });
-    if (data.length > 0) return data;
+    const members = await getCachedAllMembers();
+    return members.filter(
+      (m) =>
+        m.department &&
+        !m.department.includes("Away") &&
+        !m.department.includes("Alumni") &&
+        !m.department.includes("Academic Advisors")
+    );
   } catch (error) {
-    console.error("Error fetching active members, using fallback:", error);
+    console.error("Error filtering active members:", error);
+    return [...DUMMY_LEADS, ...DUMMY_SENIOR_MEMBERS];
   }
-  return [...DUMMY_LEADS, ...DUMMY_SENIOR_MEMBERS];
 }
 
 export async function getLeads() {
   try {
-    const filter: QueryDatabaseParameters["filter"] = {
-      or: [
-        {
-          property: "Role",
-          multi_select: {
-            contains: "Team Lead",
-          },
-        },
-        {
-          property: "Role",
-          multi_select: {
-            contains: "Marketing Lead",
-          },
-        },
-        {
-          property: "Role",
-          multi_select: {
-            contains: "Education Lead",
-          },
-        },
-        {
-          property: "Role",
-          multi_select: {
-            contains: "Project Lead",
-          },
-        },
-        {
-          property: "Role",
-          multi_select: {
-            contains: "Operation Lead",
-          },
-        },
-      ],
-    };
-    const data = await getMemberDataPublic({ filter });
-    if (data.length > 0) return data;
+    const members = await getCachedAllMembers();
+    const leadRoles = [
+      "Team Lead",
+      "Marketing Lead",
+      "Education Lead",
+      "Project Lead",
+      "Operation Lead",
+    ];
+    return members.filter(
+      (m) => m.role && leadRoles.some((r) => m.role.includes(r))
+    );
   } catch (error) {
-    console.error("Error fetching leads, using fallback:", error);
+    console.error("Error filtering leads:", error);
+    return DUMMY_LEADS;
   }
-  return DUMMY_LEADS;
 }
 
 export async function getSeniorMembers() {
   try {
-    const filter: QueryDatabaseParameters["filter"] = {
-      or: [
-        {
-          property: "Role",
-          multi_select: {
-            contains: "Senior Member",
-          },
-        },
-      ],
-    };
-    const data = await getMemberDataPublic({ filter });
-    if (data.length > 0) return data;
+    const members = await getCachedAllMembers();
+    return members.filter((m) => m.role && m.role.includes("Senior Member"));
   } catch (error) {
-    console.error("Error fetching senior members, using fallback:", error);
+    console.error("Error filtering senior members:", error);
+    return DUMMY_SENIOR_MEMBERS;
   }
-  return DUMMY_SENIOR_MEMBERS;
 }
 
 export async function getAcademicAdvisors() {
   try {
-    const filter: QueryDatabaseParameters["filter"] = {
-      or: [
-        {
-          property: "Department",
-          multi_select: {
-            contains: "Academic Advisors",
-          },
-        },
-      ],
-    };
-    const data = await getMemberDataPublic({ filter });
-    if (data.length > 0) return data;
+    const members = await getCachedAllMembers();
+    return members.filter(
+      (m) => m.department && m.department.includes("Academic Advisors")
+    );
   } catch (error) {
-    console.error("Error fetching academic advisors, using fallback:", error);
+    console.error("Error filtering academic advisors:", error);
+    return DUMMY_ACADEMIC_ADVISORS;
   }
-  return DUMMY_ACADEMIC_ADVISORS;
 }
 
-export async function getMembersByDepartment(department : string) {
+export async function getMembersByDepartment(department: string) {
   try {
-    const filter: QueryDatabaseParameters["filter"] = {
-      or: [
-        {
-          property: "Department",
-          multi_select: {
-            contains: department,
-          },
-        },
-      ],
-    };
-    const data = await getMemberDataPublic({ filter });
-    if (data.length > 0) return data;
+    const members = await getCachedAllMembers();
+    return members.filter(
+      (m) => m.department && m.department.includes(department)
+    );
   } catch (error) {
-    console.error(`Error fetching ${department} members, using fallback:`, error);
+    console.error(`Error filtering ${department} members:`, error);
+    return DUMMY_DEPT_MEMBERS[department] || [];
   }
-  return DUMMY_DEPT_MEMBERS[department] || [];
 }
 
 export async function getMemberById(userId: string) {
   try {
-    const filter: QueryDatabaseParameters["filter"] = {
-      property: "Person",
-      people: {
-        contains: userId
-      }
-    }
-    const data = await getMemberDataPublic({ filter });
-    if (data.length > 0) return data;
+    const members = await getCachedAllMembers();
+    return members.filter((m) => m.id === userId);
   } catch (error) {
-    console.error("Error fetching member by ID, using fallback:", error);
+    console.error("Error filtering member by ID:", error);
+    return [];
   }
-  return [];
 }
