@@ -116,9 +116,6 @@ const Hero: React.FC<HeroProps> = ({ flashbackUrls = [] }) => {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      // Skip background cache fetch and image preloading on mobile to save TBT and bandwidth
-      if (window.innerWidth < 768) return;
-
       const cached = sessionStorage.getItem("mnet_notion_cache");
       const preloadImages = (data: any) => {
         const urls = new Set<string>();

@@ -10,8 +10,6 @@ export function Starfield() {
   const perf = usePerformanceTier();
 
   useEffect(() => {
-    if (perf.tier === "low") return;
-
     let mounted = true;
     let destroyStarfield: (() => void) | undefined;
     const container = containerRef.current;
@@ -55,15 +53,6 @@ export function Starfield() {
       destroyStarfield?.();
     };
   }, []);
-
-  if (perf.tier === "low") {
-    return (
-      <div
-        id="starfield-bg"
-        className="absolute inset-0 z-0 bg-[#050505] pointer-events-none"
-      />
-    );
-  }
 
   return (
     <div
