@@ -76,6 +76,7 @@ export const fragmentShader = `
   uniform vec2 uMouse;
   uniform float uScroll;
   uniform float uContourFrequency;
+  uniform float uOpacity;
 
   void main() {
     float t = clamp(vElevation / 3.0, 0.0, 1.0);
@@ -108,6 +109,6 @@ export const fragmentShader = `
     float warpProgress = smoothstep(0.0, 0.125, uScroll);
     float currentAlpha = mix(edgeFade, 1.0, warpProgress); // fully visible as a ball
     
-    gl_FragColor = vec4(finalColor, currentAlpha);
+    gl_FragColor = vec4(finalColor, currentAlpha * uOpacity);
   }
 `;

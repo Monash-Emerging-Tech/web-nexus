@@ -110,12 +110,54 @@ const Hero: React.FC = () => {
     return () => window.clearTimeout(timeoutId);
   }, []);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const cached = sessionStorage.getItem("mnet_notion_cache");
+      const preloadImages = (data: any) => {
+        const urls = new Set<string>();
+        data.portfolios?.forEach((p: any) => {
+          if (p.imageUrl) urls.add(p.imageUrl);
+        });
+        const groups = [data.leads, data.advisors, data.seniorMembers, data.activeMembers];
+        groups.forEach((g) => {
+          g?.forEach((m: any) => {
+            if (m.icon && (m.icon.startsWith("http") || m.icon.startsWith("/"))) {
+              urls.add(m.icon);
+            }
+          });
+        });
+        urls.forEach((url) => {
+          const img = new Image();
+          img.src = url;
+        });
+      };
+
+      if (!cached) {
+        fetch("/api/notion-cache")
+          .then((res) => res.json())
+          .then((data) => {
+            if (data && !data.error) {
+              sessionStorage.setItem("mnet_notion_cache", JSON.stringify(data));
+              preloadImages(data);
+            }
+          })
+          .catch((err) => console.error("Error loading Notion cache:", err));
+      } else {
+        try {
+          preloadImages(JSON.parse(cached));
+        } catch (e) {
+          console.error("Error parsing cache:", e);
+        }
+      }
+    }
+  }, []);
+
   return (
     <section className="relative w-screen h-screen overflow-hidden bg-black flex justify-center items-center">
       <div className="absolute inset-0 z-0">
         <ContourMap>
           <div className="w-screen h-screen flex flex-col justify-center items-center md:items-start md:px-32 pointer-events-none">
-            <div className={`md:w-[70%] p-4 flex flex-col md:gap-0 gap-4 text-white text-center md:text-left pointer-events-auto ${isGlitching ? "spiderverse-component-glitch" : ""}`}>
+            <div className="md:w-[70%] p-4 flex flex-col md:gap-0 gap-4 text-white text-center md:text-left pointer-events-auto">
               {eventActive && (
                 <p className="font-offbit font-bold md:text-2xl text-sm">
                   {latestEvent.title}: {date.days}d {date.hours}h {date.minutes}m{" "}
@@ -128,7 +170,7 @@ const Hero: React.FC = () => {
               <h2 className="font-offbit font-bold md:text-2xl text-sm">
                 A Monash University student team pushing the boundaries of XR.
               </h2>
-              <div className="flex items-center mt-1">
+              <div className={`flex items-center justify-center md:justify-start mt-1 ${isGlitching ? "spiderverse-component-glitch" : ""}`}>
                 <p className="font-offbit md:text-xl text-sm tracking-wide">
                   {typedText}
                 </p>

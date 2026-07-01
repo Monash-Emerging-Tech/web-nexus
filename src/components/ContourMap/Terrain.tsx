@@ -23,6 +23,7 @@ const Terrain: React.FC<TerrainProps> = ({ perf }) => {
       uMouse: { value: new THREE.Vector2(0.5, 0.5) },
       uScroll: { value: 0 },
       uContourFrequency: { value: perf.contourFrequency },
+      uOpacity: { value: 1.0 },
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
@@ -36,6 +37,7 @@ const Terrain: React.FC<TerrainProps> = ({ perf }) => {
       materialRef.current.uniforms.uTime.value = time;
       materialRef.current.uniforms.uScroll.value = scrollOffset;
       materialRef.current.uniforms.uContourFrequency.value = perf.contourFrequency;
+      materialRef.current.uniforms.uOpacity.value = smoothstep(0.8, 0.2, scrollOffset);
 
       const targetMouseX = (state.mouse.x + 1.0) * 0.5;
       const targetMouseY = (state.mouse.y + 1.0) * 0.5;
@@ -65,7 +67,14 @@ const Terrain: React.FC<TerrainProps> = ({ perf }) => {
       springRef.current.velocity += force * dt;
       springRef.current.scale += springRef.current.velocity * dt;
 
+      // Clamp scale to 0 to avoid negative scale flipping the geometry, and stop velocity
+      if (springRef.current.scale < 0) {
+        springRef.current.scale = 0;
+        springRef.current.velocity = 0;
+      }
+
       meshRef.current.scale.setScalar(springRef.current.scale);
+      meshRef.current.visible = springRef.current.scale > 0.001;
     }
   });
 
