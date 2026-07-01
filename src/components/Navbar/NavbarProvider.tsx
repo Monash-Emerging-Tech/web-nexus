@@ -27,6 +27,26 @@ export const NavbarProvider = ({ children }: { children: ReactNode }) => {
     setOpen((prev) => !prev);
   }
 
+  React.useEffect(() => {
+    const handleMouseOver = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+      
+      const interactive = target.closest('a, button, .glitch-hover');
+      if (interactive && !interactive.getAttribute('data-text')) {
+        const text = interactive.textContent?.trim();
+        if (text) {
+          interactive.setAttribute('data-text', text);
+        }
+      }
+    };
+
+    document.addEventListener('mouseover', handleMouseOver);
+    return () => {
+      document.removeEventListener('mouseover', handleMouseOver);
+    };
+  }, []);
+
   return (
     <NavbarContext.Provider value={{ open, toggleOpen }}>
       {children}

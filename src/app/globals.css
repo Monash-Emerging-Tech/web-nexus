@@ -296,4 +296,62 @@ Codepen for the effect: https://codepen.io/jh3y/pen/jOXgxaj
   }
 }
 
+/* Global Spider-Verse Glitch on Hover */
+a[data-text], button[data-text], .glitch-hover[data-text] {
+  position: relative;
+  transition: text-shadow 0.2s, color 0.2s;
+}
+
+a[data-text]::before, a[data-text]::after,
+button[data-text]::before, button[data-text]::after,
+.glitch-hover[data-text]::before, .glitch-hover[data-text]::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  opacity: 0;
+  pointer-events: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Align inline items properly */
+a[data-text]::before, a[data-text]::after {
+  justify-content: inherit;
+}
+
+/* Red & Purple channel */
+a[data-text]::before, button[data-text]::before, .glitch-hover[data-text]::before {
+  color: #DC003B !important;
+  text-shadow: -2px 0 #a855f7 !important;
+}
+
+/* Blue & Green channel */
+a[data-text]::after, button[data-text]::after, .glitch-hover[data-text]::after {
+  color: #00d2ff !important;
+  text-shadow: 2px 0 #00ff66 !important;
+}
+
+a[data-text]:hover, button[data-text]:hover, .glitch-hover[data-text]:hover {
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
+  animation: label-base-shake 0.15s infinite linear;
+}
+
+a[data-text]:hover::before, button[data-text]:hover::before, .glitch-hover[data-text]:hover::before {
+  opacity: 0.85;
+  animation: label-glitch-1 0.2s infinite steps(2);
+  mix-blend-mode: screen;
+}
+
+a[data-text]:hover::after, button[data-text]:hover::after, .glitch-hover[data-text]:hover::after {
+  opacity: 0.85;
+  animation: label-glitch-2 0.25s infinite steps(2) reverse;
+  mix-blend-mode: screen;
+}
+
+
 
