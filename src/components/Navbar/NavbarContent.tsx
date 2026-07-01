@@ -165,15 +165,16 @@ const NavbarContent = () => {
             </div>
           </div>
           <div className="flex flex-row gap-6 items-center z-20">
-            <button
+            <a
+              href="mailto:mnet@monash.edu"
               className={cn(
                 "transition-all duration-500 ease-in-out",
-                "hover:cursor-pointer md:flex font-offbit font-bold hidden h-fit px-8 py-3 bg-primary rounded-md",
+                "hover:cursor-pointer md:flex font-offbit font-bold hidden h-fit px-8 py-3 bg-primary rounded-md items-center justify-center",
                 open ? "px-4 py-2 text-sm" : "",
               )}
             >
               CONTACT
-            </button>
+            </a>
             <div
               className={`relative w-12 h-9 cursor-pointer transition-transform duration-500 ease-in-out`}
               onClick={toggleOpen}
@@ -294,6 +295,34 @@ const NavbarContent = () => {
               <div className="[grid-area:1/1] flex items-center justify-center pointer-events-none z-10 brightness-100">
                 <span className="text-white text-2xl pointer-events-none">
                   Events
+                </span>
+              </div>
+            </div>
+          </div>
+          <div
+            onClick={() => handleNavigation("/workshops")}
+            className={cn(
+              "flex-1 font-offbit font-bold bg-transparent rounded-lg cursor-pointer",
+            )}
+          >
+            <div className="relative w-full md:aspect-12/16 rounded-lg grid">
+              <Image
+                src="/img/Nav-Workshops.png"
+                alt="MNET workshops"
+                fill
+                className="hidden md:block object-cover object-[50%_50%] brightness-60 hover:scale-120 transition-transform duration-300 ease-in-out"
+              />
+              <Image
+                src="/img/Nav-Workshops.png"
+                alt="MNET workshops"
+                width={800}
+                height={400}
+                className="md:hidden w-full h-auto brightness-60 object-cover aspect-24/8 [grid-area:1/1]"
+              />
+              {/* Overlay — same grid cell, sits on top */}
+              <div className="[grid-area:1/1] flex items-center justify-center pointer-events-none z-10 brightness-100">
+                <span className="text-white text-2xl pointer-events-none">
+                  Workshops
                 </span>
               </div>
             </div>

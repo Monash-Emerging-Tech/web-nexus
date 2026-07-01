@@ -125,11 +125,17 @@ const ContourMap: React.FC<ContourMapProps> = ({ children }) => {
                     PROJECTS: "/projects",
                     EVENTS: "/events",
                     TEAM: "/team",
-                    COLLABORATORS: "/about-us"
+                    WORKSHOPS: "/workshops",
+                    "ABOUT US": "/about-us",
+                    "CONTACT US": "mailto:mnet@monash.edu"
                   };
                   const route = routes[label.text.toUpperCase()];
                   if (route) {
-                    router.push(route);
+                    if (route.startsWith("mailto:")) {
+                      window.location.href = route;
+                    } else {
+                      router.push(route);
+                    }
                   }
                 }}
               >

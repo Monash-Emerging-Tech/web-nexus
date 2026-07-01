@@ -18,20 +18,24 @@ export const homeContent: HomeContent = {
       {
         links: [
           {
-            label: "About",
-            href: "https://www.canva.com/design/DAHA4J-hKD4/4adI4IB-DoOC1ohieiwEQQ/edit?utm_content=DAHA4J-hKD4&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton",
+            label: "About Us",
+            href: "/about-us",
           },
           {
             label: "Projects",
-            href: "https://www.monash.edu/monash-innovation-labs/facilities/mil-shared-facilities/monash-smart-manufacturing",
+            href: "/projects",
           },
           {
             label: "Events",
-            href: "https://www.monash.edu/it/hcc/embodied-visualisation",
+            href: "/events",
           },
           {
-            label: "Meet the Team",
-            href: "https://sites.google.com/monash.edu/virtual-and-augmented-reality/home?authuser=0",
+            label: "Workshops",
+            href: "/workshops",
+          },
+          {
+            label: "Team",
+            href: "/team",
           },
         ],
       },

@@ -218,8 +218,6 @@ export function Navbar({ disableContextCursor = false }: NavbarProps) {
           <a
             data-ccursor
             href={homeContent.nav.contactHref}
-            target="_blank"
-            rel="noreferrer"
             className="font-offbit-101 my-auto hidden flex-row items-center place-content-center rounded-md bg-[#DC003B] p-2 px-3 text-sm tracking-wide text-white transition-all duration-500 [transition-timing-function:cubic-bezier(0,-0.03,0,1)] md:hover:-translate-y-0.5 lg:flex"
           >
             <span>CONTACT US</span>
@@ -265,31 +263,52 @@ export function Navbar({ disableContextCursor = false }: NavbarProps) {
           id="mobileMenuDiv1"
           className={`mobile-menu-panel-primary text-2xl uppercase shadow-2xl drop-shadow-2xl md:w-56 ${menuOpen ? "mobileMenuDiv1Visible" : "mobileMenuDiv1Hidden"}`}
         >
-          {homeContent.nav.menuGroups[0].links.map((link) => (
-            <a
-              key={link.label}
-              data-ccursor
-              target="_blank"
-              rel="noreferrer"
-              href={link.href}
-              className={`font-offbit-bold m-auto h-min w-full rounded-lg p-1 pl-4 text-center text-base text-white ${
-                menuOpen ? "" : "hidden"
-              }`}
-            >
-              {link.labelLines ? (
-                <>
-                  {link.labelLines.map((line, index) => (
-                    <span key={`${link.label}-${line}`}>
-                      {index > 0 ? <br /> : null}
-                      {line}
-                    </span>
-                  ))}
-                </>
-              ) : (
-                link.label
-              )}
-            </a>
-          ))}
+          {homeContent.nav.menuGroups[0].links.map((link) => {
+            const isInternal = link.href.startsWith("/");
+            const linkContent = link.labelLines ? (
+              <>
+                {link.labelLines.map((line, index) => (
+                  <span key={`${link.label}-${line}`}>
+                    {index > 0 ? <br /> : null}
+                    {line}
+                  </span>
+                ))}
+              </>
+            ) : (
+              link.label
+            );
+
+            if (isInternal) {
+              return (
+                <Link
+                  key={link.label}
+                  data-ccursor
+                  href={link.href}
+                  onClick={handleOverlayClose}
+                  className={`font-offbit-bold m-auto h-min w-full rounded-lg p-1 pl-4 text-center text-base text-white ${
+                    menuOpen ? "" : "hidden"
+                  }`}
+                >
+                  {linkContent}
+                </Link>
+              );
+            }
+
+            return (
+              <a
+                key={link.label}
+                data-ccursor
+                target="_blank"
+                rel="noreferrer"
+                href={link.href}
+                className={`font-offbit-bold m-auto h-min w-full rounded-lg p-1 pl-4 text-center text-base text-white ${
+                  menuOpen ? "" : "hidden"
+                }`}
+              >
+                {linkContent}
+              </a>
+            );
+          })}
         </div>
 
         <div
@@ -297,8 +316,6 @@ export function Navbar({ disableContextCursor = false }: NavbarProps) {
           className={`mobile-menu-panel-secondary font-offbit-bold md:w-56 ${menuOpen ? "mobileMenuDiv2Visible" : "mobileMenuDiv2Hidden"}`}
         >
           <a
-            target="_blank"
-            rel="noreferrer"
             href={homeContent.nav.contactHref}
             data-ccursor
             className={`m-auto mx-4 ml-0 mb-4 flex h-min w-full place-content-center rounded-lg text-xl ${menuOpen ? "" : "hidden"}`}
