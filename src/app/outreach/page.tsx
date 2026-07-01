@@ -3,7 +3,7 @@
 import EventsPage from "@/components/events/EventsPage";
 import { getPortfolios } from "@/lib/notion/portfolios";
 
-const EventsRoute = async () => {
+const OutreachRoute = async () => {
   const pastEvents = await getPortfolios({ department: "Marketing", timeWindow: "past" });
   const futureEvents = await getPortfolios({ department: "Marketing", timeWindow: "upcoming" });
 
@@ -12,4 +12,4 @@ const EventsRoute = async () => {
   );
 }
 
-export default EventsRoute;
+export default OutreachRoute;

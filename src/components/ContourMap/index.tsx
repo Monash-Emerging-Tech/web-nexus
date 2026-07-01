@@ -65,45 +65,80 @@ const ContourMap: React.FC<ContourMapProps> = ({ children }) => {
           const endY = label.diag[1];
 
           return (
-            <div key={label.text} style={{ position: 'absolute', left: 0, top: 0 }}>
-              {/* Anchor dot */}
-              <div style={{
-                width: 6, height: 6, borderRadius: '50%',
-                background: '#fff',
-                boxShadow: '0 0 8px rgba(255,255,255,0.8)',
-                position: 'absolute', left: -3, top: -3,
-              }} />
-
-              {/* Leader line: diagonal + horizontal shelf */}
-              <svg style={{
-                position: 'absolute', left: 0, top: 0,
-                overflow: 'visible', width: 1, height: 1,
-                pointerEvents: 'none',
-              }}>
-                <polyline
-                  points={`0,0 ${label.diag[0]},${label.diag[1]} ${endX},${endY}`}
-                  fill="none"
-                  stroke="rgba(255,255,255,0.6)"
-                  strokeWidth={1}
-                />
-                <line
-                  x1={endX} y1={endY - 4}
-                  x2={endX} y2={endY + 4}
-                  stroke="rgba(255,255,255,0.6)"
-                  strokeWidth={1}
-                />
-              </svg>
+            <div 
+              key={label.text} 
+              style={{ 
+                position: 'absolute', 
+                left: 0, 
+                top: 0,
+                transform: 'scale(var(--nav-scale, 0))',
+                transformOrigin: '0 0',
+              }}
+            >
+              {(() => {
+                const dx = label.diag[0];
+                const dy = label.diag[1];
+                const theta = Math.atan2(dy, dx);
+                
+                // Radius of imaginary circle around the cube (larger than rotation scope)
+                const R = 160;
+                
+                // Arc span in radians (approx 15 degrees total)
+                const deltaTheta = 0.13; 
+                const theta1 = theta - deltaTheta;
+                const theta2 = theta + deltaTheta;
+                
+                // Arc start and end coordinates
+                const xArc1 = R * Math.cos(theta1);
+                const yArc1 = R * Math.sin(theta1);
+                const xArc2 = R * Math.cos(theta2);
+                const yArc2 = R * Math.sin(theta2);
+                
+                // Diagonal leader line starts from the center of the arc
+                const xStart = R * Math.cos(theta);
+                const yStart = R * Math.sin(theta);
+                
+                return (
+                  <svg style={{
+                    position: 'absolute', left: 0, top: 0,
+                    overflow: 'visible', width: 1, height: 1,
+                    pointerEvents: 'none',
+                  }}>
+                    {/* The circular arc segment */}
+                    <path
+                      d={`M ${xArc1},${yArc1} A ${R},${R} 0 0,1 ${xArc2},${yArc2}`}
+                      fill="none"
+                      stroke="rgba(255,255,255,0.7)"
+                      strokeWidth={2}
+                    />
+                    {/* Leader Line starting from the arc */}
+                    <polyline
+                      points={`${xStart},${yStart} ${dx},${dy} ${endX},${endY}`}
+                      fill="none"
+                      stroke="rgba(255,255,255,0.7)"
+                      strokeWidth={2}
+                    />
+                    {/* Horizontal tick marker */}
+                    <line
+                      x1={endX} y1={endY - 6}
+                      x2={endX} y2={endY + 6}
+                      stroke="rgba(255,255,255,0.7)"
+                      strokeWidth={2}
+                    />
+                  </svg>
+                );
+              })()}
 
               {/* Text label */}
               <div
                 style={{
                   position: 'absolute',
-                  left: isRight ? endX + 10 : endX - 10,
-                  top: endY - 8,
+                  left: isRight ? endX + 14 : endX - 14,
+                  top: endY - 11,
                   whiteSpace: 'nowrap',
                   color: '#fff',
                   fontFamily: 'var(--font-offbit, monospace)',
-                  fontSize: 13,
+                  fontSize: 18,
                   fontWeight: 700,
                   letterSpacing: '0.2em',
                   textAlign: isRight ? 'left' : 'right',
@@ -122,12 +157,10 @@ const ContourMap: React.FC<ContourMapProps> = ({ children }) => {
                 }}
                 onClick={() => {
                   const routes: Record<string, string> = {
-                    PROJECTS: "/projects",
-                    EVENTS: "/events",
-                    TEAM: "/team",
-                    WORKSHOPS: "/workshops",
                     "ABOUT US": "/about-us",
-                    "CONTACT US": "mailto:mnet@monash.edu"
+                    "OUTREACH": "/outreach",
+                    "PORTFOLIO": "/portfolios",
+                    "COLLABORATORS": "/collaborators"
                   };
                   const route = routes[label.text.toUpperCase()];
                   if (route) {

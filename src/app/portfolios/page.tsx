@@ -5,14 +5,14 @@ import { Portfolio } from "@/lib/notion/types";
 import { getPortfolios } from "@/lib/notion/portfolios";
 import ProjectsCard from "./ProjectsCard";
 
-const ProjectsPage = async () => {
+const PortfoliosPage = async () => {
   const projectData: Portfolio[] = await getPortfolios({ department: "Projects" });
 
   return (
     <section className="px-4 sm:px-6 lg:px-8 pt-[25vh] md:pt-[30vh] pb-16">
       <div className="container mx-auto">
         <h2 className="h-[160px] text-header font-bold text-neutral-100 text-left font-offbit-dot">
-          Projects
+          Portfolios
         </h2>
         <p className="text-left pb-4 text-subheader font-offbit font-bold">
           A slice of our work
@@ -27,4 +27,4 @@ const ProjectsPage = async () => {
   );
 };
 
-export default ProjectsPage;
+export default PortfoliosPage;

@@ -22,20 +22,16 @@ export const homeContent: HomeContent = {
             href: "/about-us",
           },
           {
-            label: "Projects",
-            href: "/projects",
+            label: "Outreach",
+            href: "/outreach",
           },
           {
-            label: "Events",
-            href: "/events",
+            label: "Portfolio",
+            href: "/portfolios",
           },
           {
-            label: "Workshops",
-            href: "/workshops",
-          },
-          {
-            label: "Team",
-            href: "/team",
+            label: "Collaborators",
+            href: "/collaborators",
           },
         ],
       },

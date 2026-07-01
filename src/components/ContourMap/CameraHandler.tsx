@@ -51,7 +51,9 @@ const CameraHandler: React.FC<CameraHandlerProps> = ({ perf }) => {
     }
     
     state.camera.position.set(targetCamX + shakeX, targetCamY + shakeY, targetCamZ + shakeZ);
-    state.camera.lookAt(0, 0, 0);
+    const targetLookAtY = ny * 80 * scrollOffset;
+    const targetLookAtZ = nz * 80 * scrollOffset;
+    state.camera.lookAt(0, targetLookAtY, targetLookAtZ);
   });
 
   return null;

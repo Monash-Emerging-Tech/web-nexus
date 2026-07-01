@@ -1,8 +1,6 @@
 export const LABEL_CONFIG = [
-  { text: "ABOUT US",   diag: [0, -85],   shelf: 70  },
-  { text: "PROJECTS",   diag: [55, -45],  shelf: 70  },
-  { text: "EVENTS",     diag: [-55, -45], shelf: -70 },
-  { text: "TEAM",       diag: [55, 45],   shelf: 70  },
-  { text: "WORKSHOPS",  diag: [-55, 45],  shelf: -70 },
-  { text: "CONTACT US", diag: [0, 85],    shelf: -70 },
+  { text: "ABOUT US",       diag: [65, -215],  shelf: 110  },
+  { text: "PORTFOLIO",      diag: [210, -90],  shelf: 110  },
+  { text: "OUTREACH",       diag: [-65, 215],  shelf: -110 },
+  { text: "COLLABORATORS",  diag: [-210, 90],  shelf: -110 },
 ];

@@ -215,19 +215,18 @@ const NavbarContent = () => {
           style={{ height: 0, overflow: "hidden", opacity: 0 }}
           className="flex md:flex-row flex-col md:justify-between gap-4 md:gap-10 items-center z-20 w-full opacity-0"
         >
+          {/* ABOUT US */}
           <div
             onClick={() => handleNavigation("/about-us")}
-            className="flex-1 font-offbit font-bold bg-transparent rounded-lg cursor-pointer"
+            className="flex-1 font-offbit font-bold bg-transparent rounded-lg cursor-pointer w-full"
           >
             <div className="relative w-full md:aspect-9/16 rounded-lg grid">
-              {/* Desktop */}
               <Image
                 src="/img/Nav-About-Temp.JPG"
                 alt="MNET about us"
                 fill
                 className="hidden md:block object-cover brightness-60 hover:scale-120 transition-transform duration-300 ease-in-out"
               />
-              {/* Mobile (couldnt figure out a better solution :p) */}
               <Image
                 src="/img/Nav-About-Temp.JPG"
                 alt="MNET about us"
@@ -235,122 +234,90 @@ const NavbarContent = () => {
                 height={400}
                 className="md:hidden w-full h-auto brightness-60 object-cover aspect-24/8 [grid-area:1/1]"
               />
-              {/* Overlay — same grid cell, sits on top */}
               <div className="[grid-area:1/1] flex items-center justify-center pointer-events-none z-10 brightness-100">
-                <span className="text-white text-2xl pointer-events-none">
+                <span className="text-white text-2xl pointer-events-none uppercase tracking-widest text-shadow-md">
                   ABOUT US
                 </span>
               </div>
             </div>
           </div>
+
+          {/* OUTREACH */}
           <div
-            onClick={() => handleNavigation("/projects")}
-            className={cn(
-              "flex-1 font-offbit font-bold bg-transparent rounded-lg cursor-pointer",
-            )}
+            onClick={() => handleNavigation("/outreach")}
+            className="flex-1 font-offbit font-bold bg-transparent rounded-lg cursor-pointer w-full"
           >
             <div className="relative w-full md:aspect-9/16 rounded-lg grid">
               <Image
-                src="/img/Nav-Projects.png"
-                alt="MNET projects"
-                fill
-                className="hidden md:block object-cover object-[10%_60%] brightness-60 hover:scale-120 transition-transform duration-300 ease-in-out"
-              />
-              <Image
-                src="/img/Nav-Projects.png"
-                alt="MNET projects"
-                width={800}
-                height={400}
-                className="md:hidden w-full h-auto brightness-60 object-cover aspect-24/8 [grid-area:1/1]"
-              />
-              {/* Overlay — same grid cell, sits on top */}
-              <div className="[grid-area:1/1] flex items-center justify-center pointer-events-none z-10 brightness-100">
-                <span className="text-white text-2xl pointer-events-none">
-                  Projects
-                </span>
-              </div>
-            </div>
-          </div>
-          <div
-            onClick={() => handleNavigation("/events")}
-            className={cn(
-              "flex-1 font-offbit font-bold bg-transparent rounded-lg cursor-pointer",
-            )}
-          >
-            <div className="relative w-full md:aspect-12/16 rounded-lg grid">
-              <Image
                 src="/img/Nav-Events.JPG"
-                alt="MNET events"
+                alt="MNET outreach"
                 fill
                 className="hidden md:block object-cover object-[20%_40%] brightness-60 hover:scale-120 transition-transform duration-300 ease-in-out"
               />
               <Image
                 src="/img/Nav-Events.JPG"
-                alt="MNET events"
+                alt="MNET outreach"
                 width={800}
                 height={400}
                 className="md:hidden w-full h-auto brightness-60 object-cover aspect-24/8 [grid-area:1/1]"
               />
-              {/* Overlay — same grid cell, sits on top */}
               <div className="[grid-area:1/1] flex items-center justify-center pointer-events-none z-10 brightness-100">
-                <span className="text-white text-2xl pointer-events-none">
-                  Events
+                <span className="text-white text-2xl pointer-events-none uppercase tracking-widest text-shadow-md">
+                  OUTREACH
                 </span>
               </div>
             </div>
           </div>
+
+          {/* PORTFOLIO */}
           <div
-            onClick={() => handleNavigation("/workshops")}
-            className={cn(
-              "flex-1 font-offbit font-bold bg-transparent rounded-lg cursor-pointer",
-            )}
+            onClick={() => handleNavigation("/portfolios")}
+            className="flex-1 font-offbit font-bold bg-transparent rounded-lg cursor-pointer w-full"
           >
-            <div className="relative w-full md:aspect-12/16 rounded-lg grid">
+            <div className="relative w-full md:aspect-9/16 rounded-lg grid">
               <Image
-                src="/img/Nav-Workshops.png"
-                alt="MNET workshops"
+                src="/img/Nav-Projects.png"
+                alt="MNET portfolio"
                 fill
-                className="hidden md:block object-cover object-[50%_50%] brightness-60 hover:scale-120 transition-transform duration-300 ease-in-out"
+                className="hidden md:block object-cover object-[10%_60%] brightness-60 hover:scale-120 transition-transform duration-300 ease-in-out"
               />
               <Image
-                src="/img/Nav-Workshops.png"
-                alt="MNET workshops"
+                src="/img/Nav-Projects.png"
+                alt="MNET portfolio"
                 width={800}
                 height={400}
                 className="md:hidden w-full h-auto brightness-60 object-cover aspect-24/8 [grid-area:1/1]"
               />
-              {/* Overlay — same grid cell, sits on top */}
               <div className="[grid-area:1/1] flex items-center justify-center pointer-events-none z-10 brightness-100">
-                <span className="text-white text-2xl pointer-events-none">
-                  Workshops
+                <span className="text-white text-2xl pointer-events-none uppercase tracking-widest text-shadow-md">
+                  PORTFOLIO
                 </span>
               </div>
             </div>
           </div>
+
+          {/* COLLABORATORS */}
           <div
-            onClick={() => handleNavigation("/team")}
-            className={cn(
-              "flex-1 font-offbit font-bold bg-transparent rounded-lg cursor-pointer",
-            )}
+            onClick={() => handleNavigation("/collaborators")}
+            className="flex-1 font-offbit font-bold bg-transparent rounded-lg cursor-pointer w-full"
           >
-            <div className="relative w-full md:aspect-square rounded-lg grid">
+            <div className="relative w-full md:aspect-9/16 rounded-lg grid">
               <Image
                 src="/img/Nav-Team.JPG"
-                alt="MNET team"
+                alt="MNET collaborators"
                 fill
                 className="hidden md:block object-cover object-[45%_60%] brightness-60 hover:scale-120 transition-transform duration-300 ease-in-out"
               />
               <Image
                 src="/img/Nav-Team.JPG"
-                alt="MNET team"
+                alt="MNET collaborators"
                 width={800}
                 height={400}
                 className="md:hidden w-full h-auto brightness-60 object-cover aspect-24/8 [grid-area:1/1]"
               />
-              {/* Overlay — same grid cell, sits on top */}
               <div className="[grid-area:1/1] flex items-center justify-center pointer-events-none z-10 brightness-100">
-                <span className="text-white text-2xl pointer-events-none">
-                  Team
+                <span className="text-white text-2xl pointer-events-none uppercase tracking-widest text-shadow-md">
+                  COLLABORATORS
                 </span>
               </div>
             </div>

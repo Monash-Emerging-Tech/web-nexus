@@ -24,7 +24,7 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef }) => {
       const nz = Math.cos(mapAngle);
       
       const appearance = smoothstep(0.6, 1.0, scrollOffset);
-      planetRef.current.scale.setScalar(appearance * 1.5);
+      planetRef.current.scale.setScalar(appearance * 2.3);
       
       planetRef.current.position.y = ny * 80 * appearance;
       planetRef.current.position.z = nz * 80 * appearance;
@@ -52,8 +52,10 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef }) => {
         if (cubeScale > 0.3) {
           overlayRef.current.style.opacity = '1';
           overlayRef.current.style.transform = `translate(${screenX}px, ${screenY}px)`;
+          overlayRef.current.style.setProperty('--nav-scale', appearance.toString());
         } else {
           overlayRef.current.style.opacity = '0';
+          overlayRef.current.style.setProperty('--nav-scale', '0');
         }
       }
     }
