@@ -10,6 +10,16 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "images.unsplash.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "app.notion.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
         hostname: "s3.us-west-2.amazonaws.com",
         pathname: "/**",
       },
@@ -21,6 +31,11 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "media.licdn.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "badhi.id",
         pathname: "/**",
       },
     ],

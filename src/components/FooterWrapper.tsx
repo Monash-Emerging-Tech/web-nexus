@@ -47,7 +47,7 @@ export default function FooterWrapper() {
             <i className="fab fa-discord"></i>
           </a>
         </div>
-        <p className="font-offbit font-bold text-[9px] md:text-xs tracking-widest text-white/40">
+        <p className="font-offbit font-bold text-[9px] md:text-xs tracking-widest text-white/40" suppressHydrationWarning>
           © {new Date().getFullYear()} MONASH NEXUS FOR EMERGING TECHNOLOGIES
         </p>
       </div>

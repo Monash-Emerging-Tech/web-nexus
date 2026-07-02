@@ -33,7 +33,7 @@ const Footer = () => {
         <a href="https://discord.gg/hFxzMnxgbK" style={{ color: 'white', fontSize: '1.5em' }} aria-label="Discord"><i className="fab fa-discord"></i></a>
       </div>
 
-      <p style={{ fontSize: '0.9em', letterSpacing: '2px' }} className='font-offbit font-bold'>
+      <p style={{ fontSize: '0.9em', letterSpacing: '2px' }} className='font-offbit font-bold' suppressHydrationWarning>
         © {new Date().getFullYear()} Monash Nexus for Emerging Technologies
       </p>
     </footer>

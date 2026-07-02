@@ -3,11 +3,14 @@
 import { useEffect, useRef } from "react";
 import { StarfieldInstance } from "./types";
 import { initializeStarColors, startSparkleEffect } from "./effects";
-import { usePerformanceTier } from "../ContourMap/usePerformanceTier";
+import type { PerformanceConfig } from "../ContourMap/usePerformanceTier";
 
-export function Starfield() {
+interface StarfieldProps {
+  perf: PerformanceConfig;
+}
+
+export function Starfield({ perf }: StarfieldProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const perf = usePerformanceTier();
 
   useEffect(() => {
     let mounted = true;

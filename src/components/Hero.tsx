@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useScroll } from "@react-three/drei";
 import ContourMap from "./ContourMap";
+import { optimizeFlashbackUrl } from "@/lib/utils";
 
 const OurWorkButton = () => {
   const scroll = useScroll();
@@ -132,7 +133,7 @@ const Hero: React.FC<HeroProps> = ({ flashbackUrls = [] }) => {
         });
         urls.forEach((url) => {
           const img = new Image();
-          img.src = url;
+          img.src = optimizeFlashbackUrl(url, 800);
         });
       };
 

@@ -6,7 +6,7 @@ import BlockHandler from "@/components/notion/BlockHandler";
 import { getPortfolioById } from "@/lib/notion/portfolios";
 import { getBlogBySlug } from "@/lib/notion/pages";
 
-export default async function Page({ params } : { params: { slug: string } }) {
+export default async function Page({ params } : { params: Promise<{ slug: string }> }) {
 	const { slug: projectSlug } = await params;
 
 	// Fetch portfolio metadata properties

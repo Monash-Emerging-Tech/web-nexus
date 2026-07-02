@@ -4,6 +4,7 @@ import React, { useRef, useState, useEffect, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useScroll } from "@react-three/drei";
 import * as THREE from "three";
+import { optimizeFlashbackUrl } from "@/lib/utils";
 
 // Local JPG fallback images from public/img folder
 const FALLBACK_IMAGES = [
@@ -170,6 +171,10 @@ const FlashbackOrb: React.FC<FlashbackOrbProps> = ({
   const [aspect, setAspect] = useState(1);
   const [hovered, setHovered] = useState(false);
 
+  // Pre-allocated to avoid per-frame GC pressure
+  const lerpPosTarget = useRef(new THREE.Vector3());
+  const lerpScaleTarget = useRef(new THREE.Vector3());
+
   // Generate a random unique phase for floating/wobble offset
   const phase = useMemo(() => Math.random() * Math.PI * 2, []);
 
@@ -198,7 +203,7 @@ const FlashbackOrb: React.FC<FlashbackOrbProps> = ({
 
     const loadTexture = (textureUrl: string, isFallback: boolean = false) => {
       loader.load(
-        textureUrl,
+        isFallback ? textureUrl : optimizeFlashbackUrl(textureUrl, 800),
         (tex) => {
           tex.minFilter = THREE.LinearFilter;
           const img = tex.image;
@@ -287,20 +292,22 @@ const FlashbackOrb: React.FC<FlashbackOrbProps> = ({
     const targetZ = initialPos.z + Math.sin(time * 0.4 + phase) * 0.15;
 
     // Smoothly lerp position for organic inertia fluid movement
-    meshRef.current.position.lerp(new THREE.Vector3(targetX, targetY, targetZ), 0.1);
+    lerpPosTarget.current.set(targetX, targetY, targetZ);
+    meshRef.current.position.lerp(lerpPosTarget.current, 0.1);
 
     // Smoothly scale up/down depending on opacity and hover states
     const targetBaseScale = isMobile
       ? (hovered ? 1.5 : 1.1)
       : (hovered ? 3.8 : 3.0);
     const finalTargetScale = targetBaseScale * opacity;
-    meshRef.current.scale.lerp(new THREE.Vector3(finalTargetScale, finalTargetScale, finalTargetScale), 0.12);
+    lerpScaleTarget.current.setScalar(finalTargetScale);
+    meshRef.current.scale.lerp(lerpScaleTarget.current, 0.12);
 
     // Toggle visibility to save draw calls when mesh is invisible
     meshRef.current.visible = opacity > 0.001;
 
-    // Local rotation roll
-    meshRef.current.rotation.z += Math.sin(time * 0.3 + phase) * 0.08;
+    // Local rotation wobble — assign (not accumulate) to prevent unbounded float growth
+    meshRef.current.rotation.z = Math.sin(time * 0.3 + phase) * 0.08;
 
     // Uniform updates with smooth lerps
     materialRef.current.uniforms.uTexture.value = texture;

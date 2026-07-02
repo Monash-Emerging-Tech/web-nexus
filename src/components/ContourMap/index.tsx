@@ -45,13 +45,13 @@ const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] })
 
   return (
     <div className="w-full h-full overflow-hidden bg-black relative">
-      <Starfield />
+      <Starfield perf={perf} />
       <Canvas 
         camera={{ position: [0, 5, 15], fov: 40 }} 
         gl={{ antialias: perf.antialias }}
         dpr={perf.dpr}
       >
-        {perf.enableEnvironment && <Environment preset="city" />}
+        {perf.enableEnvironment && <Environment files="/assets/potsdamer_platz_1k.hdr" />}
         <ambientLight intensity={2.0} />
         
         {/* Global lights */}
