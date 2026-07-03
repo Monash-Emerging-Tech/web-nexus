@@ -1,23 +1,25 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useNavbar } from "./NavbarProvider";
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 
+const NAV_ROUTES = ["/about-us", "/outreach", "/portfolios", "/collaborators"];
+
 const NavbarContent = () => {
   const { open, toggleOpen } = useNavbar();
   const router = useRouter();
 
-  const handleNavigation = (path: string) => {
-    if (open) toggleOpen();
+  // Eagerly prefetch all nav routes on mount
+  useEffect(() => {
+    NAV_ROUTES.forEach((r) => router.prefetch(r));
+  }, [router]);
 
-    setTimeout(() => {
-      router.push(path);
-    }, 200);
-  };
+  const closeNav = () => { if (open) toggleOpen(); };
 
   const holderRef = useRef<HTMLDivElement>(null);
   const navbarRef = useRef<HTMLDivElement>(null);
@@ -128,8 +130,9 @@ const NavbarContent = () => {
         )}
       >
         <div className="flex flex-row justify-between items-center w-full">
-          <div
-            onClick={() => handleNavigation("/")}
+          <Link
+            href="/"
+            onClick={closeNav}
             className="flex flex-row gap-6 items-center z-20 cursor-pointer"
           >
             <Image
@@ -163,7 +166,7 @@ const NavbarContent = () => {
                 MONASH NEXUS FOR EMERGING TECHNOLOGIES
               </h2>
             </div>
-          </div>
+          </Link>
           <div className="flex flex-row gap-6 items-center z-20">
             <a
               href="mailto:mnet@monash.edu"
@@ -216,8 +219,9 @@ const NavbarContent = () => {
           className="flex md:flex-row flex-col md:justify-between gap-4 md:gap-10 items-center z-20 w-full opacity-0"
         >
           {/* ABOUT US */}
-          <div
-            onClick={() => handleNavigation("/about-us")}
+          <Link
+            href="/about-us"
+            onClick={closeNav}
             className="flex-1 font-offbit font-bold bg-transparent rounded-lg cursor-pointer w-full"
           >
             <div className="relative w-full md:aspect-9/16 rounded-lg grid">
@@ -240,11 +244,12 @@ const NavbarContent = () => {
                 </span>
               </div>
             </div>
-          </div>
+          </Link>
 
           {/* OUTREACH */}
-          <div
-            onClick={() => handleNavigation("/outreach")}
+          <Link
+            href="/outreach"
+            onClick={closeNav}
             className="flex-1 font-offbit font-bold bg-transparent rounded-lg cursor-pointer w-full"
           >
             <div className="relative w-full md:aspect-9/16 rounded-lg grid">
@@ -267,11 +272,12 @@ const NavbarContent = () => {
                 </span>
               </div>
             </div>
-          </div>
+          </Link>
 
           {/* PORTFOLIO */}
-          <div
-            onClick={() => handleNavigation("/portfolios")}
+          <Link
+            href="/portfolios"
+            onClick={closeNav}
             className="flex-1 font-offbit font-bold bg-transparent rounded-lg cursor-pointer w-full"
           >
             <div className="relative w-full md:aspect-9/16 rounded-lg grid">
@@ -294,11 +300,12 @@ const NavbarContent = () => {
                 </span>
               </div>
             </div>
-          </div>
+          </Link>
 
           {/* COLLABORATORS */}
-          <div
-            onClick={() => handleNavigation("/collaborators")}
+          <Link
+            href="/collaborators"
+            onClick={closeNav}
             className="flex-1 font-offbit font-bold bg-transparent rounded-lg cursor-pointer w-full"
           >
             <div className="relative w-full md:aspect-9/16 rounded-lg grid">
@@ -321,7 +328,7 @@ const NavbarContent = () => {
                 </span>
               </div>
             </div>
-          </div>
+          </Link>
         </div>
       </div>
     </div>
