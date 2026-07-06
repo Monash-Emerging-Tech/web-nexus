@@ -130,8 +130,9 @@ const fragmentShader = `
     // Keep a hint of the original photo so faces stay readable
     vec3 faded = mix(tinted, texColor.rgb, 0.2);
 
-    // Hovering restores the memory to its true colors
-    vec3 gradedColor = mix(faded, texColor.rgb * 1.1, uHover * 0.8);
+    // Idle: image sits dimmed behind the contour overlay.
+    // Hovering brings the memory forward in its true colors.
+    vec3 gradedColor = mix(faded * 0.5, texColor.rgb * 1.1, uHover * 0.8);
 
     // Vignette darkens toward the duotone shadow so edges melt into the border glow
     float distFromCenter = length(centeredUv);
@@ -150,7 +151,7 @@ const fragmentShader = `
     float cLine = smoothstep(cdf * 2.0, cdf, abs(cf - 0.5));
     float cGlow = smoothstep(1.5, 0.0, abs(cf - 0.5) / cdf) * 0.4;
     vec3 contourLineColor = mix(colorLow, colorHigh, clamp(elevation / 3.0, 0.0, 1.0));
-    float contourStrength = 0.35 * (1.0 - uHover * 0.85) * vignette;
+    float contourStrength = 1.0 * (1.0 - uHover * 0.9) * vignette;
     gradedColor += contourLineColor * (cLine + cGlow) * contourStrength;
 
     // Scanlines (drawn on the sphere surface)
