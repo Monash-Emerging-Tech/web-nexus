@@ -35,9 +35,25 @@ const fragmentShader = `
   uniform float uGlitch;
   uniform float uHover;
   uniform float uAspect;
+  uniform float uPhase;
   varying vec2 vUv;
 
   float hash(float n) { return fract(sin(n) * 43758.5453123); }
+
+  float hash2(vec2 p) {
+    return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+  }
+
+  float noise2(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    float a = hash2(i);
+    float b = hash2(i + vec2(1.0, 0.0));
+    float c = hash2(i + vec2(0.0, 1.0));
+    float d = hash2(i + vec2(1.0, 1.0));
+    vec2 u = f * f * (3.0 - 2.0 * f);
+    return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+  }
 
   void main() {
     vec2 uv = vUv;
@@ -121,6 +137,21 @@ const fragmentShader = `
     float distFromCenter = length(centeredUv);
     float vignette = smoothstep(0.85, 0.45, distFromCenter);
     gradedColor = mix(duoLow, gradedColor, vignette);
+
+    // Translucent contour map drifting over the memory, same line style and
+    // drift speeds as the terrain shader; per-orb uPhase offsets the pattern.
+    // Fades out on hover so the photo comes through clean when focused on.
+    vec2 contourUv = sphereUv * 5.0 + vec2(uPhase * 3.7, uPhase * 1.3);
+    float elevation = noise2(contourUv * 0.6 + uTime * 0.1) * 2.5;
+    elevation += noise2(contourUv * 1.6 - uTime * 0.05) * 0.8;
+    float cVal = elevation * 3.0;
+    float cf = fract(cVal);
+    float cdf = fwidth(cVal);
+    float cLine = smoothstep(cdf * 2.0, cdf, abs(cf - 0.5));
+    float cGlow = smoothstep(1.5, 0.0, abs(cf - 0.5) / cdf) * 0.4;
+    vec3 contourLineColor = mix(colorLow, colorHigh, clamp(elevation / 3.0, 0.0, 1.0));
+    float contourStrength = 0.35 * (1.0 - uHover * 0.85) * vignette;
+    gradedColor += contourLineColor * (cLine + cGlow) * contourStrength;
 
     // Scanlines (drawn on the sphere surface)
     float scanline = sin(sphereUv.y * 320.0 + uTime * 6.0) * 0.02 * (1.0 - uHover * 0.5);
@@ -246,7 +277,9 @@ const FlashbackOrb: React.FC<FlashbackOrbProps> = ({
       uGlitch: { value: 0 },
       uHover: { value: 0 },
       uAspect: { value: 1.0 },
+      uPhase: { value: phase },
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
