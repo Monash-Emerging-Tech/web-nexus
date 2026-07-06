@@ -99,19 +99,28 @@ const fragmentShader = `
     vec3 colorLow = vec3(0.008, 0.051, 0.671);
     vec3 colorHigh = vec3(0.82, 0.008, 0.224);
 
-    // Convert texture to grayscale to map it to the contour map's color spectrum (duotone blend)
     float gray = dot(texColor.rgb, vec3(0.299, 0.587, 0.114));
-    vec3 duotoneColor = mix(colorLow, colorHigh, gray * 1.05);
 
-    // Blending factor: heavily color-matched when normal (0.75), back to original colors when hovered (0.20)
-    float blendFactor = mix(0.75, 0.20, uHover);
-    vec3 gradedColor = mix(texColor.rgb, duotoneColor, blendFactor);
-    gradedColor = gradedColor * 1.35; // Brightness boost
+    // Split-tone nostalgic grade built from the terrain palette:
+    // shadows sink into the scene's deep blue, highlights fade to a warm rose
+    vec3 shadowTint = colorLow * 0.45;
+    vec3 highlightTint = mix(colorHigh, vec3(1.0, 0.88, 0.82), 0.55);
+    vec3 splitTone = mix(shadowTint, highlightTint, smoothstep(0.05, 0.95, gray));
 
-    // Vignette
+    // Faded print look: desaturate, blend toward the split-tone,
+    // then lift blacks into the scene's blue so the orb never hits true black
+    vec3 desat = mix(texColor.rgb, vec3(gray), 0.55);
+    vec3 faded = mix(desat, splitTone, 0.45);
+    faded = faded * 0.82 + shadowTint * 0.4;
+
+    // Hovering restores the memory to its true colors
+    vec3 gradedColor = mix(faded, texColor.rgb * 1.1, uHover * 0.8);
+
+    // Vignette darkens toward the scene shadow tint instead of black,
+    // so edges melt into the background rather than punching a hole in it
     float distFromCenter = length(centeredUv);
     float vignette = smoothstep(0.85, 0.45, distFromCenter);
-    gradedColor *= vignette;
+    gradedColor = mix(shadowTint, gradedColor, vignette);
 
     // Scanlines (drawn on the sphere surface)
     float scanline = sin(sphereUv.y * 320.0 + uTime * 6.0) * 0.02 * (1.0 - uHover * 0.5);
