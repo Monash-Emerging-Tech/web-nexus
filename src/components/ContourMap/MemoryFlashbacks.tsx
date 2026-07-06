@@ -99,28 +99,28 @@ const fragmentShader = `
     vec3 colorLow = vec3(0.008, 0.051, 0.671);
     vec3 colorHigh = vec3(0.82, 0.008, 0.224);
 
+    // Shared shifting gradient — drives both the border glow and the interior
+    // tint so the orb colour always stays in step with the animated border
+    vec3 borderGrad = mix(colorLow, colorHigh, sin(uTime * 1.2 + uv.x * 2.0) * 0.5 + 0.5);
+
     float gray = dot(texColor.rgb, vec3(0.299, 0.587, 0.114));
 
-    // Split-tone nostalgic grade built from the terrain palette:
-    // shadows sink into the scene's deep blue, highlights fade to a warm rose
-    vec3 shadowTint = colorLow * 0.45;
-    vec3 highlightTint = mix(colorHigh, vec3(1.0, 0.88, 0.82), 0.55);
-    vec3 splitTone = mix(shadowTint, highlightTint, smoothstep(0.05, 0.95, gray));
+    // Nostalgic duotone in the border's current hue: shadows sink into a deep
+    // version of it, highlights lift to a pastel version — faded, never true black
+    vec3 duoLow = borderGrad * 0.22;
+    vec3 duoHigh = mix(borderGrad, vec3(1.0), 0.6);
+    vec3 tinted = mix(duoLow, duoHigh, smoothstep(0.0, 1.0, gray));
 
-    // Faded print look: desaturate, blend toward the split-tone,
-    // then lift blacks into the scene's blue so the orb never hits true black
-    vec3 desat = mix(texColor.rgb, vec3(gray), 0.55);
-    vec3 faded = mix(desat, splitTone, 0.45);
-    faded = faded * 0.82 + shadowTint * 0.4;
+    // Keep a hint of the original photo so faces stay readable
+    vec3 faded = mix(tinted, texColor.rgb, 0.2);
 
     // Hovering restores the memory to its true colors
     vec3 gradedColor = mix(faded, texColor.rgb * 1.1, uHover * 0.8);
 
-    // Vignette darkens toward the scene shadow tint instead of black,
-    // so edges melt into the background rather than punching a hole in it
+    // Vignette darkens toward the duotone shadow so edges melt into the border glow
     float distFromCenter = length(centeredUv);
     float vignette = smoothstep(0.85, 0.45, distFromCenter);
-    gradedColor = mix(shadowTint, gradedColor, vignette);
+    gradedColor = mix(duoLow, gradedColor, vignette);
 
     // Scanlines (drawn on the sphere surface)
     float scanline = sin(sphereUv.y * 320.0 + uTime * 6.0) * 0.02 * (1.0 - uHover * 0.5);
@@ -131,8 +131,8 @@ const fragmentShader = `
     float borderGlow = smoothstep(-borderThickness, 0.0, d);
     float softGlow = exp(d * 28.0) * 0.65;
 
-    // Contour map matching colors for the glowing border
-    vec3 contourColor = mix(colorLow, colorHigh, sin(uTime * 1.2 + uv.x * 2.0) * 0.5 + 0.5) * 1.5;
+    // Glowing border uses the same shared gradient, at full neon intensity
+    vec3 contourColor = borderGrad * 1.5;
     vec3 finalBorderColor = mix(contourColor, vec3(1.0, 1.0, 1.0), uHover * 0.7);
     float totalGlow = (borderGlow + softGlow) * (1.0 + uHover * 1.8);
 
