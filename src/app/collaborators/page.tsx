@@ -131,9 +131,6 @@ export default async function CollaboratorsPage() {
         <h1 className="text-white font-offbit-101 font-bold text-5xl md:text-8xl uppercase tracking-wider">
           Collaborators
         </h1>
-        <p className="text-white/60 font-offbit font-bold text-lg md:text-2xl max-w-3xl leading-relaxed">
-          Pioneering the future of technology through powerful partnerships. We collaborate with industry leaders, academic faculties, and student teams to deliver outstanding immersive experiences.
-        </p>
       </section>
 
       {/* Grid of Collaborators */}
