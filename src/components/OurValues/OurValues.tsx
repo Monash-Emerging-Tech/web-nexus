@@ -29,8 +29,8 @@ const valueCardStyles = cva(
 const values: ValueCard[] = [
   {
     title: "Innovation",
-    tagline: "Pushing Boundaries",
-    points: ["Creative Solutions", "Future-Oriented", "Experiment-Led"],
+    tagline: "Expanding All Horizons",
+    points: ["Experiment-Led", "Frontier Technology", "Built To Ship"],
     icon: (
       <svg viewBox="0 0 24 24" className="h-8 w-8" fill="none" aria-hidden="true">
         <path
@@ -46,8 +46,8 @@ const values: ValueCard[] = [
   },
   {
     title: "Collaboration",
-    tagline: "Team Synergy",
-    points: ["Open Communication", "Supportive Environment", "Shared Growth"],
+    tagline: "One Tight-Knit Team",
+    points: ["Across Disciplines", "Open To Everyone", "Grow Each Other"],
     icon: (
       <svg viewBox="0 0 24 24" className="h-8 w-8" fill="none" aria-hidden="true">
         <path
@@ -84,8 +84,8 @@ const values: ValueCard[] = [
   },
   {
     title: "Excellence",
-    tagline: "Quality Commitment",
-    points: ["Continuous Improvement", "Performance Driven", "Outcome Focused"],
+    tagline: "Industry Standard",
+    points: ["Hands-On Craft", "Real-World Impact", "Leave It Stronger"],
     icon: (
       <svg viewBox="0 0 24 24" className="h-8 w-8" fill="none" aria-hidden="true">
         <path

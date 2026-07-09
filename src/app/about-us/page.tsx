@@ -11,6 +11,49 @@ import {
   getMembersByDepartment,
 } from "@/lib/notion/members";
 import OurValues from "@/components/OurValues/OurValues";
+import Timeline, { TimelineEntry } from "@/components/about/Timeline";
+import MascotEthos from "@/components/about/MascotEthos";
+
+// NOTE: dates/details below are drafted from Notion + legacy-site records —
+// flag inaccuracies to the leads before treating as canon (see docs/MNET.md).
+const HISTORY: TimelineEntry[] = [
+  {
+    date: "2024",
+    title: "The Nexus forms",
+    description:
+      "MNET launches from the Digital Makerspace at Monash Clayton — a student team dedicated to emerging simulation technologies, from VR and AR to digital twins and quantum computing.",
+  },
+  {
+    date: "May 2024",
+    title: "First workshops",
+    description:
+      "MNET x MAC: we teach the fundamentals of 3D with Spline alongside Monash's largest IT student club, kicking off our education program.",
+  },
+  {
+    date: "June 2024",
+    title: "Taking XR to high schools",
+    description:
+      "Immersive VR demos for Mac.Robertson Girls' High School students in experimental economics at the MonLEE excursion day.",
+  },
+  {
+    date: "Oct 2024",
+    title: "SXSW Sydney",
+    description:
+      "MNET hits the conference floor, representing Monash emerging tech among game developers, VFX studios and immersive technology teams.",
+  },
+  {
+    date: "2025",
+    title: "The collaboration era",
+    description:
+      "Digital prototyping with Monash Boring (MBEST), digital twins with Monash Pilot Processes, AR visualisation with Monash Sustainable Buildings, and XR projects spanning Stanford to Bali.",
+  },
+  {
+    date: "2026",
+    title: "Growing the nexus",
+    description:
+      "CampusGuessr, BrainXR, quantum computing and Platypus Forest push the portfolio wider — while O-Week stalls, Tech Futures and this WebXR site bring the work to everyone else.",
+  },
+];
 
 enum TeamLeadOrder {
   "Team Lead",
@@ -189,15 +232,24 @@ export default async function AboutUsPage() {
         </h1>
         <p className="text-white/80 text-lg md:text-xl font-offbit text-center max-w-4xl leading-relaxed">
           Monash Nexus for Emerging Technologies (MNET) is Monash
-          University&apos;s premier student-led initiative dedicated to pushing
-          the boundaries of Extended Reality (XR) and immersive technology. We
-          foster a community of innovators, developers, and creators aiming to
-          bridge the gap between academic theory and real-world implementation.
+          University&apos;s student team for emerging simulation technologies —
+          virtual, augmented and extended reality, digital twins, motion
+          capture, quantum computing and the web frontier. From our home in the
+          Digital Makerspace, we design and build experimental projects that
+          shape Monash&apos;s digital ecosystem.
+        </p>
+        <p className="text-white/80 text-lg md:text-xl font-offbit text-center max-w-4xl leading-relaxed">
+          Four departments make it happen: Projects drives what we build,
+          Education trains the team and the next generation, Marketing carries
+          the story to the world, and Operations keeps the whole nexus running.
+          Members work hands-on with industry-grade XR hardware, ship real
+          software, and take their work to conferences and showcases — bridging
+          the gap between academic theory and real-world implementation.
         </p>
         <div className="w-full flex flex-col md:flex-row gap-6 items-stretch justify-center p-4 max-w-6xl mt-4">
           <div className="flex-1 min-w-0">
             <Image
-              src="/img/About-Team.jpg"
+              src="/img/About-Team.JPG"
               alt="About Team"
               width={1000}
               height={800}
@@ -206,14 +258,14 @@ export default async function AboutUsPage() {
           </div>
           <div className="flex-1 max-w-xs flex flex-col gap-4 items-center justify-center">
             <Image
-              src="/img/About-Showcase-Temp.jpg"
+              src="/img/About-Showcase-Temp.JPG"
               alt="Showcase"
               width={1000}
               height={800}
               className="w-full h-1/2 rounded-3xl object-cover border-[#DC003B] border-4 shadow-lg"
             />
             <Image
-              src="/img/About-Focus-Temp.jpg"
+              src="/img/About-Focus-Temp.JPG"
               alt="Team Focus"
               width={1000}
               height={800}
@@ -223,12 +275,23 @@ export default async function AboutUsPage() {
         </div>
       </section>
 
-      {/* 2. Our Values Section */}
-      <div className="w-full mt-12">
+      {/* 2. History Timeline */}
+      <section className="w-full px-4 py-16 md:py-24">
+        <h2 className="mb-12 text-center font-offbit-dot text-5xl font-bold uppercase tracking-wider text-white md:mb-16 md:text-7xl">
+          Our History
+        </h2>
+        <Timeline entries={HISTORY} />
+      </section>
+
+      {/* 3. Our Values Section */}
+      <div className="w-full">
         <OurValues />
       </div>
 
-      {/* 3. Meet the Team Sections */}
+      {/* 4. Mascot & Ethos */}
+      <MascotEthos />
+
+      {/* 5. Meet the Team Sections */}
       <section className="w-full mt-12">
         <div className="px-8 md:px-16 py-8 md:py-16 text-center">
           <h2 className="text-white font-offbit-101 font-bold text-5xl md:text-7xl uppercase tracking-wider">
@@ -420,7 +483,7 @@ export default async function AboutUsPage() {
         </div>
       </section>
 
-      {/* 4. Join Us CTA */}
+      {/* 6. Join Us CTA */}
       <div className="w-full flex items-center justify-center py-16 md:py-24">
         <a
           href="https://docs.google.com/forms/d/e/1FAIpQLSej1jyIYU_dy2uJqEs5zUvNY1GUN-6eN2DqxCbb2ucnYrTI7Q/viewform"
