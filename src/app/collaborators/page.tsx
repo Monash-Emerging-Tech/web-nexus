@@ -3,38 +3,6 @@
 import React from "react";
 import Image from "next/image";
 
-interface Partner {
-  name: string;
-  role: string;
-  logo: string;
-  description: string;
-  website: string;
-}
-
-const partners: Partner[] = [
-  {
-    name: "Monash University",
-    role: "Academic & Institutional Partner",
-    logo: "/img/logo.png",
-    description: "Providing world-class academic resources, research facilities, and institutional support to enable groundbreaking XR exploration.",
-    website: "https://www.monash.edu"
-  },
-  {
-    name: "Monash Faculty of IT",
-    role: "Sponsor & Advisor",
-    logo: "/img/logo.png",
-    description: "Supporting student initiatives with leading researchers, cutting-edge labs, and industry-connected mentorship.",
-    website: "https://www.monash.edu/it"
-  },
-  {
-    name: "Monash Engineering",
-    role: "Technical Collaborator",
-    logo: "/img/logo.png",
-    description: "Partnering on interdisciplinary projects requiring advanced hardware integration, product design, and prototyping.",
-    website: "https://www.monash.edu/engineering"
-  }
-];
-
 interface ImageCard {
   name: string;
   image: string;
@@ -168,56 +136,8 @@ export default async function CollaboratorsPage() {
         </p>
       </section>
 
-      {/* Grid of Partners */}
-      <section className="px-8 md:px-16 py-12 md:py-24 bg-gradient-to-b from-[#0E0E0E] to-[#030CAB]/20 w-full">
-        <div className="max-w-7xl mx-auto flex flex-col gap-12">
-          <h2 className="font-offbit-dot text-4xl md:text-6xl font-bold uppercase tracking-wide">
-            Our Partners
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
-            {partners.map((partner) => (
-              <a
-                href={partner.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                key={partner.name}
-                className="group relative flex flex-col bg-[#1A1A1E] border border-white/10 hover:border-[#DB003B] rounded-2xl p-8 transition-all duration-300 hover:scale-[1.03] shadow-xl pointer-events-auto cursor-pointer"
-              >
-                <div className="absolute top-0 right-0 w-24 h-24 bg-[#DB003B] rounded-full filter blur-[50px] opacity-10 group-hover:opacity-30 transition-opacity duration-500" />
-
-                <div className="flex items-center justify-between mb-6 z-10">
-                  <div className="relative w-16 h-16 rounded-full overflow-hidden bg-black/40 flex items-center justify-center p-2 border border-white/5">
-                    <Image
-                      src={partner.logo}
-                      alt={partner.name}
-                      width={64}
-                      height={64}
-                      className="object-contain brightness-90 group-hover:brightness-100 transition-all duration-300"
-                    />
-                  </div>
-                  <span className="text-[#DB003B] text-2xl font-bold group-hover:translate-x-1 transition-transform duration-300">
-                    &rarr;
-                  </span>
-                </div>
-
-                <h3 className="text-2xl font-offbit font-bold mb-2 group-hover:text-[#DB003B] transition-colors duration-300">
-                  {partner.name}
-                </h3>
-                <p className="text-gray-400 text-sm font-offbit mb-4">
-                  {partner.role}
-                </p>
-                <p className="text-white/70 text-base leading-relaxed font-sans mt-2">
-                  {partner.description}
-                </p>
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Grid of Collaborators */}
-      <section className="px-8 md:px-16 py-12 md:py-24 w-full">
+      <section className="px-8 md:px-16 py-12 md:py-24 bg-gradient-to-b from-[#0E0E0E] to-[#030CAB]/20 w-full">
         <div className="max-w-7xl mx-auto flex flex-col gap-12">
           <div className="flex flex-col gap-4">
             <h2 className="font-offbit-dot text-4xl md:text-6xl font-bold uppercase tracking-wide">
@@ -233,7 +153,7 @@ export default async function CollaboratorsPage() {
       </section>
 
       {/* Grid of Facilities */}
-      <section className="px-8 md:px-16 py-12 md:py-24 bg-gradient-to-b from-[#0E0E0E] to-[#030CAB]/20 w-full">
+      <section className="px-8 md:px-16 py-12 md:py-24 w-full">
         <div className="max-w-7xl mx-auto flex flex-col gap-12">
           <div className="flex flex-col gap-4">
             <h2 className="font-offbit-dot text-4xl md:text-6xl font-bold uppercase tracking-wide">

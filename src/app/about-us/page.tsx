@@ -127,9 +127,6 @@ export default async function AboutUsPage() {
   const rawLeads: Member[] = await getLeads();
   const filterPlatypus = (m: Member) =>
     !m.name.toLowerCase().includes("platypus");
-  const filterSeniorMembers = (m: Member) => m.role !== "Senior Member";
-  const filterRoster = (m: Member) =>
-    filterPlatypus(m) && filterSeniorMembers(m);
 
   const sortedLeads = rawLeads
     .filter(filterPlatypus)
@@ -140,16 +137,16 @@ export default async function AboutUsPage() {
     );
 
   const rawMarketing = (await getMembersByDepartment("Marketing")).filter(
-    filterRoster,
+    filterPlatypus,
   );
   const rawEducation = (await getMembersByDepartment("Education")).filter(
-    filterRoster,
+    filterPlatypus,
   );
   const rawProjects = (await getMembersByDepartment("Projects")).filter(
-    filterRoster,
+    filterPlatypus,
   );
   const rawOperations = (await getMembersByDepartment("Operations")).filter(
-    filterRoster,
+    filterPlatypus,
   );
   const rawAdvisors = (await getAcademicAdvisors()).filter(filterPlatypus);
 
@@ -190,7 +187,7 @@ export default async function AboutUsPage() {
           Our Story
         </h1>
         <p className="text-white/80 text-lg md:text-xl font-offbit text-center max-w-4xl leading-relaxed">
-          Monash Nexus for Emerging Technologies (MNET) is Monash University's
+          Monash Nexus for Emerging Technologies (MNET) is Monash University&apos;s
           premier student-led initiative dedicated to pushing the boundaries of
           Extended Reality (XR) and immersive technology. We foster a community
           of innovators, developers, and creators aiming to bridge the gap
