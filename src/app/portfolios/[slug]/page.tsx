@@ -1,5 +1,3 @@
-"use server"
-
 import { notFound } from "next/navigation";
 import ProjectHero from "@/components/projects/ProjectHero";
 import BlockHandler from "@/components/notion/BlockHandler";

@@ -1,5 +1,3 @@
-"use server"
-
 import Footer from "@/components/Footer";
 import Projects from "@/components/Projects";
 import EventsHolder from "@/components/events/PastEvents_Home";

@@ -1,18 +1,26 @@
-"use server"
-
-import Hero from "@/components/Hero";
+import Hero, { UpcomingEvent } from "@/components/Hero";
 import { getPortfolios } from "@/lib/notion/portfolios";
 import { getLeads, getSeniorMembers, getActiveMembers } from "@/lib/notion/members";
 
 const Home = async () => {
   let flashbackUrls: string[] = [];
+  let upcomingEvent: UpcomingEvent | null = null;
   try {
-    const [portfolios, leads, seniors, active] = await Promise.all([
+    const [portfolios, leads, seniors, active, upcoming] = await Promise.all([
       getPortfolios(),
       getLeads(),
       getSeniorMembers(),
       getActiveMembers(),
+      getPortfolios({ department: "Marketing", timeWindow: "upcoming", limit: 1 }),
     ]);
+
+    const nextEvent = upcoming[0];
+    if (nextEvent?.date?.start) {
+      upcomingEvent = {
+        title: nextEvent.name,
+        timestamp: new Date(nextEvent.date.start).getTime(),
+      };
+    }
 
     const urls = new Set<string>();
     portfolios.forEach((p) => {
@@ -35,7 +43,7 @@ const Home = async () => {
 
   return (
     <div className="relative">
-      <Hero flashbackUrls={flashbackUrls} />
+      <Hero flashbackUrls={flashbackUrls} upcomingEvent={upcomingEvent} />
       {/* Projects and Events sections — uncomment when ready */}
       {/* <div className="bg-[url(/img/wireframe_1.png)] bg-[length:120%] bg-no-repeat bg-[position:-100px_50px]">
         <Projects data={projectData} />

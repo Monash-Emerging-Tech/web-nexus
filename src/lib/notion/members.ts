@@ -156,11 +156,12 @@ export async function getAllMembers(): Promise<Member[]> {
   ];
 }
 
-// Cache the single members fetch for 1 hour
+// Cache for 25 minutes: Notion's signed S3 file URLs expire after ~1 hour,
+// so the cache window must stay well under that or icons 403 when stale.
 export const getCachedAllMembers = unstable_cache(
   async () => getAllMembers(),
   ["notion-all-members"],
-  { revalidate: 3600, tags: ["notion-all-members"] }
+  { revalidate: 1500, tags: ["notion-all-members"] }
 );
 
 export async function getActiveMembers() {

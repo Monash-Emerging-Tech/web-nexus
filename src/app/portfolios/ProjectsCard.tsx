@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { GitHubIcon } from "@/components/icons/SocialIcons";
 import { Portfolio } from "@/lib/notion/types";
 
 interface ProjectsCardProps {
@@ -51,7 +52,7 @@ const ProjectsCard: React.FC<ProjectsCardProps> = ({ data }) => {
               aria-label="Github"
               className="hover:text-[#DC003B] transition-colors duration-300 relative z-20"
             >
-              <i className="fab fa-github"></i>
+              <GitHubIcon className="w-[1em] h-[1em] inline-block align-[-0.125em]" />
             </a>
           )}
         </div>

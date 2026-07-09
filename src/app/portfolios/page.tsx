@@ -1,5 +1,3 @@
-"use server"
-
 import React from "react";
 import { Portfolio } from "@/lib/notion/types";
 import { getPortfolios } from "@/lib/notion/portfolios";

@@ -1,5 +1,3 @@
-"use server"
-
 import { getUserById } from "@/lib/notion/pages";
 
 type UserMentionProps = {

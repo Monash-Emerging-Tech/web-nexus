@@ -13,7 +13,8 @@ export function getNotionClient(): Client | null {
        fetch: (url, options) => { // Override the default fetch function to allow nextjs CDN caching (should work)
         return fetch(url, { // Ref: https://github.com/makenotion/notion-sdk-js/issues/415
           ...options,
-          next: { revalidate: 3600 }
+          // Keep under Notion's ~1h signed-URL expiry (see unstable_cache callers)
+          next: { revalidate: 1500 }
         })
        }
       });

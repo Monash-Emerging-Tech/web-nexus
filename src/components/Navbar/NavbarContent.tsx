@@ -178,7 +178,10 @@ const NavbarContent = () => {
             >
               CONTACT
             </a>
-            <div
+            <button
+              type="button"
+              aria-expanded={open}
+              aria-label={open ? "Close navigation menu" : "Open navigation menu"}
               className={`relative w-12 h-9 cursor-pointer transition-transform duration-500 ease-in-out`}
               onClick={toggleOpen}
             >
@@ -210,7 +213,7 @@ const NavbarContent = () => {
                   "transition-all duration-500 ease-in-out",
                 )}
               ></span>
-            </div>
+            </button>
           </div>
         </div>
         <div

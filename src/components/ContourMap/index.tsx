@@ -8,7 +8,7 @@ import Overlay from "./Overlay";
 import { LABEL_CONFIG } from "./Labels";
 import usePerformanceTier from "./usePerformanceTier";
 import { Starfield } from "../Starfield";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface ContourMapProps {
   children?: React.ReactNode;
@@ -23,7 +23,6 @@ const NAV_ROUTES: Record<string, string> = {
 };
 
 const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] }) => {
-  const router = useRouter();
   const overlayRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -201,8 +200,10 @@ const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] })
                 );
               })()}
 
-              {/* Text label */}
-              <div
+              {/* Text label — a real link so it works for keyboards,
+                  screen readers, and crawlers, not just pointer clicks */}
+              <Link
+                href={NAV_ROUTES[label.text.toUpperCase()] ?? "/"}
                 className="spiderverse-label-wrapper"
                 style={{
                   position: 'absolute',
@@ -210,25 +211,18 @@ const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] })
                   top: endY - (isMobile ? 7 : 11),
                   whiteSpace: 'nowrap',
                   fontFamily: 'var(--font-offbit, monospace)',
-                  fontSize: isMobile ? 10 : 18,
+                  fontSize: isMobile ? 12 : 18,
                   fontWeight: 700,
                   letterSpacing: '0.2em',
                   textAlign: isRight ? 'left' : 'right',
                   transform: isRight ? 'none' : 'translateX(-100%)',
                   cursor: 'pointer',
                   pointerEvents: 'auto',
+                  color: 'inherit',
+                  textDecoration: 'none',
+                  display: 'block',
                 }}
-                onClick={() => {
-                  const route = NAV_ROUTES[label.text.toUpperCase()];
-                  if (route) {
-                    if (route.startsWith("mailto:")) {
-                      window.location.href = route;
-                    } else {
-                      setLeaving(true);
-                      router.push(route);
-                    }
-                  }
-                }}
+                onClick={() => setLeaving(true)}
               >
                 <span
                   data-text={label.text}
@@ -236,7 +230,7 @@ const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] })
                 >
                   {label.text}
                 </span>
-              </div>
+              </Link>
             </div>
           );
         })}

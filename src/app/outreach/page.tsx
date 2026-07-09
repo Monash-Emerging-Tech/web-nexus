@@ -1,5 +1,3 @@
-"use server"
-
 import EventsPage from "@/components/events/EventsPage";
 import { getPortfolios } from "@/lib/notion/portfolios";
 

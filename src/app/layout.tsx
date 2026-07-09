@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site";
 import { offbit, offbit101, offbitDot } from "@/lib/fonts";
 import "./globals.css";
 import { NavbarProvider } from "@/components/Navbar/NavbarProvider";
@@ -6,8 +7,25 @@ import Navbar from "@/components/Navbar/Navbar";
 import FooterWrapper from "@/components/FooterWrapper";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "Monash Nexus for Emerging Technologies",
-  description: "TODO",
+  description:
+    "MNET is Monash University's student-led team for Extended Reality (XR) and immersive technology — building VR, AR, and mixed-reality projects that bridge academic theory and real-world implementation.",
+  openGraph: {
+    title: "Monash Nexus for Emerging Technologies",
+    description:
+      "Monash University's student-led XR and immersive technology team. Explore our projects, events, and community.",
+    url: SITE_URL,
+    siteName: "MNET",
+    type: "website",
+    images: [{ url: "/img/About-Team.jpg" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Monash Nexus for Emerging Technologies",
+    description:
+      "Monash University's student-led XR and immersive technology team.",
+  },
 };
 
 export default function RootLayout({
@@ -18,23 +36,6 @@ export default function RootLayout({
   return (
     <html lang="en" className="w-full h-full">
       <head>
-        <link
-          rel="preload"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-          as="style"
-        />
-        <link
-          rel="stylesheet"
-          id="font-awesome-css"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-          media="print"
-          suppressHydrationWarning
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: "document.getElementById('font-awesome-css').media='all'",
-          }}
-        />
         <link rel="icon" href="/img/favicon.ico" sizes="any" />
       </head>
       <body

@@ -27,16 +27,17 @@ const OurWorkButton = () => {
   );
 };
 
-interface HeroProps {
-  flashbackUrls?: string[];
+export interface UpcomingEvent {
+  title: string;
+  timestamp: number;
 }
 
-const Hero: React.FC<HeroProps> = ({ flashbackUrls = [] }) => {
-  const latestEvent = {
-    title: "MNET x MDN Tech Futures Industries",
-    timestamp: new Date("2025-05-24T03:24:00").getTime(),
-  };
+interface HeroProps {
+  flashbackUrls?: string[];
+  upcomingEvent?: UpcomingEvent | null;
+}
 
+const Hero: React.FC<HeroProps> = ({ flashbackUrls = [], upcomingEvent = null }) => {
   const [date, setDate] = useState({
     days: 0,
     hours: 0,
@@ -48,14 +49,18 @@ const Hero: React.FC<HeroProps> = ({ flashbackUrls = [] }) => {
   const [isGlitching, setIsGlitching] = useState(false);
 
   useEffect(() => {
-    const updateCountdown = () => {
-      const timestamp = latestEvent.timestamp;
+    if (!upcomingEvent) return;
+
+    const interval = setInterval(updateCountdown, 1000);
+
+    function updateCountdown() {
       const now = new Date().getTime();
-      const countdown = timestamp - now;
+      const countdown = upcomingEvent!.timestamp - now;
 
       if (countdown < 0) {
         setEventActive(false);
         setDate({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        clearInterval(interval);
         return;
       }
 
@@ -66,12 +71,11 @@ const Hero: React.FC<HeroProps> = ({ flashbackUrls = [] }) => {
         minutes: Math.floor((countdown % (1000 * 60 * 60)) / (1000 * 60)),
         seconds: Math.floor((countdown % (1000 * 60)) / 1000),
       });
-    };
+    }
 
     updateCountdown();
-    const interval = setInterval(updateCountdown, 1000);
     return () => clearInterval(interval);
-  }, [latestEvent.timestamp]);
+  }, [upcomingEvent]);
 
   useEffect(() => {
     const words = ["Virtual Reality", "Augmented Reality", "Mixed Reality", "Extended Reality"];
@@ -115,52 +119,54 @@ const Hero: React.FC<HeroProps> = ({ flashbackUrls = [] }) => {
     return () => window.clearTimeout(timeoutId);
   }, []);
 
+  // Warm the browser image cache for the flashback effect. Deferred to idle
+  // time and capped so it never competes with the hero scene for bandwidth.
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const cached = sessionStorage.getItem("mnet_notion_cache");
-      const preloadImages = (data: {
-        portfolios?: Array<{ imageUrl?: string }>;
-        leads?: Array<{ icon?: string }>;
-        advisors?: Array<{ icon?: string }>;
-        seniorMembers?: Array<{ icon?: string }>;
-        activeMembers?: Array<{ icon?: string }>;
-      }) => {
-        const urls = new Set<string>();
-        data.portfolios?.forEach((p) => {
-          if (p.imageUrl) urls.add(p.imageUrl);
-        });
-        const groups = [data.leads, data.advisors, data.seniorMembers, data.activeMembers];
-        groups.forEach((g) => {
-          g?.forEach((m) => {
-            if (m.icon && (m.icon.startsWith("http") || m.icon.startsWith("/"))) {
-              urls.add(m.icon);
-            }
-          });
-        });
-        urls.forEach((url) => {
-          const img = new Image();
-          img.src = optimizeFlashbackUrl(url, 800);
-        });
-      };
+    const MAX_PRELOAD = 16;
+    let cancelled = false;
 
-      if (!cached) {
-        fetch("/api/notion-cache")
-          .then((res) => res.json())
-          .then((data) => {
-            if (data && !data.error) {
-              sessionStorage.setItem("mnet_notion_cache", JSON.stringify(data));
-              preloadImages(data);
-            }
-          })
-          .catch((err) => console.error("Error loading Notion cache:", err));
-      } else {
+    const preloadImages = (urls: string[]) => {
+      if (cancelled) return;
+      urls.slice(0, MAX_PRELOAD).forEach((url) => {
+        const img = new Image();
+        img.src = optimizeFlashbackUrl(url, 800);
+      });
+    };
+
+    const warmCache = () => {
+      const cached = sessionStorage.getItem("mnet_image_cache");
+      if (cached) {
         try {
           preloadImages(JSON.parse(cached));
-        } catch (e) {
-          console.error("Error parsing cache:", e);
+          return;
+        } catch {
+          sessionStorage.removeItem("mnet_image_cache");
         }
       }
-    }
+      fetch("/api/notion-cache")
+        .then((res) => res.json())
+        .then((data: { imageUrls?: string[] }) => {
+          if (Array.isArray(data?.imageUrls)) {
+            sessionStorage.setItem("mnet_image_cache", JSON.stringify(data.imageUrls));
+            preloadImages(data.imageUrls);
+          }
+        })
+        .catch((err) => console.error("Error loading image cache:", err));
+    };
+
+    const hasIdleCallback = typeof window.requestIdleCallback === "function";
+    const idleId = hasIdleCallback
+      ? window.requestIdleCallback(warmCache, { timeout: 5000 })
+      : window.setTimeout(warmCache, 2000);
+
+    return () => {
+      cancelled = true;
+      if (hasIdleCallback) {
+        window.cancelIdleCallback(idleId);
+      } else {
+        window.clearTimeout(idleId);
+      }
+    };
   }, []);
 
   return (
@@ -169,9 +175,9 @@ const Hero: React.FC<HeroProps> = ({ flashbackUrls = [] }) => {
         <ContourMap flashbackUrls={flashbackUrls}>
           <div className="w-screen h-screen flex flex-col justify-center items-center md:items-start md:px-32 pointer-events-none">
             <div className="md:w-[70%] p-4 flex flex-col md:gap-0 gap-2.5 text-white text-center md:text-left pointer-events-auto">
-              {eventActive && (
+              {eventActive && upcomingEvent && (
                 <p className="font-offbit font-bold md:text-2xl text-xs md:text-sm">
-                  {latestEvent.title}: {date.days}d {date.hours}h {date.minutes}m{" "}
+                  {upcomingEvent.title}: {date.days}d {date.hours}h {date.minutes}m{" "}
                   {date.seconds}s
                 </p>
               )}

@@ -1,5 +1,3 @@
-"use server"
-
 import React from "react";
 import Image from "next/image";
 
@@ -14,7 +12,7 @@ interface ImageCard {
 const collaborators: ImageCard[] = [
   {
     name: "eSolutions VARS Labs",
-    image: "/img/facilities/esolutions-vars-labs.png",
+    image: "/img/facilities/esolutions-vars-labs.jpg",
     accent: "#7B2FF7",
     website: "https://maps.monash.edu/#v=1&zlevel=2&center=145.130285,-37.914441&zoom=20.63&campusid=159&sharepoitype=poi&sharepoi=1189861",
     description: (
@@ -36,7 +34,7 @@ const collaborators: ImageCard[] = [
   },
   {
     name: "Smart Manufacturing Hub",
-    image: "/img/facilities/smart-manufacturing-hub.png",
+    image: "/img/facilities/smart-manufacturing-hub.jpg",
     accent: "#EC4899",
     website: "https://maps.monash.edu/#v=1&zlevel=1&center=145.134272,-37.909748&zoom=19.5&campusid=159&sharepoitype=poi&sharepoi=1000829064",
     description: (
@@ -61,7 +59,7 @@ const facilities: ImageCard[] = [
   },
   {
     name: "Design and Build Studio",
-    image: "/img/facilities/design-build-studio.png",
+    image: "/img/facilities/design-build-studio.jpg",
     accent: "#F5A623",
     description: (
       <>
@@ -102,6 +100,7 @@ function ImageCardGrid({ items }: { items: ImageCard[] }) {
                 src={item.image}
                 alt={item.name}
                 fill
+                sizes="(max-width: 768px) 100vw, 33vw"
                 className="object-cover"
               />
             </div>

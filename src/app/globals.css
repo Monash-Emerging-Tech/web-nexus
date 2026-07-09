@@ -332,3 +332,16 @@ a[data-text]:hover::after, button[data-text]:hover::after, .glitch-hover[data-te
 
 
 
+
+/* Respect OS-level reduced-motion preference: freeze decorative animations
+   (glitch, shake, pulse) while leaving instant state changes intact. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

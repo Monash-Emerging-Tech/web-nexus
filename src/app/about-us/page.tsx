@@ -1,5 +1,3 @@
-"use server";
-
 import React from "react";
 import Image from "next/image";
 import fs from "fs";
@@ -24,18 +22,24 @@ interface MemberWithPhoto extends Member {
   photo: string;
 }
 
-const resolveMemberPhoto = async (member: Member): Promise<MemberWithPhoto> => {
+// Read the local member-photo directory once per render instead of one
+// existsSync call per member.
+const getLocalMemberPhotos = (): Set<string> => {
+  try {
+    const dir = path.join(process.cwd(), "public", "img", "members");
+    return new Set(fs.readdirSync(dir));
+  } catch {
+    return new Set();
+  }
+};
+
+const resolveMemberPhoto = (
+  member: Member,
+  localPhotos: Set<string>,
+): MemberWithPhoto => {
   let photo = member.icon;
 
-  // Check if image downloaded locally
-  const localImagePath = path.join(
-    process.cwd(),
-    "public",
-    "img",
-    "members",
-    `${member.id}.jpg`,
-  );
-  if (fs.existsSync(localImagePath)) {
+  if (localPhotos.has(`${member.id}.jpg`)) {
     photo = `/img/members/${member.id}.jpg`;
   }
 
@@ -151,22 +155,15 @@ export default async function AboutUsPage() {
   const rawOperations = rawOperationsRaw.filter(filterPlatypus);
   const rawAdvisors = rawAdvisorsRaw.filter(filterPlatypus);
 
-  const leads = await Promise.all(sortedLeads.map(resolveMemberPhoto));
-  const marketingMembers = await Promise.all(
-    rawMarketing.map(resolveMemberPhoto),
-  );
-  const educationMembers = await Promise.all(
-    rawEducation.map(resolveMemberPhoto),
-  );
-  const projectsMembers = await Promise.all(
-    rawProjects.map(resolveMemberPhoto),
-  );
-  const operationsMembers = await Promise.all(
-    rawOperations.map(resolveMemberPhoto),
-  );
-  const academicAdvisors = await Promise.all(
-    rawAdvisors.map(resolveMemberPhoto),
-  );
+  const localPhotos = getLocalMemberPhotos();
+  const withPhoto = (m: Member) => resolveMemberPhoto(m, localPhotos);
+
+  const leads = sortedLeads.map(withPhoto);
+  const marketingMembers = rawMarketing.map(withPhoto);
+  const educationMembers = rawEducation.map(withPhoto);
+  const projectsMembers = rawProjects.map(withPhoto);
+  const operationsMembers = rawOperations.map(withPhoto);
+  const academicAdvisors = rawAdvisors.map(withPhoto);
 
   const teamLeads = leads.filter((lead) =>
     lead.role.toLowerCase().startsWith("team"),
@@ -174,11 +171,6 @@ export default async function AboutUsPage() {
   const departmentLeads = leads.filter(
     (lead) => !lead.role.toLowerCase().startsWith("team"),
   );
-
-  const deptRows = [];
-  for (let i = 0; i < departmentLeads.length; i += 4) {
-    deptRows.push(departmentLeads.slice(i, i + 4));
-  }
 
   return (
     <div className="w-full h-full flex flex-col bg-black">
@@ -244,28 +236,19 @@ export default async function AboutUsPage() {
                 Academic Advisors
               </h3>
               <p className="text-white text-center text-xl font-semibold font-offbit mt-2">
-                The Masters who Guides us towards the tech frontier.
+                The mentors who guide us toward the tech frontier.
               </p>
             </div>
           </div>
-          <div className="hidden md:flex flex-col items-center justify-center w-full max-w-7xl">
-            <div
-              className={`grid items-center justify-center gap-6`}
-              style={{
-                gridTemplateColumns: `repeat(${academicAdvisors.length}, minmax(0, 1fr))`,
-                width: `${(academicAdvisors.length / 3) * 90}%`,
-                maxWidth: "100%",
-              }}
-            >
-              {academicAdvisors.map((advisor) => (
-                <div key={advisor.id} className="bg-transparent p-4">
-                  <MemberCard
-                    member={advisor}
-                    borderColorClass="border-[#DB003B]"
-                  />
-                </div>
-              ))}
-            </div>
+          <div className="hidden md:flex flex-wrap items-start justify-center gap-6 w-full max-w-7xl">
+            {academicAdvisors.map((advisor) => (
+              <div key={advisor.id} className="bg-transparent p-4">
+                <MemberCard
+                  member={advisor}
+                  borderColorClass="border-[#DB003B]"
+                />
+              </div>
+            ))}
           </div>
           <div className="md:hidden grid grid-cols-2 w-full gap-4">
             {academicAdvisors.map((lead) => (
@@ -289,37 +272,20 @@ export default async function AboutUsPage() {
             </div>
           </div>
           <div className="hidden md:flex flex-col items-center justify-center w-full max-w-7xl">
-            <div
-              className={`grid items-center justify-center gap-6`}
-              style={{
-                gridTemplateColumns: `repeat(${teamLeads.length}, minmax(0, 1fr))`,
-                width: `${(teamLeads.length / 4) * 100}%`,
-                maxWidth: "100%",
-              }}
-            >
+            <div className="flex flex-wrap items-start justify-center gap-6">
               {teamLeads.map((lead) => (
                 <div key={lead.id} className="bg-transparent p-4">
                   <MemberCard member={lead} borderColorClass="border-white" />
                 </div>
               ))}
             </div>
-            {deptRows.map((row, rowIndex) => (
-              <div
-                key={rowIndex}
-                className={`grid justify-items-center gap-6 mt-6`}
-                style={{
-                  gridTemplateColumns: `repeat(${row.length}, minmax(0, 1fr))`,
-                  width: `${(row.length / 4) * 100}%`,
-                  maxWidth: "100%",
-                }}
-              >
-                {row.map((lead) => (
-                  <div key={lead.id} className="bg-transparent p-4">
-                    <MemberCard member={lead} borderColorClass="border-white" />
-                  </div>
-                ))}
-              </div>
-            ))}
+            <div className="flex flex-wrap items-start justify-center gap-6 mt-6">
+              {departmentLeads.map((lead) => (
+                <div key={lead.id} className="bg-transparent p-4">
+                  <MemberCard member={lead} borderColorClass="border-white" />
+                </div>
+              ))}
+            </div>
           </div>
           <div className="md:hidden grid grid-cols-2 w-full gap-4">
             {leads.map((lead) => (
@@ -426,7 +392,7 @@ export default async function AboutUsPage() {
           href="https://docs.google.com/forms/d/e/1FAIpQLSej1jyIYU_dy2uJqEs5zUvNY1GUN-6eN2DqxCbb2ucnYrTI7Q/viewform"
           target="_blank"
           rel="noopener noreferrer"
-          className="hover:cursor-pointer w-full text-2xl md:text-3xl font-offbit font-bold px-12 py-5 md:px-16 md:py-6 bg-[#DB003B] rounded-md pointer-events-auto transition-all duration-500 [transition-timing-function:cubic-bezier(0,-0.03,0,1)] hover:-translate-y-0.5 hover:bg-[#ff0044] flex items-center justify-center text-white shadow-2xl"
+          className="hover:cursor-pointer text-2xl md:text-3xl font-offbit font-bold px-12 py-5 md:px-16 md:py-6 bg-[#DB003B] rounded-md pointer-events-auto transition-all duration-500 [transition-timing-function:cubic-bezier(0,-0.03,0,1)] hover:-translate-y-0.5 hover:bg-[#ff0044] flex items-center justify-center text-white shadow-2xl"
         >
           JOIN US
         </a>
