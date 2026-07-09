@@ -72,13 +72,20 @@ async function getMemberDataPublic({
     return [];
   }
   const members: Member[] = [];
-  const response = await notion.databases.query({
-    database_id: NOTION_CONFIG.MEMBERS_DB_ID,
-    filter,
-    sorts,
-  });
+  const results: MemberPageObject[] = [];
+  let cursor: string | undefined;
+  do {
+    const response = await notion.databases.query({
+      database_id: NOTION_CONFIG.MEMBERS_DB_ID,
+      filter,
+      sorts,
+      start_cursor: cursor,
+    });
+    results.push(...(response.results as MemberPageObject[]));
+    cursor = response.has_more ? (response.next_cursor ?? undefined) : undefined;
+  } while (cursor);
 
-  for (const result of response.results) {
+  for (const result of results) {
     try {
       const memberpage = result as MemberPageObject;
       members.push({
