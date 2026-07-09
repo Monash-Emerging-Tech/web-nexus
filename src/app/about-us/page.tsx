@@ -124,19 +124,24 @@ const MemberCard = ({
 };
 
 export default async function AboutUsPage() {
-  const rawLeads: Member[] = await getLeads();
   const filterPlatypus = (m: Member) =>
     !m.name.toLowerCase().includes("platypus");
 
-  const [rawLeads, rawMarketingRaw, rawEducationRaw, rawProjectsRaw, rawOperationsRaw, rawAdvisorsRaw] =
-    await Promise.all([
-      getLeads(),
-      getMembersByDepartment("Marketing"),
-      getMembersByDepartment("Education"),
-      getMembersByDepartment("Projects"),
-      getMembersByDepartment("Operations"),
-      getAcademicAdvisors(),
-    ]);
+  const [
+    rawLeads,
+    rawMarketingRaw,
+    rawEducationRaw,
+    rawProjectsRaw,
+    rawOperationsRaw,
+    rawAdvisorsRaw,
+  ] = await Promise.all([
+    getLeads(),
+    getMembersByDepartment("Marketing"),
+    getMembersByDepartment("Education"),
+    getMembersByDepartment("Projects"),
+    getMembersByDepartment("Operations"),
+    getAcademicAdvisors(),
+  ]);
 
   const sortedLeads = rawLeads
     .filter(filterPlatypus)
@@ -146,19 +151,11 @@ export default async function AboutUsPage() {
         TeamLeadOrder[b.role as keyof typeof TeamLeadOrder],
     );
 
-  const rawMarketing = (await getMembersByDepartment("Marketing")).filter(
-    filterPlatypus,
-  );
-  const rawEducation = (await getMembersByDepartment("Education")).filter(
-    filterPlatypus,
-  );
-  const rawProjects = (await getMembersByDepartment("Projects")).filter(
-    filterPlatypus,
-  );
-  const rawOperations = (await getMembersByDepartment("Operations")).filter(
-    filterPlatypus,
-  );
-  const rawAdvisors = (await getAcademicAdvisors()).filter(filterPlatypus);
+  const rawMarketing = rawMarketingRaw.filter(filterPlatypus);
+  const rawEducation = rawEducationRaw.filter(filterPlatypus);
+  const rawProjects = rawProjectsRaw.filter(filterPlatypus);
+  const rawOperations = rawOperationsRaw.filter(filterPlatypus);
+  const rawAdvisors = rawAdvisorsRaw.filter(filterPlatypus);
 
   const leads = await Promise.all(sortedLeads.map(resolveMemberPhoto));
   const marketingMembers = await Promise.all(
