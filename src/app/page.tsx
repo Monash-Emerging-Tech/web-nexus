@@ -1,17 +1,48 @@
-import NavBar from "@/components/NavBar";
-import Footer from "@/components/Footer";
-import Hero from "@/components/hero";
-import EventsHolder from "@/components/events/PastEvents_Home";
+"use server"
 
-export default function Home() {
+import Hero from "@/components/Hero";
+import { getPortfolios } from "@/lib/notion/portfolios";
+import { getLeads, getSeniorMembers, getActiveMembers } from "@/lib/notion/members";
+
+const Home = async () => {
+  let flashbackUrls: string[] = [];
+  try {
+    const [portfolios, leads, seniors, active] = await Promise.all([
+      getPortfolios(),
+      getLeads(),
+      getSeniorMembers(),
+      getActiveMembers(),
+    ]);
+
+    const urls = new Set<string>();
+    portfolios.forEach((p) => {
+      if (p.imageUrl) urls.add(p.imageUrl);
+    });
+    [leads, seniors, active].forEach((group) => {
+      group.forEach((m) => {
+        if (m.icon && (m.icon.startsWith("http") || m.icon.startsWith("/"))) {
+          urls.add(m.icon);
+        }
+      });
+    });
+
+    flashbackUrls = Array.from(urls).filter(
+      (u) => !u.includes("placehold.co") && !u.includes("placeholder")
+    );
+  } catch (error) {
+    console.error("Error fetching homepage flashback URLs:", error);
+  }
+
   return (
-    <div className="bg-black min-h-screen w-full">
-      <NavBar />
-      <div className="relative">
-        <Hero />
-        <EventsHolder />
-      </div>
-      <Footer />
+    <div className="relative">
+      <Hero flashbackUrls={flashbackUrls} />
+      {/* Projects and Events sections — uncomment when ready */}
+      {/* <div className="bg-[url(/img/wireframe_1.png)] bg-[length:120%] bg-no-repeat bg-[position:-100px_50px]">
+        <Projects data={projectData} />
+        <EventsHolder data={eventData} />
+      </div> */}
     </div>
   );
 }
+
+export default Home;
