@@ -186,20 +186,11 @@ export default async function AboutUsPage() {
         
         {/* Academic Advisors */}
         <div className="w-full bg-[#2D2D2D] flex flex-col items-center justify-center px-8 md:px-16 py-12 md:py-16 gap-6">
-          <div className="w-full max-w-7xl flex flex-col md:flex-row items-start md:items-center justify-between gap-8 md:gap-16 mb-8">
-            <div className="flex-1">
-              <h3 className="text-white text-4xl md:text-6xl font-offbit font-bold">Academic Advisors</h3>
-              <p className="text-white text-xl font-semibold font-offbit mt-2">
-                The Guides who help us reach the tech frontier.
-              </p>
-            </div>
-            <Image
-              src="/img/Team_Leads.jpg"
-              alt="Team Leads"
-              width={400}
-              height={400}
-              className="w-full md:w-auto md:max-w-md aspect-[4/3] rounded-lg object-cover border-4 border-[#E0E0E0] shadow-lg"
-            />
+          <div className="w-full max-w-7xl flex flex-col items-center text-center gap-2 mb-8">
+            <h3 className="text-white text-4xl md:text-6xl font-offbit font-bold">Academic Advisors</h3>
+            <p className="text-white text-xl font-semibold font-offbit mt-2">
+              The Guides who help us reach the tech frontier.
+            </p>
           </div>
           <div className="hidden md:flex flex-col items-center justify-center w-full max-w-7xl">
             <div className={`grid items-center justify-center gap-6`}
@@ -227,20 +218,11 @@ export default async function AboutUsPage() {
 
         {/* Team Leads */}
         <div className="w-full bg-[#030CAB] flex flex-col items-center justify-center px-8 md:px-16 py-12 md:py-16 gap-6">
-          <div className="w-full max-w-7xl flex flex-col md:flex-row md:items-center md:justify-between gap-8 md:gap-16 mb-8">
-            <div className="flex-1">
-              <h3 className="text-white text-4xl md:text-6xl font-offbit font-bold">Leads</h3>
-              <p className="text-white text-xl font-semibold font-offbit mt-2">
-                The Torchbearers of MNET
-              </p>
-            </div>
-            <Image
-              src="/img/Team_Leads.jpg"
-              alt="Team Leads"
-              width={400}
-              height={400}
-              className="w-full md:w-auto md:max-w-md aspect-[4/3] rounded-lg object-cover border-4 border-[#E0E0E0] shadow-lg"
-            />
+          <div className="w-full max-w-7xl flex flex-col items-center text-center gap-2 mb-8">
+            <h3 className="text-white text-4xl md:text-6xl font-offbit font-bold">Leads</h3>
+            <p className="text-white text-xl font-semibold font-offbit mt-2">
+              The Torchbearers of MNET
+            </p>
           </div>
           <div className="hidden md:flex flex-col items-center justify-center w-full max-w-7xl">
             <div className={`grid items-center justify-center gap-6`}
