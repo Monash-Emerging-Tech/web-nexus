@@ -5,7 +5,7 @@ import Image from "next/image";
 import fs from "fs";
 import path from "path";
 import { Member } from "@/lib/notion/types";
-import { getAcademicAdvisors, getLeads, getMembersByDepartment, getSeniorMembers } from "@/lib/notion/members";
+import { getAcademicAdvisors, getLeads, getMembersByDepartment } from "@/lib/notion/members";
 import { getLinkedInProfilePic } from "@/lib/linkedinScraper";
 import OurValues from "@/components/OurValues/OurValues";
 
@@ -115,7 +115,6 @@ export default async function AboutUsPage() {
   const rawEducation = (await getMembersByDepartment("Education")).filter(filterPlatypus);
   const rawProjects = (await getMembersByDepartment("Projects")).filter(filterPlatypus);
   const rawOperations = (await getMembersByDepartment("Operations")).filter(filterPlatypus);
-  const rawSeniors = (await getSeniorMembers()).filter(filterPlatypus);
   const rawAdvisors = (await getAcademicAdvisors()).filter(filterPlatypus);
 
   const leads = await Promise.all(sortedLeads.map(resolveMemberPhoto));
@@ -123,7 +122,6 @@ export default async function AboutUsPage() {
   const educationMembers = await Promise.all(rawEducation.map(resolveMemberPhoto));
   const projectsMembers = await Promise.all(rawProjects.map(resolveMemberPhoto));
   const operationsMembers = await Promise.all(rawOperations.map(resolveMemberPhoto));
-  const seniorMembers = await Promise.all(rawSeniors.map(resolveMemberPhoto));
   const academicAdvisors = await Promise.all(rawAdvisors.map(resolveMemberPhoto));
 
   const teamLeads = leads.filter(lead => lead.role.toLowerCase().startsWith("team"));
@@ -132,11 +130,6 @@ export default async function AboutUsPage() {
   const deptRows = []
   for (let i = 0; i < departmentLeads.length; i += 4) {
     deptRows.push(departmentLeads.slice(i, i + 4));
-  }
-
-  const seniorRows = []
-  for (let i = 0; i < seniorMembers.length; i += 5) {
-    seniorRows.push(seniorMembers.slice(i, i + 5));
   }
 
   return (
@@ -191,105 +184,6 @@ export default async function AboutUsPage() {
           </h2>
         </div>
         
-        {/* Team Leads */}
-        <div className="w-full bg-[#DB003B] flex flex-col items-center justify-center px-8 md:px-16 py-12 md:py-16 gap-6">
-          <div className="w-full max-w-7xl flex flex-col md:flex-row md:items-center md:justify-between gap-8 md:gap-16 mb-8">
-            <div className="flex-1">
-              <h3 className="text-white text-4xl md:text-6xl font-offbit font-bold">Leads</h3>
-              <p className="text-white text-xl font-semibold font-offbit mt-2">
-                The Torchbearers of MNET
-              </p>
-            </div>
-            <Image
-              src="/img/Team_Leads.jpg"
-              alt="Team Leads"
-              width={400}
-              height={400}
-              className="w-full md:w-auto md:max-w-md aspect-[4/3] rounded-lg object-cover border-4 border-[#E0E0E0] shadow-lg"
-            />
-          </div>
-          <div className="hidden md:flex flex-col items-center justify-center w-full max-w-7xl">
-            <div className={`grid items-center justify-center gap-6`}
-              style={{
-                gridTemplateColumns: `repeat(${teamLeads.length}, minmax(0, 1fr))`,
-                width: `${(teamLeads.length / 4) * 100}%`,
-                maxWidth: '100%'
-              }}
-            >
-              {teamLeads.map((lead) => (
-                <div key={lead.id} className="bg-transparent p-4">
-                  <MemberCard member={lead} borderColorClass="border-[#030CAB]" />
-                </div>
-              ))}
-            </div>
-            {deptRows.map((row, rowIndex) => (
-              <div key={rowIndex} className={`grid justify-items-center gap-6 mt-6`}
-                style={{
-                  gridTemplateColumns: `repeat(${row.length}, minmax(0, 1fr))`,
-                  width: `${(row.length / 4) * 100}%`,
-                  maxWidth: '100%'
-                }}
-              >
-                {row.map((lead) => (
-                  <div key={lead.id} className="bg-transparent p-4">
-                    <MemberCard member={lead} borderColorClass="border-[#030CAB]" />
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-          <div className="md:hidden grid grid-cols-2 w-full gap-4">
-            {leads.map((lead) => (
-              <div key={lead.id} className="bg-transparent p-2">
-                <MemberCard member={lead} borderColorClass="border-[#030CAB]" />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Senior Members */}
-        <div className="w-full bg-[#030CAB] flex flex-col items-center justify-center px-8 md:px-16 py-12 md:py-16 gap-6">
-          <div className="w-full max-w-7xl flex flex-col-reverse md:flex-row items-start md:items-center justify-between gap-8 md:gap-16 mb-8">
-            <Image
-              src="/img/Senior-Members-Temp.jpg"
-              alt="Team Leads"
-              width={400}
-              height={400}
-              className="w-full md:w-auto md:max-w-md aspect-[4/3] rounded-lg object-cover border-4 border-[#E0E0E0] shadow-lg"
-            />
-            <div className="flex-1 text-left md:text-right">
-              <h3 className="text-white text-4xl md:text-6xl font-offbit font-bold">Senior Members</h3>
-              <p className="text-white text-xl font-semibold font-offbit mt-2">
-                Proud MNETizens pushing the frontiers of Emerging Technology
-              </p>
-            </div>
-          </div>
-          <div className="hidden md:flex flex-col items-center justify-center w-full max-w-7xl">
-            {seniorRows.map((row, rowIndex) => (
-              <div key={rowIndex} className={`grid justify-items-center gap-6`}
-                style={{
-                  gridTemplateColumns: `repeat(${row.length}, minmax(0, 1fr))`,
-                  width: `${(row.length / 5) * 100}%`,
-                  maxWidth: '100%'
-                }}
-              >
-                {row.map((member) => (
-                  <div key={member.id} className="bg-transparent p-4">
-                    <MemberCard member={member} size="small" borderColorClass="border-[#0E0E0E]" />
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-          <div className="md:hidden grid grid-cols-2 w-full gap-4">
-            {seniorMembers.map((lead) => (
-              <div key={lead.id} className="bg-transparent p-2">
-                <MemberCard member={lead} borderColorClass="border-[#0E0E0E]" />
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* Academic Advisors */}
         <div className="w-full bg-[#2D2D2D] flex flex-col items-center justify-center px-8 md:px-16 py-12 md:py-16 gap-6">
           <div className="w-full max-w-7xl flex flex-col md:flex-row items-start md:items-center justify-between gap-8 md:gap-16 mb-8">
@@ -326,6 +220,62 @@ export default async function AboutUsPage() {
             {academicAdvisors.map((lead) => (
               <div key={lead.id} className="bg-transparent p-2">
                 <MemberCard member={lead} borderColorClass="border-[#DB003B]" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Team Leads */}
+        <div className="w-full bg-[#030CAB] flex flex-col items-center justify-center px-8 md:px-16 py-12 md:py-16 gap-6">
+          <div className="w-full max-w-7xl flex flex-col md:flex-row md:items-center md:justify-between gap-8 md:gap-16 mb-8">
+            <div className="flex-1">
+              <h3 className="text-white text-4xl md:text-6xl font-offbit font-bold">Leads</h3>
+              <p className="text-white text-xl font-semibold font-offbit mt-2">
+                The Torchbearers of MNET
+              </p>
+            </div>
+            <Image
+              src="/img/Team_Leads.jpg"
+              alt="Team Leads"
+              width={400}
+              height={400}
+              className="w-full md:w-auto md:max-w-md aspect-[4/3] rounded-lg object-cover border-4 border-[#E0E0E0] shadow-lg"
+            />
+          </div>
+          <div className="hidden md:flex flex-col items-center justify-center w-full max-w-7xl">
+            <div className={`grid items-center justify-center gap-6`}
+              style={{
+                gridTemplateColumns: `repeat(${teamLeads.length}, minmax(0, 1fr))`,
+                width: `${(teamLeads.length / 4) * 100}%`,
+                maxWidth: '100%'
+              }}
+            >
+              {teamLeads.map((lead) => (
+                <div key={lead.id} className="bg-transparent p-4">
+                  <MemberCard member={lead} borderColorClass="border-white" />
+                </div>
+              ))}
+            </div>
+            {deptRows.map((row, rowIndex) => (
+              <div key={rowIndex} className={`grid justify-items-center gap-6 mt-6`}
+                style={{
+                  gridTemplateColumns: `repeat(${row.length}, minmax(0, 1fr))`,
+                  width: `${(row.length / 4) * 100}%`,
+                  maxWidth: '100%'
+                }}
+              >
+                {row.map((lead) => (
+                  <div key={lead.id} className="bg-transparent p-4">
+                    <MemberCard member={lead} borderColorClass="border-white" />
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+          <div className="md:hidden grid grid-cols-2 w-full gap-4">
+            {leads.map((lead) => (
+              <div key={lead.id} className="bg-transparent p-2">
+                <MemberCard member={lead} borderColorClass="border-white" />
               </div>
             ))}
           </div>
