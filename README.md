@@ -1,42 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# web-nexus
 
-## Getting Started
-First install NextJS using the package manager of your choice (npm, yarn, pnpm etc.):
+The website of **MNET — Monash Nexus for Emerging Technologies** (https://monashemerging.tech):
+a WebXR-flavoured Next.js site with a 3D cube/contour hero and content pulled live from the
+team's Notion workspace.
+
+## Docs
+
+Start here before developing — these files are the working source of truth:
+
+- [docs/MNET.md](docs/MNET.md) — who MNET is: mission, departments, facilities, partners, brand, Notion schema
+- [docs/WEBSITE.md](docs/WEBSITE.md) — sitemap, redesign brief, build order, backlog
+- [docs/LEGACY-SITE.md](docs/LEGACY-SITE.md) — content/feature inventory of the old PHP site
+- [docs/DVP-DATAVIS.md](docs/DVP-DATAVIS.md) — D3 chart library available for future extraction
+
+## Getting started
 
 ```bash
-#NodeJS Example
-npm install -D next
-```
-
-Then, run the development server:
-
-```bash
+npm install
+cp sample.env .env.local   # optional — see below
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**Notion env vars are optional in development.** Without `NOTION_API_KEY` /
+`NOTION_PORTFOLIOS_DB_ID` / `NOTION_MEMBERS_DB_ID` (see `sample.env`), the data layer in
+`src/lib/notion/` falls back to built-in dummy content — the console will say so. Don't mistake
+dummy rosters/projects for production data.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Stack
 
-## Learn More
+Next.js 15 (App Router) · React 19 · TypeScript · Tailwind CSS v4 (tokens in
+`src/app/globals.css`) · react-three-fiber/drei (3D hero in `src/components/ContourMap/`) ·
+framer-motion + GSAP · Notion API (`@notionhq/client`) with 1 h `unstable_cache`.
 
-To learn more about Next.js, take a look at the following resources:
+## Deploying
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Pushing to `prod` deploys via Vercel. `next build` runs ESLint and TypeScript checks — the push
+fails the deploy if they don't pass, so run `npm run lint && npm run build` before pushing.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Member photos are synced from Notion covers with `node scripts/fetch-notion-covers.js`
+(reads `.env.local`, writes `public/img/members/{page-id}.jpg`).
