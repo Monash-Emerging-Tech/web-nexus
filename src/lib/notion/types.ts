@@ -113,6 +113,12 @@ export interface PortfolioPageObject
         color: string;
       }>;
     };
+    "Parent Portfolio"?: {
+      id: string;
+      type: "relation";
+      relation: Array<{ id: string }>;
+      has_more?: boolean;
+    };
   };
 }
 
@@ -126,7 +132,7 @@ export interface Portfolio {
   tech: string[];
   members: string[];
   imageUrl: string | undefined;
-  status: "Active" | "Featured" | "Inactive" | undefined;
+  status: string | undefined;
   date: {
     start: string | undefined;
     end: string | null | undefined;

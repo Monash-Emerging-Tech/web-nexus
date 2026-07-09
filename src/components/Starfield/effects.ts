@@ -3,7 +3,13 @@ import * as THREE from "three";
 const COLORS = ["#FF0040", "#0033ff", "#ffffff"];
 const SPARKLE_COLOR = new THREE.Color("#ffffff").multiplyScalar(5); // Bright flash
 
-export function initializeStarColors(scene: any): {
+type ColorableMaterial = THREE.Material & {
+  color?: THREE.Color;
+  emissive?: THREE.Color;
+  emissiveIntensity?: number;
+};
+
+export function initializeStarColors(scene: THREE.Object3D): {
   instancedMesh: THREE.InstancedMesh | null;
   baseColors: THREE.Color[];
   meshes: THREE.Mesh[];
@@ -14,26 +20,32 @@ export function initializeStarColors(scene: any): {
   const meshes: THREE.Mesh[] = [];
   const meshBaseColors: THREE.Color[] = [];
 
-  scene.traverse((object: any) => {
-    if (object.isInstancedMesh) {
-      instancedMesh = object;
-      for (let i = 0; i < object.count; i++) {
+  scene.traverse((object) => {
+    const instanced = object as THREE.InstancedMesh;
+    if (instanced.isInstancedMesh) {
+      instancedMesh = instanced;
+      for (let i = 0; i < instanced.count; i++) {
         const color = new THREE.Color(
           COLORS[Math.floor(Math.random() * COLORS.length)],
         );
         baseColors.push(color.clone());
-        object.setColorAt(i, color);
+        instanced.setColorAt(i, color);
       }
-      if (object.instanceColor) object.instanceColor.needsUpdate = true;
-    } else if (object.isMesh && object.material) {
-      object.material = object.material.clone();
+      if (instanced.instanceColor) instanced.instanceColor.needsUpdate = true;
+      return;
+    }
+
+    const mesh = object as THREE.Mesh;
+    if (mesh.isMesh && mesh.material) {
+      const material = (mesh.material as ColorableMaterial).clone() as ColorableMaterial;
+      mesh.material = material;
       const color = COLORS[Math.floor(Math.random() * COLORS.length)];
-      if (object.material.color) object.material.color.set(color);
-      if (object.material.emissive) {
-        object.material.emissive.set(color);
-        object.material.emissiveIntensity = 0;
+      if (material.color) material.color.set(color);
+      if (material.emissive) {
+        material.emissive.set(color);
+        material.emissiveIntensity = 0;
       }
-      meshes.push(object);
+      meshes.push(mesh);
       meshBaseColors.push(new THREE.Color(color));
     }
   });
@@ -80,7 +92,7 @@ export function startSparkleEffect(
       for (let i = 0; i < numSparkles; i++) {
         const idx = Math.floor(Math.random() * meshes.length);
         sparkledIndices.push(idx);
-        const mat = meshes[idx].material as any;
+        const mat = meshes[idx].material as ColorableMaterial;
         if (mat.emissive) {
           mat.emissive.copy(SPARKLE_COLOR);
           mat.emissiveIntensity = 5;
@@ -89,7 +101,7 @@ export function startSparkleEffect(
 
       setTimeout(() => {
         for (const idx of sparkledIndices) {
-          const mat = meshes[idx].material as any;
+          const mat = meshes[idx].material as ColorableMaterial;
           if (mat.emissive) {
             mat.emissive.copy(meshBaseColors[idx]);
             mat.emissiveIntensity = 0;

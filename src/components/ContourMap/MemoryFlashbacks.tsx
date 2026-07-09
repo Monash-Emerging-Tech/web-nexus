@@ -199,7 +199,6 @@ interface FlashbackOrbProps {
 const FlashbackOrb: React.FC<FlashbackOrbProps> = ({
   url,
   index,
-  count,
   cameraPathDist,
   offsetX,
   offsetPerp,
@@ -398,7 +397,7 @@ const FlashbackOrb: React.FC<FlashbackOrbProps> = ({
         e.stopPropagation();
         setHovered(true);
       }}
-      onPointerOut={(e) => {
+      onPointerOut={() => {
         setHovered(false);
       }}
     >
@@ -443,12 +442,12 @@ const MemoryFlashbacks: React.FC<MemoryFlashbacksProps> = ({ flashbackUrls = [] 
       try {
         const data = JSON.parse(raw);
         const list: string[] = [];
-        data.portfolios?.forEach((p: any) => {
+        data.portfolios?.forEach((p: { imageUrl?: string }) => {
           if (p.imageUrl) list.push(p.imageUrl);
         });
         const groups = [data.leads, data.seniorMembers, data.activeMembers];
         groups.forEach((g) => {
-          g?.forEach((m: any) => {
+          g?.forEach((m: { icon?: string }) => {
             if (m.icon && (m.icon.startsWith("http") || m.icon.startsWith("/"))) {
               list.push(m.icon);
             }

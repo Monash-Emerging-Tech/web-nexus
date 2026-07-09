@@ -104,25 +104,37 @@ const MemberCard = ({
 };
 
 export default async function AboutUsPage() {
-  const rawLeads: Member[] = await getLeads();
   const filterPlatypus = (m: Member) => !m.name.toLowerCase().includes("platypus");
+
+  const [rawLeads, rawMarketingRaw, rawEducationRaw, rawProjectsRaw, rawOperationsRaw, rawAdvisorsRaw] =
+    await Promise.all([
+      getLeads(),
+      getMembersByDepartment("Marketing"),
+      getMembersByDepartment("Education"),
+      getMembersByDepartment("Projects"),
+      getMembersByDepartment("Operations"),
+      getAcademicAdvisors(),
+    ]);
 
   const sortedLeads = rawLeads
     .filter(filterPlatypus)
     .sort((a, b) => TeamLeadOrder[a.role as keyof typeof TeamLeadOrder] - TeamLeadOrder[b.role as keyof typeof TeamLeadOrder]);
 
-  const rawMarketing = (await getMembersByDepartment("Marketing")).filter(filterPlatypus);
-  const rawEducation = (await getMembersByDepartment("Education")).filter(filterPlatypus);
-  const rawProjects = (await getMembersByDepartment("Projects")).filter(filterPlatypus);
-  const rawOperations = (await getMembersByDepartment("Operations")).filter(filterPlatypus);
-  const rawAdvisors = (await getAcademicAdvisors()).filter(filterPlatypus);
+  const rawMarketing = rawMarketingRaw.filter(filterPlatypus);
+  const rawEducation = rawEducationRaw.filter(filterPlatypus);
+  const rawProjects = rawProjectsRaw.filter(filterPlatypus);
+  const rawOperations = rawOperationsRaw.filter(filterPlatypus);
+  const rawAdvisors = rawAdvisorsRaw.filter(filterPlatypus);
 
-  const leads = await Promise.all(sortedLeads.map(resolveMemberPhoto));
-  const marketingMembers = await Promise.all(rawMarketing.map(resolveMemberPhoto));
-  const educationMembers = await Promise.all(rawEducation.map(resolveMemberPhoto));
-  const projectsMembers = await Promise.all(rawProjects.map(resolveMemberPhoto));
-  const operationsMembers = await Promise.all(rawOperations.map(resolveMemberPhoto));
-  const academicAdvisors = await Promise.all(rawAdvisors.map(resolveMemberPhoto));
+  const [leads, marketingMembers, educationMembers, projectsMembers, operationsMembers, academicAdvisors] =
+    await Promise.all([
+      Promise.all(sortedLeads.map(resolveMemberPhoto)),
+      Promise.all(rawMarketing.map(resolveMemberPhoto)),
+      Promise.all(rawEducation.map(resolveMemberPhoto)),
+      Promise.all(rawProjects.map(resolveMemberPhoto)),
+      Promise.all(rawOperations.map(resolveMemberPhoto)),
+      Promise.all(rawAdvisors.map(resolveMemberPhoto)),
+    ]);
 
   const teamLeads = leads.filter(lead => lead.role.toLowerCase().startsWith("team"));
   const departmentLeads = leads.filter(lead => !lead.role.toLowerCase().startsWith("team"));
@@ -140,7 +152,7 @@ export default async function AboutUsPage() {
           Our Story
         </h1>
         <p className="text-white/80 text-lg md:text-xl font-offbit text-center max-w-4xl leading-relaxed">
-          Monash Nexus for Emerging Technologies (MNET) is Monash University's premier student-led initiative dedicated to pushing the boundaries of Extended Reality (XR) and immersive technology. We foster a community of innovators, developers, and creators aiming to bridge the gap between academic theory and real-world implementation.
+          Monash Nexus for Emerging Technologies (MNET) is Monash University&apos;s premier student-led initiative dedicated to pushing the boundaries of Extended Reality (XR) and immersive technology. We foster a community of innovators, developers, and creators aiming to bridge the gap between academic theory and real-world implementation.
         </p>
         <div className="w-full flex flex-col md:flex-row gap-6 items-stretch justify-center p-4 max-w-6xl mt-4">
           <div className="flex-1 min-w-0">

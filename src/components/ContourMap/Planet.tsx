@@ -54,9 +54,9 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef }) => {
       planetRef.current.rotation.y += 0.005;
       planetRef.current.rotation.x += 0.003;
 
-      if ((window as any).updateStarfield) {
+      if (window.updateStarfield) {
         const zoom = 100 + animatedScale * 100;
-        (window as any).updateStarfield(animatedScale, zoom);
+        window.updateStarfield(animatedScale, zoom);
       }
 
       // Project cube position to screen for HTML overlay labels

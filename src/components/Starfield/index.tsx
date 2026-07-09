@@ -35,7 +35,7 @@ export function Starfield({ perf }: StarfieldProps) {
         const sceneData = initializeStarColors(bg.three.scene);
         const sparkleInterval = startSparkleEffect(sceneData, perf);
 
-        (window as any).updateStarfield = (
+        window.updateStarfield = (
           opacity: number,
           zoomOut: number,
         ) => {
@@ -46,7 +46,7 @@ export function Starfield({ perf }: StarfieldProps) {
         destroyStarfield = () => {
           if (sparkleInterval) clearInterval(sparkleInterval);
           bg.destroy?.();
-          delete (window as any).updateStarfield;
+          delete window.updateStarfield;
         };
       })
       .catch(() => {});

@@ -1,5 +1,4 @@
 import { getNotionClient, NOTION_CONFIG } from "./client";
-import { type QueryDatabaseParameters } from "@notionhq/client/build/src/api-endpoints";
 import { type PortfolioPageObject, Portfolio } from "../notion/types";
 import { unstable_cache } from "next/cache";
 
@@ -154,16 +153,16 @@ async function getAllPortfoliosRaw(): Promise<Portfolio[]> {
             (portfolioPage["cover"]?.["type"] === "external" && portfolioPage["cover"]["external"]["url"]) ||
             (portfolioPage["cover"]?.["type"] === "file" && portfolioPage["cover"]["file"]["url"]) ||
             undefined,
-          status: (portfolioPage["properties"] as any)["Status"]?.["status"]?.["name"],
+          status: portfolioPage["properties"]["Status"]?.["status"]?.["name"],
           date: {
             start: portfolioPage["properties"]["Dates"]?.["date"]?.["start"],
             end: portfolioPage["properties"]["Dates"]?.["date"]?.["end"],
           },
-          parentPortfolioIds: (portfolioPage["properties"] as any)["Parent Portfolio"]?.["relation"]?.map(
-            (item: any) => item.id
+          parentPortfolioIds: portfolioPage["properties"]["Parent Portfolio"]?.["relation"]?.map(
+            (item) => item.id
           ) || [],
-          department: (portfolioPage["properties"] as any)["Department"]?.["multi_select"]?.map(
-            (item: any) => item.name
+          department: portfolioPage["properties"]["Department"]?.["multi_select"]?.map(
+            (item) => item.name
           ) || [],
         });
       } catch (err) {
@@ -252,16 +251,16 @@ export async function getPortfolioById(id: string): Promise<Portfolio | null> {
         (portfolioPage["cover"]?.["type"] === "file" &&
           portfolioPage["cover"]["file"]["url"]) ||
         undefined,
-      status: (portfolioPage["properties"] as any)["Status"]?.["status"]?.["name"],
+      status: portfolioPage["properties"]["Status"]?.["status"]?.["name"],
       date: {
         start: portfolioPage["properties"]["Dates"]?.["date"]?.["start"],
         end: portfolioPage["properties"]["Dates"]?.["date"]?.["end"],
       },
-      parentPortfolioIds: (portfolioPage["properties"] as any)["Parent Portfolio"]?.["relation"]?.map(
-        (item: any) => item.id
+      parentPortfolioIds: portfolioPage["properties"]["Parent Portfolio"]?.["relation"]?.map(
+        (item) => item.id
       ) || [],
-      department: (portfolioPage["properties"] as any)["Department"]?.["multi_select"]?.map(
-        (item: any) => item.name
+      department: portfolioPage["properties"]["Department"]?.["multi_select"]?.map(
+        (item) => item.name
       ) || [],
     };
   } catch (error) {

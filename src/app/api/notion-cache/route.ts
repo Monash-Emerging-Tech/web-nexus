@@ -39,8 +39,9 @@ export async function GET() {
       seniorMembers,
       activeMembers,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Notion cache route generic error:", error);
-    return NextResponse.json({ error: error.message || "Failed to query Notion" }, { status: 500 });
+    const message = error instanceof Error ? error.message : "Failed to query Notion";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

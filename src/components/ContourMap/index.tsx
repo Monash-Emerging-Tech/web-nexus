@@ -15,11 +15,22 @@ interface ContourMapProps {
   flashbackUrls?: string[];
 }
 
+const NAV_ROUTES: Record<string, string> = {
+  "ABOUT US": "/about-us",
+  "OUTREACH": "/outreach",
+  "PORTFOLIO": "/portfolios",
+  "COLLABORATORS": "/collaborators",
+};
+
 const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] }) => {
   const router = useRouter();
   const overlayRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  // Set the instant a nav label is clicked, before router.push. Freezes the
+  // R3F render loop immediately so the WebGL scene's teardown doesn't run
+  // concurrently with (and block) the route transition.
+  const [leaving, setLeaving] = useState(false);
   const perf = usePerformanceTier();
 
   useEffect(() => {
@@ -30,6 +41,27 @@ const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] })
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // ContourMap only ever mounts on the home page, so any click on a link
+  // leaving "/" (e.g. the top Navbar, which has its own <Link>s) also needs
+  // to freeze the scene before Next starts the route transition. Capture
+  // phase so this runs before the link's own navigation handler.
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      const anchor = (e.target as HTMLElement)?.closest("a[href]") as HTMLAnchorElement | null;
+      if (!anchor) return;
+      try {
+        const url = new URL(anchor.href, window.location.origin);
+        if (url.origin === window.location.origin && url.pathname !== "/") {
+          setLeaving(true);
+        }
+      } catch {
+        // ignore malformed/non-http hrefs (mailto:, tel:, etc.)
+      }
+    };
+    document.addEventListener("click", handleClick, true);
+    return () => document.removeEventListener("click", handleClick, true);
   }, []);
 
   if (!mounted) {
@@ -46,10 +78,11 @@ const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] })
   return (
     <div className="w-full h-full overflow-hidden bg-black relative">
       <Starfield perf={perf} />
-      <Canvas 
-        camera={{ position: [0, 5, 15], fov: 40 }} 
+      <Canvas
+        camera={{ position: [0, 5, 15], fov: 40 }}
         gl={{ antialias: perf.antialias }}
         dpr={perf.dpr}
+        frameloop={leaving ? "never" : "always"}
       >
         {perf.enableEnvironment && <Environment files="/assets/potsdamer_platz_1k.hdr" />}
         <ambientLight intensity={2.0} />
@@ -186,17 +219,12 @@ const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] })
                   pointerEvents: 'auto',
                 }}
                 onClick={() => {
-                  const routes: Record<string, string> = {
-                    "ABOUT US": "/about-us",
-                    "OUTREACH": "/outreach",
-                    "PORTFOLIO": "/portfolios",
-                    "COLLABORATORS": "/collaborators"
-                  };
-                  const route = routes[label.text.toUpperCase()];
+                  const route = NAV_ROUTES[label.text.toUpperCase()];
                   if (route) {
                     if (route.startsWith("mailto:")) {
                       window.location.href = route;
                     } else {
+                      setLeaving(true);
                       router.push(route);
                     }
                   }

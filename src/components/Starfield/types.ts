@@ -1,3 +1,5 @@
+import type * as THREE from "three";
+
 export interface StarfieldRenderableObject {
   isMesh?: boolean;
   material?: { color?: { set: (value: string) => void } };
@@ -5,10 +7,8 @@ export interface StarfieldRenderableObject {
 
 export interface StarfieldInstance {
   three: {
-    camera: { position: { set: (x: number, y: number, z: number) => void } };
-    scene: {
-      traverse: (callback: (object: StarfieldRenderableObject) => void) => void;
-    };
+    camera: THREE.Camera;
+    scene: THREE.Scene;
   };
   destroy?: () => void;
 }

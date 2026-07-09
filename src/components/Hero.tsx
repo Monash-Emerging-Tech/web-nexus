@@ -118,14 +118,20 @@ const Hero: React.FC<HeroProps> = ({ flashbackUrls = [] }) => {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const cached = sessionStorage.getItem("mnet_notion_cache");
-      const preloadImages = (data: any) => {
+      const preloadImages = (data: {
+        portfolios?: Array<{ imageUrl?: string }>;
+        leads?: Array<{ icon?: string }>;
+        advisors?: Array<{ icon?: string }>;
+        seniorMembers?: Array<{ icon?: string }>;
+        activeMembers?: Array<{ icon?: string }>;
+      }) => {
         const urls = new Set<string>();
-        data.portfolios?.forEach((p: any) => {
+        data.portfolios?.forEach((p) => {
           if (p.imageUrl) urls.add(p.imageUrl);
         });
         const groups = [data.leads, data.advisors, data.seniorMembers, data.activeMembers];
         groups.forEach((g) => {
-          g?.forEach((m: any) => {
+          g?.forEach((m) => {
             if (m.icon && (m.icon.startsWith("http") || m.icon.startsWith("/"))) {
               urls.add(m.icon);
             }
