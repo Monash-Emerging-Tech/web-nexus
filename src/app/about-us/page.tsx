@@ -1,11 +1,15 @@
-"use server"
+"use server";
 
 import React from "react";
 import Image from "next/image";
 import fs from "fs";
 import path from "path";
 import { Member } from "@/lib/notion/types";
-import { getAcademicAdvisors, getLeads, getMembersByDepartment } from "@/lib/notion/members";
+import {
+  getAcademicAdvisors,
+  getLeads,
+  getMembersByDepartment,
+} from "@/lib/notion/members";
 import { getLinkedInProfilePic } from "@/lib/linkedinScraper";
 import OurValues from "@/components/OurValues/OurValues";
 
@@ -23,9 +27,15 @@ interface MemberWithPhoto extends Member {
 
 const resolveMemberPhoto = async (member: Member): Promise<MemberWithPhoto> => {
   let photo = member.icon;
-  
+
   // Check if image downloaded locally
-  const localImagePath = path.join(process.cwd(), "public", "img", "members", `${member.id}.jpg`);
+  const localImagePath = path.join(
+    process.cwd(),
+    "public",
+    "img",
+    "members",
+    `${member.id}.jpg`,
+  );
   if (fs.existsSync(localImagePath)) {
     photo = `/img/members/${member.id}.jpg`;
   } else if (member.linkedin) {
@@ -34,8 +44,12 @@ const resolveMemberPhoto = async (member: Member): Promise<MemberWithPhoto> => {
       photo = scraped;
     }
   }
-  
-  if (!photo || photo.length <= 2 || (!photo.startsWith("http") && !photo.startsWith("/"))) {
+
+  if (
+    !photo ||
+    photo.length <= 2 ||
+    (!photo.startsWith("http") && !photo.startsWith("/"))
+  ) {
     photo = "https://placehold.co/150x150.png";
   }
   return {
@@ -47,7 +61,7 @@ const resolveMemberPhoto = async (member: Member): Promise<MemberWithPhoto> => {
 const MemberCard = ({
   member,
   size = "normal",
-  borderColorClass = "border-[#030CAB]"
+  borderColorClass = "border-[#030CAB]",
 }: {
   member: MemberWithPhoto;
   size?: "normal" | "small";
@@ -60,7 +74,9 @@ const MemberCard = ({
 
   const cardContent = (
     <div className="flex flex-col items-center gap-2 group transition-all duration-300">
-      <div className={`hidden md:block relative rounded-full overflow-hidden border-4 ${borderColorClass} transition-transform duration-300 group-hover:scale-105 group-hover:rotate-1`}>
+      <div
+        className={`hidden md:block relative rounded-full overflow-hidden border-4 ${borderColorClass} transition-transform duration-300 group-hover:scale-105 group-hover:rotate-1`}
+      >
         <Image
           src={member.photo}
           alt={member.name}
@@ -69,7 +85,9 @@ const MemberCard = ({
           className="rounded-full object-cover w-32 h-32 md:w-40 md:h-40"
         />
       </div>
-      <div className={`md:hidden relative rounded-full overflow-hidden border-4 ${borderColorClass}`}>
+      <div
+        className={`md:hidden relative rounded-full overflow-hidden border-4 ${borderColorClass}`}
+      >
         <Image
           src={member.photo}
           alt={member.name}
@@ -82,7 +100,9 @@ const MemberCard = ({
         <p className="text-white text-lg md:text-2xl font-offbit font-bold text-center group-hover:text-[#DB003B] transition-colors duration-300">
           {member.name}
         </p>
-        <p className="text-gray-400 text-sm md:text-lg font-offbit">{member.role}</p>
+        <p className="text-gray-400 text-sm md:text-lg font-offbit">
+          {member.role}
+        </p>
       </div>
     </div>
   );
@@ -105,31 +125,59 @@ const MemberCard = ({
 
 export default async function AboutUsPage() {
   const rawLeads: Member[] = await getLeads();
-  const filterPlatypus = (m: Member) => !m.name.toLowerCase().includes("platypus");
+  const filterPlatypus = (m: Member) =>
+    !m.name.toLowerCase().includes("platypus");
   const filterSeniorMembers = (m: Member) => m.role !== "Senior Member";
-  const filterRoster = (m: Member) => filterPlatypus(m) && filterSeniorMembers(m);
+  const filterRoster = (m: Member) =>
+    filterPlatypus(m) && filterSeniorMembers(m);
 
   const sortedLeads = rawLeads
     .filter(filterPlatypus)
-    .sort((a, b) => TeamLeadOrder[a.role as keyof typeof TeamLeadOrder] - TeamLeadOrder[b.role as keyof typeof TeamLeadOrder]);
+    .sort(
+      (a, b) =>
+        TeamLeadOrder[a.role as keyof typeof TeamLeadOrder] -
+        TeamLeadOrder[b.role as keyof typeof TeamLeadOrder],
+    );
 
-  const rawMarketing = (await getMembersByDepartment("Marketing")).filter(filterRoster);
-  const rawEducation = (await getMembersByDepartment("Education")).filter(filterRoster);
-  const rawProjects = (await getMembersByDepartment("Projects")).filter(filterRoster);
-  const rawOperations = (await getMembersByDepartment("Operations")).filter(filterRoster);
+  const rawMarketing = (await getMembersByDepartment("Marketing")).filter(
+    filterRoster,
+  );
+  const rawEducation = (await getMembersByDepartment("Education")).filter(
+    filterRoster,
+  );
+  const rawProjects = (await getMembersByDepartment("Projects")).filter(
+    filterRoster,
+  );
+  const rawOperations = (await getMembersByDepartment("Operations")).filter(
+    filterRoster,
+  );
   const rawAdvisors = (await getAcademicAdvisors()).filter(filterPlatypus);
 
   const leads = await Promise.all(sortedLeads.map(resolveMemberPhoto));
-  const marketingMembers = await Promise.all(rawMarketing.map(resolveMemberPhoto));
-  const educationMembers = await Promise.all(rawEducation.map(resolveMemberPhoto));
-  const projectsMembers = await Promise.all(rawProjects.map(resolveMemberPhoto));
-  const operationsMembers = await Promise.all(rawOperations.map(resolveMemberPhoto));
-  const academicAdvisors = await Promise.all(rawAdvisors.map(resolveMemberPhoto));
+  const marketingMembers = await Promise.all(
+    rawMarketing.map(resolveMemberPhoto),
+  );
+  const educationMembers = await Promise.all(
+    rawEducation.map(resolveMemberPhoto),
+  );
+  const projectsMembers = await Promise.all(
+    rawProjects.map(resolveMemberPhoto),
+  );
+  const operationsMembers = await Promise.all(
+    rawOperations.map(resolveMemberPhoto),
+  );
+  const academicAdvisors = await Promise.all(
+    rawAdvisors.map(resolveMemberPhoto),
+  );
 
-  const teamLeads = leads.filter(lead => lead.role.toLowerCase().startsWith("team"));
-  const departmentLeads = leads.filter(lead => !lead.role.toLowerCase().startsWith("team"));
+  const teamLeads = leads.filter((lead) =>
+    lead.role.toLowerCase().startsWith("team"),
+  );
+  const departmentLeads = leads.filter(
+    (lead) => !lead.role.toLowerCase().startsWith("team"),
+  );
 
-  const deptRows = []
+  const deptRows = [];
   for (let i = 0; i < departmentLeads.length; i += 4) {
     deptRows.push(departmentLeads.slice(i, i + 4));
   }
@@ -142,7 +190,11 @@ export default async function AboutUsPage() {
           Our Story
         </h1>
         <p className="text-white/80 text-lg md:text-xl font-offbit text-center max-w-4xl leading-relaxed">
-          Monash Nexus for Emerging Technologies (MNET) is Monash University's premier student-led initiative dedicated to pushing the boundaries of Extended Reality (XR) and immersive technology. We foster a community of innovators, developers, and creators aiming to bridge the gap between academic theory and real-world implementation.
+          Monash Nexus for Emerging Technologies (MNET) is Monash University's
+          premier student-led initiative dedicated to pushing the boundaries of
+          Extended Reality (XR) and immersive technology. We foster a community
+          of innovators, developers, and creators aiming to bridge the gap
+          between academic theory and real-world implementation.
         </p>
         <div className="w-full flex flex-col md:flex-row gap-6 items-stretch justify-center p-4 max-w-6xl mt-4">
           <div className="flex-1 min-w-0">
@@ -185,12 +237,14 @@ export default async function AboutUsPage() {
             The Team
           </h2>
         </div>
-        
+
         {/* Academic Advisors */}
         <div className="w-full bg-[#2D2D2D] flex flex-col items-center justify-center px-8 md:px-16 py-12 md:py-16 gap-6">
           <div className="w-full max-w-7xl flex flex-col md:flex-row items-start md:items-center justify-between gap-8 md:gap-16 mb-8">
             <div className="flex-1">
-              <h3 className="text-white text-4xl md:text-6xl font-offbit font-bold">Academic Advisors</h3>
+              <h3 className="text-white text-4xl md:text-6xl font-offbit font-bold">
+                Academic Advisors
+              </h3>
               <p className="text-white text-xl font-semibold font-offbit mt-2">
                 The Guides who help us reach the tech frontier.
               </p>
@@ -204,16 +258,20 @@ export default async function AboutUsPage() {
             />
           </div>
           <div className="hidden md:flex flex-col items-center justify-center w-full max-w-7xl">
-            <div className={`grid items-center justify-center gap-6`}
+            <div
+              className={`grid items-center justify-center gap-6`}
               style={{
                 gridTemplateColumns: `repeat(${academicAdvisors.length}, minmax(0, 1fr))`,
                 width: `${(academicAdvisors.length / 3) * 90}%`,
-                maxWidth: '100%'
+                maxWidth: "100%",
               }}
             >
               {academicAdvisors.map((advisor) => (
                 <div key={advisor.id} className="bg-transparent p-4">
-                  <MemberCard member={advisor} borderColorClass="border-[#DB003B]" />
+                  <MemberCard
+                    member={advisor}
+                    borderColorClass="border-[#DB003B]"
+                  />
                 </div>
               ))}
             </div>
@@ -231,7 +289,9 @@ export default async function AboutUsPage() {
         <div className="w-full bg-[#030CAB] flex flex-col items-center justify-center px-8 md:px-16 py-12 md:py-16 gap-6">
           <div className="w-full max-w-7xl flex flex-col md:flex-row md:items-center md:justify-between gap-8 md:gap-16 mb-8">
             <div className="flex-1">
-              <h3 className="text-white text-4xl md:text-6xl font-offbit font-bold">Leads</h3>
+              <h3 className="text-white text-4xl md:text-6xl font-offbit font-bold">
+                Leads
+              </h3>
               <p className="text-white text-xl font-semibold font-offbit mt-2">
                 The Torchbearers of MNET
               </p>
@@ -245,11 +305,12 @@ export default async function AboutUsPage() {
             />
           </div>
           <div className="hidden md:flex flex-col items-center justify-center w-full max-w-7xl">
-            <div className={`grid items-center justify-center gap-6`}
+            <div
+              className={`grid items-center justify-center gap-6`}
               style={{
                 gridTemplateColumns: `repeat(${teamLeads.length}, minmax(0, 1fr))`,
                 width: `${(teamLeads.length / 4) * 100}%`,
-                maxWidth: '100%'
+                maxWidth: "100%",
               }}
             >
               {teamLeads.map((lead) => (
@@ -259,11 +320,13 @@ export default async function AboutUsPage() {
               ))}
             </div>
             {deptRows.map((row, rowIndex) => (
-              <div key={rowIndex} className={`grid justify-items-center gap-6 mt-6`}
+              <div
+                key={rowIndex}
+                className={`grid justify-items-center gap-6 mt-6`}
                 style={{
                   gridTemplateColumns: `repeat(${row.length}, minmax(0, 1fr))`,
                   width: `${(row.length / 4) * 100}%`,
-                  maxWidth: '100%'
+                  maxWidth: "100%",
                 }}
               >
                 {row.map((lead) => (
@@ -288,58 +351,83 @@ export default async function AboutUsPage() {
           <h3 className="font-offbit-101 font-bold text-4xl md:text-6xl text-white">
             Meet the Team
           </h3>
-          
+
           <div className="w-full flex flex-col gap-8">
             <div className="w-full flex flex-col items-center gap-2 md:gap-4 border-b border-white/10 pb-6">
-              <p className="text-white text-3xl font-offbit font-semibold">Team Leads</p>
+              <p className="text-white text-3xl font-offbit font-semibold">
+                Team Leads
+              </p>
               <div className="w-full text-center flex flex-col md:grid md:grid-cols-5 gap-2">
                 {teamLeads.map((lead) => (
-                  <p key={lead.id} className="text-white/80 text-lg font-offbit-101 font-semibold">
-                    {lead.icon} {lead.name}
+                  <p
+                    key={lead.id}
+                    className="text-white/80 text-lg font-offbit-101 font-semibold"
+                  >
+                    {lead.name}
                   </p>
                 ))}
               </div>
             </div>
-            
+
             <div className="w-full flex flex-col items-center gap-2 md:gap-4 border-b border-white/10 pb-6">
-              <p className="text-white text-3xl font-offbit font-semibold">Marketing</p>
+              <p className="text-white text-3xl font-offbit font-semibold">
+                Marketing
+              </p>
               <div className="w-full text-center flex flex-col md:grid md:grid-cols-5 gap-2">
                 {marketingMembers.map((member) => (
-                  <p key={member.id} className="text-white/80 text-lg font-offbit-101 font-semibold">
-                    {member.icon} {member.name}
+                  <p
+                    key={member.id}
+                    className="text-white/80 text-lg font-offbit-101 font-semibold"
+                  >
+                    {member.name}
                   </p>
                 ))}
               </div>
             </div>
 
             <div className="w-full flex flex-col items-center gap-2 md:gap-4 border-b border-white/10 pb-6">
-              <p className="text-white text-3xl font-offbit font-semibold">Operations</p>
+              <p className="text-white text-3xl font-offbit font-semibold">
+                Operations
+              </p>
               <div className="w-full text-center flex flex-col md:grid md:grid-cols-5 gap-2">
                 {operationsMembers.map((member) => (
-                  <p key={member.id} className="text-white/80 text-lg font-offbit-101 font-semibold">
-                    {member.icon} {member.name}
+                  <p
+                    key={member.id}
+                    className="text-white/80 text-lg font-offbit-101 font-semibold"
+                  >
+                    {member.name}
                   </p>
                 ))}
               </div>
             </div>
 
             <div className="w-full flex flex-col items-center gap-2 md:gap-4 border-b border-white/10 pb-6">
-              <p className="text-white text-3xl font-offbit font-semibold">Education</p>
+              <p className="text-white text-3xl font-offbit font-semibold">
+                Education
+              </p>
               <div className="w-full text-center flex flex-col md:grid md:grid-cols-5 gap-2">
                 {educationMembers.map((member) => (
-                  <p key={member.id} className="text-white/80 text-lg font-offbit-101 font-semibold">
-                    {member.icon} {member.name}
+                  <p
+                    key={member.id}
+                    className="text-white/80 text-lg font-offbit-101 font-semibold"
+                  >
+                    {member.name}
                   </p>
                 ))}
               </div>
             </div>
 
             <div className="w-full flex flex-col items-center gap-2 md:gap-4">
-              <p className="text-white text-3xl font-offbit font-semibold">Projects</p>
+              <p className="text-white text-3xl font-offbit font-semibold">
+                Projects
+              </p>
               <div className="w-full text-center flex flex-col md:grid md:grid-cols-6 gap-2">
                 {projectsMembers.map((member) => (
-                  <p key={member.id} className="text-white/80 text-lg font-offbit-101 font-semibold">
-                    {member.icon} {member.name}
+                  <p
+                    key={member.id}
+                    className="text-white/80 text-lg font-offbit-101 font-semibold"
+                  >
+                    {member.name}
                   </p>
                 ))}
               </div>
@@ -347,6 +435,18 @@ export default async function AboutUsPage() {
           </div>
         </div>
       </section>
+
+      {/* 4. Join Us CTA */}
+      <div className="w-full flex items-center justify-center py-16 md:py-24">
+        <a
+          href="https://docs.google.com/forms/d/e/1FAIpQLSej1jyIYU_dy2uJqEs5zUvNY1GUN-6eN2DqxCbb2ucnYrTI7Q/viewform"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:cursor-pointer w-full text-2xl md:text-3xl font-offbit font-bold px-12 py-5 md:px-16 md:py-6 bg-[#DB003B] rounded-md pointer-events-auto transition-all duration-500 [transition-timing-function:cubic-bezier(0,-0.03,0,1)] hover:-translate-y-0.5 hover:bg-[#ff0044] flex items-center justify-center text-white shadow-2xl"
+        >
+          JOIN US
+        </a>
+      </div>
     </div>
   );
 }
