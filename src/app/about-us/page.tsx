@@ -106,15 +106,17 @@ const MemberCard = ({
 export default async function AboutUsPage() {
   const rawLeads: Member[] = await getLeads();
   const filterPlatypus = (m: Member) => !m.name.toLowerCase().includes("platypus");
-  
+  const filterSeniorMembers = (m: Member) => m.role !== "Senior Member";
+  const filterRoster = (m: Member) => filterPlatypus(m) && filterSeniorMembers(m);
+
   const sortedLeads = rawLeads
     .filter(filterPlatypus)
     .sort((a, b) => TeamLeadOrder[a.role as keyof typeof TeamLeadOrder] - TeamLeadOrder[b.role as keyof typeof TeamLeadOrder]);
 
-  const rawMarketing = (await getMembersByDepartment("Marketing")).filter(filterPlatypus);
-  const rawEducation = (await getMembersByDepartment("Education")).filter(filterPlatypus);
-  const rawProjects = (await getMembersByDepartment("Projects")).filter(filterPlatypus);
-  const rawOperations = (await getMembersByDepartment("Operations")).filter(filterPlatypus);
+  const rawMarketing = (await getMembersByDepartment("Marketing")).filter(filterRoster);
+  const rawEducation = (await getMembersByDepartment("Education")).filter(filterRoster);
+  const rawProjects = (await getMembersByDepartment("Projects")).filter(filterRoster);
+  const rawOperations = (await getMembersByDepartment("Operations")).filter(filterRoster);
   const rawAdvisors = (await getAcademicAdvisors()).filter(filterPlatypus);
 
   const leads = await Promise.all(sortedLeads.map(resolveMemberPhoto));
