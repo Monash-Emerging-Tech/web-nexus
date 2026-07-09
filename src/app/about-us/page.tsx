@@ -187,11 +187,11 @@ export default async function AboutUsPage() {
           Our Story
         </h1>
         <p className="text-white/80 text-lg md:text-xl font-offbit text-center max-w-4xl leading-relaxed">
-          Monash Nexus for Emerging Technologies (MNET) is Monash University&apos;s
-          premier student-led initiative dedicated to pushing the boundaries of
-          Extended Reality (XR) and immersive technology. We foster a community
-          of innovators, developers, and creators aiming to bridge the gap
-          between academic theory and real-world implementation.
+          Monash Nexus for Emerging Technologies (MNET) is Monash
+          University&apos;s premier student-led initiative dedicated to pushing
+          the boundaries of Extended Reality (XR) and immersive technology. We
+          foster a community of innovators, developers, and creators aiming to
+          bridge the gap between academic theory and real-world implementation.
         </p>
         <div className="w-full flex flex-col md:flex-row gap-6 items-stretch justify-center p-4 max-w-6xl mt-4">
           <div className="flex-1 min-w-0">
@@ -239,20 +239,13 @@ export default async function AboutUsPage() {
         <div className="w-full bg-[#2D2D2D] flex flex-col items-center justify-center px-8 md:px-16 py-12 md:py-16 gap-6">
           <div className="w-full max-w-7xl flex flex-col md:flex-row items-start md:items-center justify-between gap-8 md:gap-16 mb-8">
             <div className="flex-1">
-              <h3 className="text-white text-4xl md:text-6xl font-offbit font-bold">
+              <h3 className="text-white text-4xl md:text-6xl text-center font-offbit font-bold">
                 Academic Advisors
               </h3>
-              <p className="text-white text-xl font-semibold font-offbit mt-2">
-                The Guides who help us reach the tech frontier.
+              <p className="text-white text-center text-xl font-semibold font-offbit mt-2">
+                The Masters who Guides us towards the tech frontier.
               </p>
             </div>
-            <Image
-              src="/img/Team_Leads.jpg"
-              alt="Team Leads"
-              width={400}
-              height={400}
-              className="w-full md:w-auto md:max-w-md aspect-[4/3] rounded-lg object-cover border-4 border-[#E0E0E0] shadow-lg"
-            />
           </div>
           <div className="hidden md:flex flex-col items-center justify-center w-full max-w-7xl">
             <div
@@ -286,20 +279,13 @@ export default async function AboutUsPage() {
         <div className="w-full bg-[#030CAB] flex flex-col items-center justify-center px-8 md:px-16 py-12 md:py-16 gap-6">
           <div className="w-full max-w-7xl flex flex-col md:flex-row md:items-center md:justify-between gap-8 md:gap-16 mb-8">
             <div className="flex-1">
-              <h3 className="text-white text-4xl md:text-6xl font-offbit font-bold">
+              <h3 className="text-white text-center text-4xl md:text-6xl font-offbit font-bold">
                 Leads
               </h3>
-              <p className="text-white text-xl font-semibold font-offbit mt-2">
+              <p className="text-white text-center text-xl font-semibold font-offbit mt-2">
                 The Torchbearers of MNET
               </p>
             </div>
-            <Image
-              src="/img/Team_Leads.jpg"
-              alt="Team Leads"
-              width={400}
-              height={400}
-              className="w-full md:w-auto md:max-w-md aspect-[4/3] rounded-lg object-cover border-4 border-[#E0E0E0] shadow-lg"
-            />
           </div>
           <div className="hidden md:flex flex-col items-center justify-center w-full max-w-7xl">
             <div
