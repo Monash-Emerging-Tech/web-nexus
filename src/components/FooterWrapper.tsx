@@ -1,15 +1,35 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Footer from "./Footer";
 
 export default function FooterWrapper() {
   const pathname = usePathname();
+  // On "/" the hero owns an internal scroller, so window.scrollY stays 0 until
+  // the user scrolls past it into the page sections — hide the bar then.
+  const [pastHero, setPastHero] = useState(false);
+
+  useEffect(() => {
+    if (pathname !== "/") return;
+    const onScroll = () => setPastHero(window.scrollY > 50);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [pathname]);
 
   if (pathname === "/") {
     return (
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none text-center w-full max-w-[90%] flex flex-col items-center gap-3">
-        <div className="flex items-center gap-6 text-white text-lg pointer-events-auto">
+      <div
+        className={`fixed bottom-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none text-center w-full max-w-[90%] flex flex-col items-center gap-3 transition-opacity duration-500 ${
+          pastHero ? "opacity-0" : "opacity-100"
+        }`}
+      >
+        <div
+          className={`flex items-center gap-6 text-white text-lg ${
+            pastHero ? "pointer-events-none" : "pointer-events-auto"
+          }`}
+        >
           <a
             href="https://au.linkedin.com/company/monashemergingtech"
             target="_blank"

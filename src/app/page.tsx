@@ -1,18 +1,29 @@
 "use server"
 
 import Hero from "@/components/Hero";
-import { getPortfolios } from "@/lib/notion/portfolios";
+import Footer from "@/components/Footer";
+import FeaturedProjects from "@/components/home/FeaturedProjects";
+import EventsHolder from "@/components/events/PastEvents_Home";
+import { getPortfolios, getFeaturedPortfolios } from "@/lib/notion/portfolios";
 import { getLeads, getSeniorMembers, getActiveMembers } from "@/lib/notion/members";
+import { Portfolio } from "@/lib/notion/types";
 
 const Home = async () => {
   let flashbackUrls: string[] = [];
+  let projectData: Portfolio[] = [];
+  let eventData: Portfolio[] = [];
   try {
-    const [portfolios, leads, seniors, active] = await Promise.all([
-      getPortfolios(),
-      getLeads(),
-      getSeniorMembers(),
-      getActiveMembers(),
-    ]);
+    const [portfolios, leads, seniors, active, featured, pastEvents] =
+      await Promise.all([
+        getPortfolios(),
+        getLeads(),
+        getSeniorMembers(),
+        getActiveMembers(),
+        getFeaturedPortfolios(),
+        getPortfolios({ department: "Marketing", timeWindow: "past", limit: 3 }),
+      ]);
+    projectData = featured;
+    eventData = pastEvents;
 
     const urls = new Set<string>();
     portfolios.forEach((p) => {
@@ -34,13 +45,13 @@ const Home = async () => {
   }
 
   return (
-    <div className="relative">
+    <div className="relative overflow-x-hidden">
       <Hero flashbackUrls={flashbackUrls} />
-      {/* Projects and Events sections — uncomment when ready */}
-      {/* <div className="bg-[url(/img/wireframe_1.png)] bg-[length:120%] bg-no-repeat bg-[position:-100px_50px]">
-        <Projects data={projectData} />
+      <div className="bg-[url(/img/wireframe_1.png)] bg-[length:120%] bg-no-repeat bg-[position:-100px_50px] pb-16">
+        <FeaturedProjects data={projectData} />
         <EventsHolder data={eventData} />
-      </div> */}
+      </div>
+      <Footer />
     </div>
   );
 }

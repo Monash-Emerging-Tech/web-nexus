@@ -225,6 +225,26 @@ export async function getPortfolios({
   }
 }
 
+// Featured projects for the home page (Web Redesign brief: Stanford, Bali,
+// MBEST). Name matching is intentionally loose — if a name changes in Notion
+// the list degrades to the most recent projects instead of breaking.
+const FEATURED_PROJECT_NAMES = ["stanford", "bali", "mbest"];
+
+export async function getFeaturedPortfolios(limit = 3): Promise<Portfolio[]> {
+  const all = await getPortfolios({ department: "Projects" });
+
+  const featured = FEATURED_PROJECT_NAMES.map((name) =>
+    all.find((p) => p.name.toLowerCase().includes(name))
+  ).filter((p): p is Portfolio => Boolean(p));
+
+  for (const portfolio of all) {
+    if (featured.length >= limit) break;
+    if (!featured.includes(portfolio)) featured.push(portfolio);
+  }
+
+  return featured.slice(0, limit);
+}
+
 export async function getPortfolioById(id: string): Promise<Portfolio | null> {
   try {
     const portfolios = await getCachedAllPortfolios();

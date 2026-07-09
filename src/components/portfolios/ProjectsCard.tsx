@@ -26,7 +26,7 @@ const ProjectsCard: React.FC<ProjectsCardProps> = ({ data }) => {
         {/* Project Image */}
         <div className="w-full aspect-video overflow-hidden rounded-xl mb-4 relative bg-neutral-900">
           <Image
-            src={data.imageUrl || "/img/About-Focus-Temp.jpg"}
+            src={data.imageUrl || "/img/About-Focus-Temp.JPG"}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 30vw"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"

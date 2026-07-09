@@ -3,7 +3,7 @@
 import React from "react";
 import { Portfolio } from "@/lib/notion/types";
 import { getPortfolios } from "@/lib/notion/portfolios";
-import ProjectsCard from "./ProjectsCard";
+import ProjectsCard from "@/components/portfolios/ProjectsCard";
 
 const PortfoliosPage = async () => {
   const projectData: Portfolio[] = await getPortfolios({ department: "Projects" });

@@ -6,8 +6,10 @@ import Navbar from "@/components/Navbar/Navbar";
 import FooterWrapper from "@/components/FooterWrapper";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://monashemerging.tech"),
   title: "Monash Nexus for Emerging Technologies",
-  description: "TODO",
+  description:
+    "MNET is Monash University's student team for emerging simulation technologies — VR, AR, XR, digital twins, quantum computing and the web frontier. Join us, build the future.",
 };
 
 export default function RootLayout({
