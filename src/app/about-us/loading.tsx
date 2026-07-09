@@ -46,34 +46,6 @@ export default function AboutUsLoading() {
         <Pulse className="h-16 md:h-20 w-80 md:w-[28rem] mx-auto" />
       </div>
 
-      {/* Leads - red bg */}
-      <div className="w-full bg-[#DB003B]/80 px-8 md:px-16 py-12 md:py-16">
-        <div className="flex flex-col md:flex-row gap-8 mb-10 max-w-7xl mx-auto">
-          <div className="flex-1 flex flex-col gap-3">
-            <Pulse className="h-12 w-32" />
-            <Pulse className="h-5 w-48" />
-          </div>
-          <Pulse className="w-full md:w-80 aspect-4/3 rounded-lg" />
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-7xl mx-auto">
-          {[...Array(8)].map((_, i) => <MemberCardSkeleton key={i} />)}
-        </div>
-      </div>
-
-      {/* Senior Members - blue bg */}
-      <div className="w-full bg-[#030CAB]/80 px-8 md:px-16 py-12 md:py-16">
-        <div className="flex flex-col-reverse md:flex-row gap-8 mb-10 max-w-7xl mx-auto">
-          <Pulse className="w-full md:w-80 aspect-4/3 rounded-lg" />
-          <div className="flex-1 flex flex-col gap-3 items-end">
-            <Pulse className="h-12 w-52" />
-            <Pulse className="h-5 w-72" />
-          </div>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 max-w-7xl mx-auto">
-          {[...Array(10)].map((_, i) => <MemberCardSkeleton key={i} size="small" />)}
-        </div>
-      </div>
-
       {/* Academic Advisors - dark gray bg */}
       <div className="w-full bg-[#2D2D2D] px-8 md:px-16 py-12 md:py-16">
         <div className="flex flex-col md:flex-row gap-8 mb-10 max-w-7xl mx-auto">
@@ -85,6 +57,20 @@ export default function AboutUsLoading() {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
           {[...Array(3)].map((_, i) => <MemberCardSkeleton key={i} />)}
+        </div>
+      </div>
+
+      {/* Leads - blue bg */}
+      <div className="w-full bg-[#030CAB]/80 px-8 md:px-16 py-12 md:py-16">
+        <div className="flex flex-col md:flex-row gap-8 mb-10 max-w-7xl mx-auto">
+          <div className="flex-1 flex flex-col gap-3">
+            <Pulse className="h-12 w-32" />
+            <Pulse className="h-5 w-48" />
+          </div>
+          <Pulse className="w-full md:w-80 aspect-4/3 rounded-lg" />
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-7xl mx-auto">
+          {[...Array(8)].map((_, i) => <MemberCardSkeleton key={i} />)}
         </div>
       </div>
 
