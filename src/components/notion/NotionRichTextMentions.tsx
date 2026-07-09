@@ -44,6 +44,7 @@ const UserMention = async ({ userId, annotationsClasses }: UserMentionProps) => 
 			`}</style>
 			@{user ? user.name : "Unknown User"}
 			<div className="notion-mention-hover flex flex-row items-center justify-start gap-2">
+				{/* eslint-disable-next-line @next/next/no-img-element -- avatar_url is an arbitrary external host from Notion's user API, not covered by next.config's image remotePatterns */}
 				<img
 					src={user?.avatar_url || "/img/logo.png"}
 					alt={user?.name || "Unknown User"}

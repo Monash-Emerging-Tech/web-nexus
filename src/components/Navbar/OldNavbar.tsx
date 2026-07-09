@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { homeContent } from "../../content/home";
@@ -203,7 +204,7 @@ export function Navbar({ disableContextCursor = false }: NavbarProps) {
 
       <nav id="mainNavbar" className={`navbar ${scrolled ? "scrolled" : ""}`} aria-label="Primary">
         <div className="my-auto ml-0 flex h-8 flex-row md:h-auto">
-          <img src="/img/logo.png" alt="MNET logo" className="m-auto mr-4 h-8 w-auto" />
+          <Image src="/img/logo.png" alt="MNET logo" width={32} height={32} className="m-auto mr-4 h-8 w-auto" />
           <Link href="/" data-ccursor id="left" className="rounded-sm p-0.5">
             <h1 className="font-offbit-bold m-auto translate-y-0.5 text-left text-lg tracking-widest text-white md:mb-4 md:text-3xl">
               MNET

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import ProjectInfo from "./ProjectInfo";
 
 type Section = {
@@ -35,9 +36,11 @@ export default function ProjectHero({
         </div>
 
         <div className="w-[502.68px] h-[372.996px] rounded-[12.826px] overflow-hidden">
-            <img
+            <Image
                 src={image}
                 alt={title}
+                width={503}
+                height={373}
                 className="w-full h-full object-cover"
             />
         </div>

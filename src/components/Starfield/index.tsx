@@ -55,6 +55,9 @@ export function Starfield({ perf }: StarfieldProps) {
       mounted = false;
       destroyStarfield?.();
     };
+    // perf is intentionally captured once: it seeds a one-time WebGL scene setup,
+    // and re-running this effect would tear down and rebuild the whole starfield.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

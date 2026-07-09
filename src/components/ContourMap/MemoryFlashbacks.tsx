@@ -487,7 +487,7 @@ const MemoryFlashbacks: React.FC<MemoryFlashbacksProps> = ({ flashbackUrls = [] 
         clearTimeout(timeout);
       };
     }
-  }, []);
+  }, [urls.length]);
 
   const activeUrls = useMemo(() => {
     const finalUrls = [...urls];
