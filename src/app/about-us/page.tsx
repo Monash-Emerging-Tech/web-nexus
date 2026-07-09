@@ -10,7 +10,6 @@ import {
   getLeads,
   getMembersByDepartment,
 } from "@/lib/notion/members";
-import { getLinkedInProfilePic } from "@/lib/linkedinScraper";
 import OurValues from "@/components/OurValues/OurValues";
 
 enum TeamLeadOrder {
@@ -38,11 +37,6 @@ const resolveMemberPhoto = async (member: Member): Promise<MemberWithPhoto> => {
   );
   if (fs.existsSync(localImagePath)) {
     photo = `/img/members/${member.id}.jpg`;
-  } else if (member.linkedin) {
-    const scraped = await getLinkedInProfilePic(member.linkedin);
-    if (scraped) {
-      photo = scraped;
-    }
   }
 
   if (

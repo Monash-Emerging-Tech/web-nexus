@@ -30,11 +30,6 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "media.licdn.com",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
         hostname: "badhi.id",
         pathname: "/**",
       },
