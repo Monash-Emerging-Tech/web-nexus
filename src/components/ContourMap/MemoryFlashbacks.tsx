@@ -142,16 +142,16 @@ const fragmentShader = `
     // Translucent contour map drifting over the memory, same line style and
     // drift speeds as the terrain shader; per-orb uPhase offsets the pattern.
     // Fades out on hover so the photo comes through clean when focused on.
-    vec2 contourUv = sphereUv * 5.0 + vec2(uPhase * 3.7, uPhase * 1.3);
+    vec2 contourUv = sphereUv * 6.5 + vec2(uPhase * 3.7, uPhase * 1.3);
     float elevation = noise2(contourUv * 0.6 + uTime * 0.1) * 2.5;
     elevation += noise2(contourUv * 1.6 - uTime * 0.05) * 0.8;
     float cVal = elevation * 3.0;
     float cf = fract(cVal);
     float cdf = fwidth(cVal);
-    float cLine = smoothstep(cdf * 2.0, cdf, abs(cf - 0.5));
-    float cGlow = smoothstep(1.5, 0.0, abs(cf - 0.5) / cdf) * 0.4;
+    float cLine = smoothstep(cdf * 1.4, 0.0, abs(cf - 0.5));
+    float cGlow = smoothstep(2.2, 0.0, abs(cf - 0.5) / cdf) * 0.7;
     vec3 contourLineColor = mix(colorLow, colorHigh, clamp(elevation / 3.0, 0.0, 1.0));
-    float contourStrength = 1.0 * (1.0 - uHover * 0.9) * vignette;
+    float contourStrength = 1.8 * (1.0 - uHover * 0.9) * vignette;
     gradedColor += contourLineColor * (cLine + cGlow) * contourStrength;
 
     // Scanlines (drawn on the sphere surface)
@@ -208,7 +208,21 @@ const FlashbackOrb: React.FC<FlashbackOrbProps> = ({
   const meshRef = useRef<THREE.Mesh>(null);
   const materialRef = useRef<THREE.ShaderMaterial>(null);
   const scroll = useScroll();
-  const [texture, setTexture] = useState<THREE.Texture | null>(null);
+
+  // Flat placeholder so the orb (and its contour-line shader) can render
+  // immediately, before the real Notion image has loaded — a skeleton state.
+  const placeholderTexture = useMemo(() => {
+    const tex = new THREE.DataTexture(
+      new Uint8Array([60, 60, 60, 255]),
+      1,
+      1,
+      THREE.RGBAFormat
+    );
+    tex.needsUpdate = true;
+    return tex;
+  }, []);
+
+  const [texture, setTexture] = useState<THREE.Texture>(placeholderTexture);
   const [aspect, setAspect] = useState(1);
   const [hovered, setHovered] = useState(false);
 
@@ -374,8 +388,6 @@ const FlashbackOrb: React.FC<FlashbackOrbProps> = ({
       0.06
     );
   });
-
-  if (!texture) return null;
 
   return (
     <mesh
