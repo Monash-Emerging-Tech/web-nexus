@@ -187,7 +187,7 @@ export default async function AboutUsPage() {
       <section className="w-full mt-12">
         <div className="px-8 md:px-16 py-8 md:py-16 text-center">
           <h2 className="text-white font-offbit-101 font-bold text-5xl md:text-7xl uppercase tracking-wider">
-            Meet The Team
+            The Team
           </h2>
         </div>
         
@@ -331,10 +331,10 @@ export default async function AboutUsPage() {
           </div>
         </div>
 
-        {/* Team Structure List */}
+        {/* Meet the Team List */}
         <div className="w-full flex flex-col items-center justify-center px-4 md:px-16 py-12 md:py-16 gap-10 max-w-7xl mx-auto">
           <h3 className="font-offbit-101 font-bold text-4xl md:text-6xl text-white">
-            Team Structure
+            Meet the Team
           </h3>
           
           <div className="w-full flex flex-col gap-8">

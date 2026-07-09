@@ -88,7 +88,7 @@ export default function AboutUsLoading() {
         </div>
       </div>
 
-      {/* Team Structure */}
+      {/* Meet the Team */}
       <div className="px-4 md:px-16 py-12 md:py-16 max-w-7xl mx-auto w-full">
         <Pulse className="h-14 w-72 mx-auto mb-10" />
         <div className="flex flex-col gap-8">

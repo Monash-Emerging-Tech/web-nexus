@@ -43,6 +43,19 @@ const DUMMY_DEPT_MEMBERS: Record<string, Member[]> = {
   ],
 };
 
+// Strip emoji and bracket-enclosed text (e.g. "Jane Doe (President) 🎉" -> "Jane Doe")
+function cleanName(name: string | undefined): string {
+  if (!name) return "";
+  return name
+    .replace(/[([{][^)\]}]*[)\]}]/g, "")
+    .replace(
+      /[\u{1F1E6}-\u{1F1FF}\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}\u{FE0F}]/gu,
+      ""
+    )
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 // ── Notion fetcher ───────────────────────────────────────────────────
 
 // Team member data
@@ -70,9 +83,9 @@ async function getMemberDataPublic({
       const memberpage = result as MemberPageObject;
       members.push({
         id: memberpage.id,
-        name: memberpage["properties"]["Name"]["title"][0]?.["text"][
-          "content"
-        ],
+        name: cleanName(
+          memberpage["properties"]["Name"]["title"][0]?.["text"]["content"]
+        ),
         role:
           memberpage["properties"]["Role"]["multi_select"][0]?.["name"],
         quote:
