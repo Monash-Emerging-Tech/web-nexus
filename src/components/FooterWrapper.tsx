@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Footer from "./Footer";
+import { LinkedInIcon, InstagramIcon, FacebookIcon, DiscordIcon } from "@/components/icons/SocialIcons";
 
 export default function FooterWrapper() {
   const pathname = usePathname();
@@ -31,40 +32,44 @@ export default function FooterWrapper() {
           }`}
         >
           <a
+            data-ccursor
             href="https://au.linkedin.com/company/monashemergingtech"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-[#DC003B] transition-colors duration-200"
             aria-label="LinkedIn"
           >
-            <i className="fab fa-linkedin"></i>
+            <LinkedInIcon className="w-[1em] h-[1em]" />
           </a>
           <a
+            data-ccursor
             href="https://www.instagram.com/monashemergingtech/"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-[#DC003B] transition-colors duration-200"
             aria-label="Instagram"
           >
-            <i className="fab fa-instagram"></i>
+            <InstagramIcon className="w-[1em] h-[1em]" />
           </a>
           <a
+            data-ccursor
             href="https://www.facebook.com/people/Monash-Nexus-for-Emerging-Technologies/61562647665251/"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-[#DC003B] transition-colors duration-200"
             aria-label="Facebook"
           >
-            <i className="fab fa-facebook"></i>
+            <FacebookIcon className="w-[1em] h-[1em]" />
           </a>
           <a
+            data-ccursor
             href="https://discord.gg/hFxzMnxgbK"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-[#DC003B] transition-colors duration-200"
             aria-label="Discord"
           >
-            <i className="fab fa-discord"></i>
+            <DiscordIcon className="w-[1.2em] h-[1em]" />
           </a>
         </div>
         <p className="font-offbit font-bold text-[9px] md:text-xs tracking-widest text-white/40" suppressHydrationWarning>

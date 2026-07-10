@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useRef } from "react";
-import { useFrame, useThree } from "@react-three/fiber";
+import React, { useEffect, useRef } from "react";
+import { useFrame, useThree, ThreeEvent } from "@react-three/fiber";
 import { useScroll } from "@react-three/drei";
 import * as THREE from "three";
 import MnetCube from "../MnetCube";
@@ -10,11 +10,107 @@ interface PlanetProps {
   overlayRef: React.RefObject<HTMLDivElement | null>;
 }
 
+// Idle autospin rates (rad/s) — the previous per-frame constants (0.005/0.003)
+// at 60fps, now delta-scaled. Drag inertia decays back TO these rates, so
+// letting go of a flick blends seamlessly into the autospin (feel inspired by
+// the AI Hardware Squeeze tower's OrbitControls damping).
+const BASE_ROT_Y = 0.3;
+const BASE_ROT_X = 0.18;
+const DRAG_SENSITIVITY = 0.008; // rad per px of pointer travel
+const INERTIA_LAMBDA = 1.5; // higher = flicks settle into autospin faster
+const MAX_SPIN = 8; // rad/s cap so violent flicks stay sane
+
+const setGrabCursor = (state: "grab" | "grabbing" | "default") => {
+  window.dispatchEvent(new CustomEvent("mnet:cursor", { detail: state }));
+  // Fallback for devices where the custom cursor is inactive.
+  document.body.style.cursor = state === "default" ? "" : state;
+};
+
 const Planet: React.FC<PlanetProps> = ({ overlayRef }) => {
   const planetRef = useRef<THREE.Group>(null);
   const scroll = useScroll();
   const { size } = useThree();
   const springRef = useRef({ scale: 0, velocity: 0 });
+  const dragRef = useRef({
+    dragging: false,
+    touch: false,
+    pointerId: -1,
+    lastX: 0,
+    lastY: 0,
+    pendingYaw: 0,
+    pendingPitch: 0,
+    vx: BASE_ROT_X,
+    vy: BASE_ROT_Y,
+    hovered: false,
+  });
+
+  // Touch-drags on the cube must not scroll the page. touch-action can't be
+  // flipped mid-gesture, so preventDefault the touch events on drei's scroll
+  // element while a cube drag is active (R3F's pointerdown raycast has already
+  // run by the time touchstart/touchmove fire, so `dragging` is current).
+  useEffect(() => {
+    const el = scroll.el;
+    if (!el) return;
+    const blockTouch = (e: TouchEvent) => {
+      if (dragRef.current.dragging && dragRef.current.touch) e.preventDefault();
+    };
+    el.addEventListener("touchstart", blockTouch, { passive: false });
+    el.addEventListener("touchmove", blockTouch, { passive: false });
+    return () => {
+      el.removeEventListener("touchstart", blockTouch);
+      el.removeEventListener("touchmove", blockTouch);
+    };
+  }, [scroll.el]);
+
+  useEffect(() => {
+    return () => setGrabCursor("default");
+  }, []);
+
+  const endDrag = (e: ThreeEvent<PointerEvent>) => {
+    const drag = dragRef.current;
+    if (!drag.dragging || e.pointerId !== drag.pointerId) return;
+    drag.dragging = false;
+    drag.pointerId = -1;
+    (e.target as Element).releasePointerCapture?.(e.pointerId);
+    setGrabCursor(drag.hovered ? "grab" : "default");
+  };
+
+  const handlePointerDown = (e: ThreeEvent<PointerEvent>) => {
+    if (springRef.current.scale < 0.5) return; // cube not meaningfully visible yet
+    e.stopPropagation();
+    const drag = dragRef.current;
+    drag.dragging = true;
+    drag.touch = e.pointerType === "touch";
+    drag.pointerId = e.pointerId;
+    drag.lastX = e.clientX;
+    drag.lastY = e.clientY;
+    drag.pendingYaw = 0;
+    drag.pendingPitch = 0;
+    (e.target as Element).setPointerCapture?.(e.pointerId);
+    setGrabCursor("grabbing");
+  };
+
+  const handlePointerMove = (e: ThreeEvent<PointerEvent>) => {
+    const drag = dragRef.current;
+    if (!drag.dragging || e.pointerId !== drag.pointerId) return;
+    e.stopPropagation();
+    drag.pendingYaw += (e.clientX - drag.lastX) * DRAG_SENSITIVITY;
+    drag.pendingPitch += (e.clientY - drag.lastY) * DRAG_SENSITIVITY;
+    drag.lastX = e.clientX;
+    drag.lastY = e.clientY;
+  };
+
+  const handlePointerOver = (e: ThreeEvent<PointerEvent>) => {
+    if (springRef.current.scale < 0.5) return;
+    e.stopPropagation();
+    dragRef.current.hovered = true;
+    if (!dragRef.current.dragging) setGrabCursor("grab");
+  };
+
+  const handlePointerOut = () => {
+    dragRef.current.hovered = false;
+    if (!dragRef.current.dragging) setGrabCursor("default");
+  };
 
   useFrame((state, delta) => {
     const scrollOffset = scroll.offset;

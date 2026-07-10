@@ -1,5 +1,6 @@
 "use server"
 
+import Hero, { UpcomingEvent } from "@/components/Hero";
 import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
 import FeaturedProjects from "@/components/home/FeaturedProjects";
@@ -12,8 +13,9 @@ const Home = async () => {
   let flashbackUrls: string[] = [];
   let projectData: Portfolio[] = [];
   let eventData: Portfolio[] = [];
+  let upcomingEvent: UpcomingEvent | null = null;
   try {
-    const [portfolios, leads, seniors, active, featured, pastEvents] =
+    const [portfolios, leads, seniors, active, featured, pastEvents, upcoming] =
       await Promise.all([
         getPortfolios(),
         getLeads(),
@@ -21,9 +23,19 @@ const Home = async () => {
         getActiveMembers(),
         getFeaturedPortfolios(),
         getPortfolios({ department: "Marketing", timeWindow: "past", limit: 3 }),
+        getPortfolios({ department: "Marketing", timeWindow: "upcoming", limit: 1 }),
       ]);
     projectData = featured;
     eventData = pastEvents;
+    upcomingEvent = upcoming[0] ?? null;
+
+    const nextEvent = upcoming[0];
+    if (nextEvent?.date?.start) {
+      upcomingEvent = {
+        title: nextEvent.name,
+        timestamp: new Date(nextEvent.date.start).getTime(),
+      };
+    }
 
     const urls = new Set<string>();
     portfolios.forEach((p) => {
@@ -46,9 +58,12 @@ const Home = async () => {
 
   return (
     <div className="relative overflow-x-hidden">
-      <Hero flashbackUrls={flashbackUrls} />
+      <Hero flashbackUrls={flashbackUrls} upcomingEvent={upcomingEvent} />
       <div className="bg-[url(/img/wireframe_1.png)] bg-[length:120%] bg-no-repeat bg-[position:-100px_50px] pb-16">
         <FeaturedProjects data={projectData} />
+        <EventsHolder data={eventData} />
+      </div>
+      <Footer />
         <EventsHolder data={eventData} />
       </div>
       <Footer />

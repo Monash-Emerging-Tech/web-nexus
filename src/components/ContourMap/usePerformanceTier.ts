@@ -181,15 +181,37 @@ export function usePerformanceTier(): PerformanceConfig {
   const [config, setConfig] = useState<PerformanceConfig>(TIER_CONFIGS.mid);
 
   useEffect(() => {
-    const tier = detectTier();
-    setConfig(TIER_CONFIGS[tier]);
+    const applyTier = () => {
+      const reducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches;
 
-    if (process.env.NODE_ENV === "development") {
-      console.log(
-        `%c[ContourMap] Performance tier: ${tier.toUpperCase()}`,
-        "color: #0f0; font-weight: bold;"
-      );
-    }
+      if (reducedMotion) {
+        // Respect the OS-level motion preference: minimal animation work,
+        // no camera shake, no sparkle churn.
+        setConfig({
+          ...TIER_CONFIGS.low,
+          cameraShake: false,
+          sparkleFraction: 0,
+        });
+        return;
+      }
+
+      const tier = detectTier();
+      setConfig(TIER_CONFIGS[tier]);
+
+      if (process.env.NODE_ENV === "development") {
+        console.log(
+          `%c[ContourMap] Performance tier: ${tier.toUpperCase()}`,
+          "color: #0f0; font-weight: bold;"
+        );
+      }
+    };
+
+    applyTier();
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+    mql.addEventListener("change", applyTier);
+    return () => mql.removeEventListener("change", applyTier);
   }, []);
 
   return config;

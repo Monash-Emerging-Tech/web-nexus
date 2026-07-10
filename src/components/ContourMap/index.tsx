@@ -5,10 +5,11 @@ import { Canvas } from "@react-three/fiber";
 import { ScrollControls, Scroll, Environment } from "@react-three/drei";
 import Experience from "./Experience";
 import Overlay from "./Overlay";
+import ScrollProgressBridge from "./ScrollProgressBridge";
 import { LABEL_CONFIG } from "./Labels";
 import usePerformanceTier from "./usePerformanceTier";
 import { Starfield } from "../Starfield";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface ContourMapProps {
   children?: React.ReactNode;
@@ -23,7 +24,6 @@ const NAV_ROUTES: Record<string, string> = {
 };
 
 const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] }) => {
-  const router = useRouter();
   const overlayRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -76,7 +76,7 @@ const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] })
   }
 
   return (
-    <div className="w-full h-full overflow-hidden bg-black relative">
+    <div className="contour-scene w-full h-full overflow-hidden bg-black relative">
       <Starfield perf={perf} />
       <Canvas
         camera={{ position: [0, 5, 15], fov: 40 }}
@@ -91,7 +91,8 @@ const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] })
         <pointLight position={[10, 10, 10]} intensity={50} />
         <pointLight position={[-10, -10, -10]} color="#0033ff" intensity={30} />
         
-        <ScrollControls pages={4} damping={perf.scrollDamping}>
+        <ScrollControls pages={4} damping={perf.scrollDamping} style={{ scrollbarWidth: "none" }}>
+          <ScrollProgressBridge />
           <Experience overlayRef={overlayRef} perf={perf} flashbackUrls={flashbackUrls} />
           {children && (
             <Scroll html style={{ width: '100%', height: '100%' }}>
@@ -201,42 +202,33 @@ const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] })
                 );
               })()}
 
-              {/* Text label */}
-              <div
-                className="spiderverse-label-wrapper"
+              {/* Text label — a real link so it works for keyboards,
+                  screen readers, and crawlers, not just pointer clicks */}
+              <Link
+                href={NAV_ROUTES[label.text.toUpperCase()] ?? "/"}
+                data-ccursor
+                className="cube-label"
                 style={{
                   position: 'absolute',
                   left: isRight ? endX + (isMobile ? 6 : 14) : endX - (isMobile ? 6 : 14),
                   top: endY - (isMobile ? 7 : 11),
                   whiteSpace: 'nowrap',
                   fontFamily: 'var(--font-offbit, monospace)',
-                  fontSize: isMobile ? 10 : 18,
+                  fontSize: isMobile ? 12 : 18,
                   fontWeight: 700,
                   letterSpacing: '0.2em',
                   textAlign: isRight ? 'left' : 'right',
                   transform: isRight ? 'none' : 'translateX(-100%)',
                   cursor: 'pointer',
                   pointerEvents: 'auto',
+                  color: 'inherit',
+                  textDecoration: 'none',
+                  display: 'block',
                 }}
-                onClick={() => {
-                  const route = NAV_ROUTES[label.text.toUpperCase()];
-                  if (route) {
-                    if (route.startsWith("mailto:")) {
-                      window.location.href = route;
-                    } else {
-                      setLeaving(true);
-                      router.push(route);
-                    }
-                  }
-                }}
+                onClick={() => setLeaving(true)}
               >
-                <span
-                  data-text={label.text}
-                  className="spiderverse-label-glitch"
-                >
-                  {label.text}
-                </span>
-              </div>
+                <span className="cube-label-text">{label.text}</span>
+              </Link>
             </div>
           );
         })}

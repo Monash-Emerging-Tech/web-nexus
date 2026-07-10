@@ -1,5 +1,3 @@
-"use server"
-
 import React from "react";
 import Image from "next/image";
 
@@ -14,7 +12,18 @@ interface ImageCard {
 // 1. Main partner orgs — our closest working relationships at Monash.
 const mainPartners: ImageCard[] = [
   {
-    name: "Embodied Visualisation (EmVis)",
+    name: "eSolutions VARS Labs",
+    image: "/img/facilities/esolutions-vars-labs.jpg",
+    accent: "#7B2FF7",
+    website: "https://maps.monash.edu/#v=1&zlevel=2&center=145.130285,-37.914441&zoom=20.63&campusid=159&sharepoitype=poi&sharepoi=1189861",
+    description: (
+      <>
+        eSolutions is Monash&apos;s IT hub, responsible for all things IT on campus. The Virtual and Augmented Reality Services team is our main contact within this group.
+      </>
+    )
+  },
+  {
+    name: "Embodied Visualisation Lab",
     image: "/img/facilities/embodied-visualisation-lab.jpg",
     accent: "#2ECC71",
     website: "https://maps.monash.edu/#v=1&zlevel=1&center=145.133444,-37.910169&zoom=18.71&campusid=159&sharepoitype=poi&sharepoi=1000447848",
@@ -27,10 +36,11 @@ const mainPartners: ImageCard[] = [
     )
   },
   {
-    name: "eSolutions VARS",
-    image: "/img/facilities/esolutions-vars-labs.png",
-    accent: "#7B2FF7",
-    website: "https://maps.monash.edu/#v=1&zlevel=2&center=145.130285,-37.914441&zoom=20.63&campusid=159&sharepoitype=poi&sharepoi=1189861",
+    name: "Smart Manufacturing Hub",
+    image: "/img/facilities/smart-manufacturing-hub.jpg",
+    accent: "#EC4899",
+    website: "https://maps.monash.edu/#v=1&zlevel=1&center=145.134272,-37.909748&zoom=19.5&campusid=159&sharepoitype=poi&sharepoi=1000829064",
+
     description: (
       <>
         eSolutions is Monash&apos;s IT hub, responsible for all things IT on campus. Their
@@ -52,6 +62,19 @@ const supportNetwork: ImageCard[] = [
       <>
         MNET&apos;s home at Monash — a central hub supporting digitally focused student teams
         from the faculties of Engineering and Information Technology.
+      </>
+    )
+  },
+  {
+    name: "Design and Build Studio",
+    image: "/img/facilities/design-build-studio.jpg",
+    accent: "#F5A623",
+    description: (
+      <>
+        The Design and Build Studios offer support for Engineering undergraduate teaching, faculty research and Monash Companies on Campus.
+      </>
+    )
+  },
       </>
     )
   },
@@ -130,6 +153,7 @@ function ImageCardGrid({ items, columns = 3 }: { items: ImageCard[]; columns?: 2
                 src={item.image}
                 alt={item.name}
                 fill
+                sizes="(max-width: 768px) 100vw, 33vw"
                 className="object-cover"
               />
             </div>

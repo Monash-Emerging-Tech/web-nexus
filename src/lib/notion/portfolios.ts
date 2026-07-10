@@ -176,11 +176,12 @@ async function getAllPortfoliosRaw(): Promise<Portfolio[]> {
   }
 }
 
-// Cache all portfolios fetch for 1 hour
+// Cache for 25 minutes: Notion's signed S3 file URLs expire after ~1 hour,
+// so the cache window must stay well under that or covers 403 when stale.
 export const getCachedAllPortfolios = unstable_cache(
   async () => getAllPortfoliosRaw(),
   ["notion-all-portfolios"],
-  { revalidate: 3600, tags: ["notion-all-portfolios"] }
+  { revalidate: 1500, tags: ["notion-all-portfolios"] }
 );
 
 export async function getPortfolios({
@@ -225,6 +226,12 @@ export async function getPortfolios({
   }
 }
 
+// Notion IDs come back with or without dashes depending on the endpoint
+const normalizeNotionId = (id: string | undefined) =>
+  (id ?? "").replace(/-/g, "").toLowerCase();
+
+const PUBLISHED_STATUSES = ["In progress", "Done"];
+
 // Featured projects for the home page (Web Redesign brief: Stanford, Bali,
 // MBEST). Name matching is intentionally loose — if a name changes in Notion
 // the list degrades to the most recent projects instead of breaking.
@@ -256,6 +263,29 @@ export async function getPortfolioById(id: string): Promise<Portfolio | null> {
     if (!notion) return null;
     const response = await notion.pages.retrieve({ page_id: id });
     const portfolioPage = response as PortfolioPageObject;
+
+    // pages.retrieve accepts ANY page the integration can see, so gate the
+    // fallback to pages that live in the portfolios database and carry a
+    // published status — otherwise internal Notion pages become public.
+    const parent = (response as { parent?: Record<string, string> }).parent;
+    const parentIds = [
+      normalizeNotionId(parent?.database_id),
+      normalizeNotionId(parent?.data_source_id),
+    ];
+    const allowedParents = [
+      normalizeNotionId(NOTION_CONFIG.PORTFOLIOS_DB_ID),
+      normalizeNotionId(NOTION_CONFIG.PORTFOLIOS_DS_ID),
+    ].filter(Boolean);
+    if (!parentIds.some((p) => p && allowedParents.includes(p))) {
+      console.warn(`Blocked portfolio fallback for non-portfolio page: ${id}`);
+      return null;
+    }
+    const statusName = portfolioPage["properties"]["Status"]?.["status"]?.["name"];
+    if (!statusName || !PUBLISHED_STATUSES.includes(statusName)) {
+      console.warn(`Blocked portfolio fallback for unpublished page: ${id}`);
+      return null;
+    }
+
     return {
       id: portfolioPage.id,
       name: portfolioPage["properties"]["Project name"]?.["title"][0]?.["text"]?.["content"] || "Unnamed Project",

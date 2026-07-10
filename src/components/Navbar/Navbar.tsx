@@ -18,7 +18,7 @@
 import { Navbar as OldNavbar } from "./OldNavbar";
 
 const Navbar = () => {
-  return <OldNavbar disableContextCursor={true} />;
+  return <OldNavbar />;
 };
 
 export default Navbar;

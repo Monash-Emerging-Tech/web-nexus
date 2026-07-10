@@ -4,15 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { homeContent } from "../../content/home";
-interface NavbarProps {
-  disableContextCursor?: boolean;
-}
 
-const CONTEXT_CURSOR_SCRIPT_ID = "context-cursor-script";
-const CONTEXT_CURSOR_SCRIPT_SRC = "/context-cursor.v2.js?v=1";
-
-
-export function Navbar({ disableContextCursor = false }: NavbarProps) {
+export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuLabel, setMenuLabel] = useState("MENU");
   const [scrolled, setScrolled] = useState(false);
@@ -84,87 +77,6 @@ export function Navbar({ disableContextCursor = false }: NavbarProps) {
       document.body.style.overflow = "";
     };
   }, [menuOpen]);
-
-  useEffect(() => {
-    const html = document.documentElement;
-
-    const removeCursorDom = () => {
-      document.querySelectorAll(".c-cursor").forEach((node) => node.remove());
-    };
-
-    const unloadContextCursor = () => {
-      const script = document.getElementById(CONTEXT_CURSOR_SCRIPT_ID);
-      if (script?.parentNode) {
-        script.parentNode.removeChild(script);
-      }
-      document
-        .querySelectorAll<HTMLScriptElement>('script[src*="context-cursor.js"], script[src*="context-cursor.v2.js"]')
-        .forEach((node) => node.parentNode?.removeChild(node));
-      removeCursorDom();
-    };
-
-    const loadContextCursor = () => {
-      if (document.querySelector(`script[src*="${CONTEXT_CURSOR_SCRIPT_SRC.split("?")[0]}"]`)) {
-        return;
-      }
-
-      const script = document.createElement("script");
-      script.id = CONTEXT_CURSOR_SCRIPT_ID;
-      script.src = CONTEXT_CURSOR_SCRIPT_SRC;
-      script.async = true;
-      script.onload = () => {
-        if (document.readyState === "complete") {
-          window.dispatchEvent(new Event("load"));
-        }
-      };
-      document.head.appendChild(script);
-    };
-
-    const setNativeCursorMode = () => {
-      html.dataset.cursorMode = "native";
-      html.style.cursor = "auto";
-      unloadContextCursor();
-    };
-
-    const setCustomCursorMode = () => {
-      html.dataset.cursorMode = "custom";
-      html.style.cursor = "none";
-      loadContextCursor();
-    };
-
-    let mounted = true;
-
-    const updateContextCursor = async () => {
-      if (!mounted) {
-        return;
-      }
-
-      if (disableContextCursor) {
-        setNativeCursorMode();
-        return;
-      }
-
-      const hasMouse = window.matchMedia("(pointer: fine)").matches;
-        if (hasMouse) {
-        setCustomCursorMode();
-        } else {
-        setNativeCursorMode();
-        }
-    };
-
-    void updateContextCursor();
-    const intervalId = window.setInterval(() => {
-      void updateContextCursor();
-    }, 10000);
-
-    return () => {
-      mounted = false;
-      window.clearInterval(intervalId);
-      setNativeCursorMode();
-      delete html.dataset.cursorMode;
-      html.style.cursor = "auto";
-    };
-  }, [disableContextCursor]);
 
   useEffect(() => {
     return () => {
@@ -290,7 +202,6 @@ export function Navbar({ disableContextCursor = false }: NavbarProps) {
                 <Link
                   key={link.label}
                   data-ccursor
-                  data-text={link.label.toUpperCase()}
                   href={link.href}
                   onClick={handleOverlayClose}
                   className={itemClass}
@@ -304,7 +215,6 @@ export function Navbar({ disableContextCursor = false }: NavbarProps) {
               <a
                 key={link.label}
                 data-ccursor
-                data-text={link.label.toUpperCase()}
                 target="_blank"
                 rel="noreferrer"
                 href={link.href}
@@ -320,7 +230,6 @@ export function Navbar({ disableContextCursor = false }: NavbarProps) {
           <a
             href={homeContent.nav.contactHref}
             data-ccursor
-            data-text="CONTACT US"
             onClick={handleOverlayClose}
             className="font-offbit-bold m-auto flex h-min w-full justify-center items-center gap-2 rounded-lg py-2 text-base text-white"
           >

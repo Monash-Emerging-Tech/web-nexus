@@ -7,6 +7,10 @@ import {
   getActiveMembers,
 } from "@/lib/notion/members";
 
+// This route only exists so the client can warm the browser image cache for
+// the hero flashback effect. It intentionally returns image URLs only — no
+// member names, roles, quotes, or LinkedIn URLs — so it can't be scraped for
+// personal data.
 export async function GET() {
   try {
     const [portfolios, leads, advisors, seniorMembers, activeMembers] = await Promise.all([
@@ -32,16 +36,28 @@ export async function GET() {
       }),
     ]);
 
-    return NextResponse.json({
-      portfolios,
-      leads,
-      advisors,
-      seniorMembers,
-      activeMembers,
+    const imageUrls = new Set<string>();
+    portfolios.forEach((p) => {
+      if (p.imageUrl) imageUrls.add(p.imageUrl);
     });
+    [leads, advisors, seniorMembers, activeMembers].forEach((group) => {
+      group.forEach((m) => {
+        if (m.icon && (m.icon.startsWith("http") || m.icon.startsWith("/"))) {
+          imageUrls.add(m.icon);
+        }
+      });
+    });
+
+    return NextResponse.json(
+      { imageUrls: Array.from(imageUrls) },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=1500, stale-while-revalidate=300",
+        },
+      }
+    );
   } catch (error) {
     console.error("Notion cache route generic error:", error);
-    const message = error instanceof Error ? error.message : "Failed to query Notion";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: "Failed to load image cache" }, { status: 500 });
   }
 }
