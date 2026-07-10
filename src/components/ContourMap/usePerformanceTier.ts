@@ -32,6 +32,12 @@ export interface PerformanceConfig {
   sparkleDurationMs: number;
   /** Percentage of stars to sparkle */
   sparkleFraction: number;
+  /** Number of lava-blob page bubbles in the hero */
+  flashbackCount: number;
+  /** Silhouette morph amplitude for the lava blobs */
+  blobWobbleAmp: number;
+  /** OS-level prefers-reduced-motion — freezes blob wobble/flash/physics */
+  reducedMotion: boolean;
 }
 
 const TIER_CONFIGS: Record<PerformanceTier, PerformanceConfig> = {
@@ -50,6 +56,9 @@ const TIER_CONFIGS: Record<PerformanceTier, PerformanceConfig> = {
     sparkleIntervalMs: 500,
     sparkleDurationMs: 200,
     sparkleFraction: 0.005,
+    flashbackCount: 8,
+    blobWobbleAmp: 0.06,
+    reducedMotion: false,
   },
   mid: {
     tier: "mid",
@@ -66,6 +75,9 @@ const TIER_CONFIGS: Record<PerformanceTier, PerformanceConfig> = {
     sparkleIntervalMs: 250,
     sparkleDurationMs: 100,
     sparkleFraction: 0.01,
+    flashbackCount: 12,
+    blobWobbleAmp: 0.09,
+    reducedMotion: false,
   },
   high: {
     tier: "high",
@@ -82,6 +94,9 @@ const TIER_CONFIGS: Record<PerformanceTier, PerformanceConfig> = {
     sparkleIntervalMs: 150,
     sparkleDurationMs: 80,
     sparkleFraction: 0.02,
+    flashbackCount: 16,
+    blobWobbleAmp: 0.09,
+    reducedMotion: false,
   },
 };
 
@@ -193,6 +208,7 @@ export function usePerformanceTier(): PerformanceConfig {
           ...TIER_CONFIGS.low,
           cameraShake: false,
           sparkleFraction: 0,
+          reducedMotion: true,
         });
         return;
       }

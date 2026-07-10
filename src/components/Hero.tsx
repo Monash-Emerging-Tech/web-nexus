@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useScroll } from "@react-three/drei";
 import ContourMap from "./ContourMap";
-import { optimizeFlashbackUrl } from "@/lib/utils";
 
 const OurWorkButton = () => {
   const scroll = useScroll();
@@ -34,11 +33,10 @@ export interface UpcomingEvent {
 }
 
 interface HeroProps {
-  flashbackUrls?: string[];
   upcomingEvent?: UpcomingEvent | null;
 }
 
-const Hero: React.FC<HeroProps> = ({ flashbackUrls = [], upcomingEvent = null }) => {
+const Hero: React.FC<HeroProps> = ({ upcomingEvent = null }) => {
   const [date, setDate] = useState({
     days: 0,
     hours: 0,
@@ -120,60 +118,10 @@ const Hero: React.FC<HeroProps> = ({ flashbackUrls = [], upcomingEvent = null })
     return () => window.clearTimeout(timeoutId);
   }, []);
 
-  // Warm the browser image cache for the flashback effect. Deferred to idle
-  // time and capped so it never competes with the hero scene for bandwidth.
-  useEffect(() => {
-    const MAX_PRELOAD = 16;
-    let cancelled = false;
-
-    const preloadImages = (urls: string[]) => {
-      if (cancelled) return;
-      urls.slice(0, MAX_PRELOAD).forEach((url) => {
-        const img = new Image();
-        img.src = optimizeFlashbackUrl(url, 800);
-      });
-    };
-
-    const warmCache = () => {
-      const cached = sessionStorage.getItem("mnet_image_cache");
-      if (cached) {
-        try {
-          preloadImages(JSON.parse(cached));
-          return;
-        } catch {
-          sessionStorage.removeItem("mnet_image_cache");
-        }
-      }
-      fetch("/api/notion-cache")
-        .then((res) => res.json())
-        .then((data: { imageUrls?: string[] }) => {
-          if (Array.isArray(data?.imageUrls)) {
-            sessionStorage.setItem("mnet_image_cache", JSON.stringify(data.imageUrls));
-            preloadImages(data.imageUrls);
-          }
-        })
-        .catch((err) => console.error("Error loading image cache:", err));
-    };
-
-    const hasIdleCallback = typeof window.requestIdleCallback === "function";
-    const idleId = hasIdleCallback
-      ? window.requestIdleCallback(warmCache, { timeout: 5000 })
-      : window.setTimeout(warmCache, 2000);
-
-    return () => {
-      cancelled = true;
-      if (hasIdleCallback) {
-        window.cancelIdleCallback(idleId);
-      } else {
-        window.clearTimeout(idleId);
-      }
-    };
-  }, []);
-
   return (
     <section className="relative w-full h-screen overflow-hidden bg-black flex justify-center items-center">
       <div className="absolute inset-0 z-0">
-        <ContourMap flashbackUrls={flashbackUrls}>
+        <ContourMap>
           <div className="w-full h-screen flex flex-col justify-center items-center md:items-start md:px-32 pointer-events-none">
             <div className="md:w-[70%] p-4 flex flex-col md:gap-0 gap-2.5 text-white text-center md:text-left pointer-events-auto">
               {eventActive && upcomingEvent && (

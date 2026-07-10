@@ -1,29 +1,29 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import { Canvas } from "@react-three/fiber";
 import { ScrollControls, Scroll, Environment } from "@react-three/drei";
+import { useRouter } from "next/navigation";
 import Experience from "./Experience";
 import Overlay from "./Overlay";
 import ScrollProgressBridge from "./ScrollProgressBridge";
 import { LABEL_CONFIG } from "./Labels";
+import { NAV_PAGES } from "./navPages";
 import usePerformanceTier from "./usePerformanceTier";
 import { Starfield } from "../Starfield";
 import Link from "next/link";
 
 interface ContourMapProps {
   children?: React.ReactNode;
-  flashbackUrls?: string[];
 }
 
-const NAV_ROUTES: Record<string, string> = {
-  "ABOUT US": "/about-us",
-  "OUTREACH": "/outreach",
-  "PORTFOLIO": "/portfolios",
-  "COLLABORATORS": "/collaborators",
-};
+// Label → route map for the cube's anatomical labels, derived from the same
+// page pool the lava blobs use.
+const NAV_ROUTES: Record<string, string> = Object.fromEntries(
+  NAV_PAGES.map((p) => [p.label, p.route])
+);
 
-const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] }) => {
+const ContourMap: React.FC<ContourMapProps> = ({ children }) => {
   const overlayRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -32,6 +32,18 @@ const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] })
   // concurrently with (and block) the route transition.
   const [leaving, setLeaving] = useState(false);
   const perf = usePerformanceTier();
+  const router = useRouter();
+
+  // Navigation triggered from inside the WebGL scene (lava-blob clicks).
+  // Freeze the render loop first, same as the label links, so teardown
+  // doesn't compete with the route transition.
+  const handleSceneNavigate = useCallback(
+    (route: string) => {
+      setLeaving(true);
+      router.push(route);
+    },
+    [router]
+  );
 
   useEffect(() => {
     setMounted(true);
@@ -93,7 +105,7 @@ const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] })
         
         <ScrollControls pages={4} damping={perf.scrollDamping} style={{ scrollbarWidth: "none" }}>
           <ScrollProgressBridge />
-          <Experience overlayRef={overlayRef} perf={perf} flashbackUrls={flashbackUrls} />
+          <Experience overlayRef={overlayRef} perf={perf} onNavigate={handleSceneNavigate} />
           {children && (
             <Scroll html style={{ width: '100%', height: '100%' }}>
               <Overlay>{children}</Overlay>

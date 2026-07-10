@@ -108,13 +108,16 @@ const CustomCursor = () => {
       if (morphRef.current) reset();
     };
 
-    // Grab feedback for the 3D cube (dispatched from Planet.tsx).
+    // Grab feedback for the 3D cube (dispatched from Planet.tsx) and link
+    // feedback for the lava-blob page bubbles (MemoryFlashbacks.tsx).
     const onCursorState = (e: Event) => {
       const detail = (e as CustomEvent<string>).detail;
       cursor.classList.toggle("c-cursor--grab", detail === "grab");
       cursor.classList.toggle("c-cursor--grabbing", detail === "grabbing");
+      cursor.classList.toggle("c-cursor--link", detail === "link");
       if (!morphRef.current) {
-        sizeRef.current = detail === "grab" ? 34 : detail === "grabbing" ? 26 : RADIUS;
+        sizeRef.current =
+          detail === "grab" || detail === "link" ? 34 : detail === "grabbing" ? 26 : RADIUS;
         move({ width: sizeRef.current, height: sizeRef.current });
       }
     };
