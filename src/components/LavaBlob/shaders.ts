@@ -12,20 +12,23 @@ import * as THREE from "three";
 
 /** Brand palette — mirrors --mnet-* tokens in src/app/globals.css. */
 export const MNET_BLOB_COLORS = {
-  /** MNET blue (--mnet-blue) */
+  /** MNET blue (--mnet-blue) — cold end of the contour lines */
   colorA: "#030CAB",
-  /** MNET red (--mnet-red) */
+  /** MNET red (--mnet-red) — hot end of the contour lines */
   colorB: "#DC003B",
-  /** Rim + specular highlights (--mnet-white) */
+  /** Faint matte edge light (--mnet-white) */
   rim: "#FFFFFF",
+  /** Matte wax body (--mnet-black) */
+  ink: "#0B0B0B",
 } as const;
 
 /**
  * Silhouette base radius as a fraction of the quad. Kept small enough that
- * breathing (±3%) + morph (±uWobbleAmp) + a mesh-independent squash/stretch
- * of up to ~1.25x still fits inside the plane: 0.34 * 1.03 * 1.09 * 1.25 ≈ 0.48.
+ * breathing (±4%) + morph (±uWobbleAmp·1.35) + a mesh-independent
+ * squash/stretch of up to ~1.30x still fits inside the plane:
+ * 0.30 * 1.04 * 1.216 * 1.30 ≈ 0.49.
  */
-export const BLOB_BASE_RADIUS = 0.34;
+export const BLOB_BASE_RADIUS = 0.30;
 
 export const lavaBlobVertexShader = /* glsl */ `
   varying vec2 vUv;
@@ -50,6 +53,12 @@ export const lavaBlobFragmentShader = /* glsl */ `
   uniform float uWobbleAmp;
   uniform float uRestPhoto;
   uniform float uHasPhoto;
+  // Matte contour styling: wax body color, topo-line intensity, edge light,
+  // and the neon backlit-wax glow (0 = matte flashback orb, 1 = lamp bubble).
+  uniform vec3 uInkColor;
+  uniform float uContourStrength;
+  uniform float uRimStrength;
+  uniform float uGlowStrength;
   // Symmetric 2x2 squash/stretch sampling matrix packed as (m00, m11, m01).
   // Identity = (1, 1, 0). Driven by the physics sim (velocity stretch,
   // collision squash) so the whole blob deforms like soft wax.
@@ -100,16 +109,22 @@ export const lavaBlobFragmentShader = /* glsl */ `
     // Organic layer: value noise sampled around the unit circle (seam-free)
     // drifting through time — the boundary never repeats and never rests.
     vec2 rimP = vec2(cos(ang), sin(ang));
-    float organic = noise2(rimP * 1.6 + uPhase * 7.0 + uTime * 0.15)
-                  + 0.5 * noise2(rimP * 3.2 - uPhase * 3.0 - uTime * 0.23);
+    float organic = noise2(rimP * 1.6 + uPhase * 7.0 + uTime * 0.09)
+                  + 0.5 * noise2(rimP * 3.2 - uPhase * 3.0 - uTime * 0.13);
     organic = organic / 1.5 * 2.0 - 1.0; // → roughly [-1, 1]
-    // Harmonic layer: two slow low-order lobes for the big lava shapes.
+    // Harmonic layer: slow low-order lobes dominate — big heavy wax shapes.
     // Integer frequencies keep the outline continuous across atan's ±PI seam.
-    float lobes = 0.6 * sin(ang * 2.0 + uTime * 0.31 + uPhase * 6.2831)
-                + 0.4 * sin(ang * 3.0 - uTime * 0.47 + uPhase * 12.566);
-    float morph = 0.55 * organic + 0.45 * lobes;
+    float lobes = 0.75 * sin(ang * 2.0 + uTime * 0.17 + uPhase * 6.2831)
+                + 0.25 * sin(ang * 3.0 - uTime * 0.26 + uPhase * 12.566);
+    float morph = 0.45 * organic + 0.55 * lobes;
+    // Teardrop: a one-sided drip lobe that slowly circles the blob and fades
+    // in and out — wax gathering before it lets go.
+    float tearAng = uTime * 0.07 + uPhase * 6.2831;
+    float tearGate = smoothstep(0.1, 0.9, 0.5 + 0.5 * sin(uTime * 0.11 + uPhase * 3.0));
+    morph += 0.35 * tearGate * cos(ang - tearAng);
+    morph = clamp(morph, -1.35, 1.35);
     // Slow whole-blob breathing, gated off with the wobble for reduced motion.
-    float breathe = 1.0 + 0.03 * sin(uTime * 0.48 + uPhase * 6.2831)
+    float breathe = 1.0 + 0.04 * sin(uTime * 0.30 + uPhase * 6.2831)
                           * smoothstep(0.0, 0.02, uWobbleAmp);
     float radius = ${BLOB_BASE_RADIUS} * breathe * (1.0 + uWobbleAmp * morph);
     float d = dist - radius;
@@ -168,11 +183,9 @@ export const lavaBlobFragmentShader = /* glsl */ `
     );
     vec3 photo = mix(texA, texB, sel);
 
-    // ---- glossy lava shading ---------------------------------------------
-    // Rolling brand gradient across the dome, deeper toward the edges.
-    float gradT = 0.5 + 0.5 * sin(uTime * 0.4 + uPhase * 6.2831 + n.y * 2.0 + n.x * 0.7);
-    vec3 bodyCol = mix(uColorA, uColorB, gradT);
-    bodyCol *= mix(0.55, 1.15, z);
+    // ---- matte contour wax shading ----------------------------------------
+    // Dark matte body with soft dome shading — no speculars, no gloss.
+    vec3 bodyCol = uInkColor * mix(0.55, 1.1, z);
 
     // Photo ghosted into the wax at rest, true colors on hover.
     float luma = dot(photo, vec3(0.299, 0.587, 0.114));
@@ -182,24 +195,39 @@ export const lavaBlobFragmentShader = /* glsl */ `
     float photoAmt = mix(uRestPhoto, 1.0, uHover) * uHasPhoto;
     vec3 col = mix(bodyCol, interior, photoAmt);
 
-    // Fresnel rim — the bright liquid edge.
-    float fres = pow(1.0 - z, 2.2);
-    col += uRimColor * fres * (0.9 + 0.6 * uHover);
+    // Animated topographic contours flowing over the dome — same recipe as
+    // the terrain mega-sphere, so the blobs read as its offspring. Dims under
+    // the hover photo and toward the rim so the dome shape stays readable.
+    vec2 contourUv = sphereUv * 6.5 + vec2(uPhase * 3.7, uPhase * 1.3);
+    float elevation = noise2(contourUv * 0.6 + uTime * 0.1) * 2.5
+                    + noise2(contourUv * 1.6 - uTime * 0.05) * 0.8;
+    float cVal = elevation * 3.0;
+    float cf = fract(cVal);
+    float cdf = fwidth(cVal);
+    float cLine = smoothstep(cdf * 1.4, 0.0, abs(cf - 0.5));
+    float cGlow = smoothstep(2.2, 0.0, abs(cf - 0.5) / cdf) * 0.35;
+    vec3 contourLineColor = mix(uColorA, uColorB, clamp(elevation / 3.0, 0.0, 1.0));
+    col += contourLineColor * (cLine + cGlow)
+         * uContourStrength * (1.0 + 0.5 * uGlowStrength)
+         * (1.0 - photoAmt * 0.85) * mix(0.35, 1.0, z);
 
-    // Two fake speculars for the glass-drop look.
-    vec3 lightA = normalize(vec3(-0.45, 0.6, 0.66));
-    vec3 lightB = normalize(vec3(0.5, -0.35, 0.79));
-    float specA = pow(max(dot(n, lightA), 0.0), 60.0);
-    float specB = 0.5 * pow(max(dot(n, lightB), 0.0), 140.0);
-    col += uRimColor * (specA * 1.3 + specB);
+    // The blob's boundary is its outermost contour line.
+    float outline = 1.0 - smoothstep(0.0, edgeW * 3.0, abs(d));
+    col += contourLineColor * outline * (0.9 + 0.5 * uHover);
 
-    // Translucent interior, brighter rim, opaque-ish when showing the photo,
-    // soft glow halo outside the body.
-    float bodyAlpha = mix(mix(0.78, 0.92, fres), 0.96, uHover);
-    float halo = exp(-max(d, 0.0) * 45.0) * 0.35;
+    // Whisper of matte edge light; neon backlit-wax glow for lamp bubbles.
+    col += uRimColor * pow(1.0 - z, 3.0) * uRimStrength;
+    col += contourLineColor * pow(1.0 - z, 1.5) * 0.5 * uGlowStrength;
+
+    // Dense wax interior; outside the body the halo is a colored neon aura.
+    float bodyAlpha = mix(0.88, 0.97, uHover);
+    float haloFall = mix(45.0, 30.0, uGlowStrength);
+    float haloAmp = 0.25 + 0.75 * uGlowStrength;
+    float halo = exp(-max(d, 0.0) * haloFall) * haloAmp;
+    vec3 outCol = mix(contourLineColor, col, body);
     float alpha = uOpacity * (body * bodyAlpha + (1.0 - body) * halo);
 
-    gl_FragColor = vec4(col, alpha);
+    gl_FragColor = vec4(outCol, alpha);
   }
 `;
 
@@ -220,9 +248,13 @@ export function createLavaBlobUniforms() {
     uHover: { value: 0 },
     uGlitch: { value: 0 },
     uPhase: { value: 0 },
-    uWobbleAmp: { value: 0.09 },
+    uWobbleAmp: { value: 0.16 },
     uRestPhoto: { value: 0.35 },
     uHasPhoto: { value: 0 },
+    uInkColor: { value: new THREE.Color(MNET_BLOB_COLORS.ink) },
+    uContourStrength: { value: 1.5 },
+    uRimStrength: { value: 0.15 },
+    uGlowStrength: { value: 0 },
     uDeform: { value: new THREE.Vector3(1, 1, 0) },
     uColorA: { value: new THREE.Color(MNET_BLOB_COLORS.colorA) },
     uColorB: { value: new THREE.Color(MNET_BLOB_COLORS.colorB) },

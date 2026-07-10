@@ -104,11 +104,16 @@ export const fragmentShader = `
 
     // Fade out edges only when it's a flat plane
     float edgeFade = 1.0 - smoothstep(0.3, 0.5, length(vUv - 0.5));
-    
+
     // 0.5 pages out of 4 total pages = 0.125 uScroll range
     float warpProgress = smoothstep(0.0, 0.125, uScroll);
-    float currentAlpha = mix(edgeFade, 1.0, warpProgress); // fully visible as a ball
-    
+    // Once curled into the ball, the body between contour lines turns
+    // translucent so the wax fight inside (CubeForge) reads through the
+    // shell — the lines themselves stay solid. Flat-map state is unchanged.
+    float bodyAlpha = mix(1.0, 0.72, warpProgress);
+    float curledAlpha = max(min(lineMask + glow, 1.0), bodyAlpha);
+    float currentAlpha = mix(edgeFade, curledAlpha, warpProgress);
+
     gl_FragColor = vec4(finalColor, currentAlpha * uOpacity);
   }
 `;

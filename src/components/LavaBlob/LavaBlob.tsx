@@ -11,7 +11,7 @@ export interface LavaBlobProps {
   /** Optional image shown faintly inside the wax, clear on hover. */
   image?: string;
   /** Override the brand palette if a page needs a variation. */
-  colors?: { colorA?: string; colorB?: string; rim?: string };
+  colors?: { colorA?: string; colorB?: string; rim?: string; ink?: string };
   /** CSS size of the square canvas, e.g. 240 or "16rem". Default 240px. */
   size?: number | string;
   className?: string;
@@ -64,6 +64,7 @@ const BlobMesh: React.FC<{
         uColorA={new THREE.Color(colors?.colorA ?? MNET_BLOB_COLORS.colorA)}
         uColorB={new THREE.Color(colors?.colorB ?? MNET_BLOB_COLORS.colorB)}
         uRimColor={new THREE.Color(colors?.rim ?? MNET_BLOB_COLORS.rim)}
+        uInkColor={new THREE.Color(colors?.ink ?? MNET_BLOB_COLORS.ink)}
       />
     </mesh>
   );

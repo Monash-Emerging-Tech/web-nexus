@@ -57,7 +57,7 @@ const TIER_CONFIGS: Record<PerformanceTier, PerformanceConfig> = {
     sparkleDurationMs: 200,
     sparkleFraction: 0.005,
     flashbackCount: 8,
-    blobWobbleAmp: 0.06,
+    blobWobbleAmp: 0.10,
     reducedMotion: false,
   },
   mid: {
@@ -76,7 +76,7 @@ const TIER_CONFIGS: Record<PerformanceTier, PerformanceConfig> = {
     sparkleDurationMs: 100,
     sparkleFraction: 0.01,
     flashbackCount: 12,
-    blobWobbleAmp: 0.09,
+    blobWobbleAmp: 0.16,
     reducedMotion: false,
   },
   high: {
@@ -95,7 +95,7 @@ const TIER_CONFIGS: Record<PerformanceTier, PerformanceConfig> = {
     sparkleDurationMs: 80,
     sparkleFraction: 0.02,
     flashbackCount: 16,
-    blobWobbleAmp: 0.09,
+    blobWobbleAmp: 0.16,
     reducedMotion: false,
   },
 };

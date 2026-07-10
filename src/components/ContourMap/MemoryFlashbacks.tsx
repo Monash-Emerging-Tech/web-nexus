@@ -2,16 +2,15 @@
 
 import React, { useRef, useState, useEffect, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
-import { useScroll, useTexture, Html } from "@react-three/drei";
+import { useScroll, Html } from "@react-three/drei";
 import * as THREE from "three";
 import { NAV_PAGES } from "./navPages";
+import { usePageTextures } from "./usePageTextures";
+import { setLinkCursor } from "./cursor";
+import { collideWax, decayWaxSquash, updateWaxDeform } from "./waxPhysics";
 import type { PerformanceConfig } from "./usePerformanceTier";
 import "../LavaBlob/LavaBlobMaterial";
 import type { LavaBlobMaterialImpl } from "../LavaBlob/LavaBlobMaterial";
-
-// Start fetching the four page images as soon as the home bundle loads so
-// hover flashing never hits an unloaded frame.
-NAV_PAGES.forEach((p) => useTexture.preload(p.image));
 
 // Camera path basis — must stay in sync with CameraHandler / Terrain tilt.
 const MAP_ANGLE = -Math.PI / 2.5;
@@ -26,11 +25,9 @@ const PATH_DIR = new THREE.Vector3(0, NY, NZ); // unit length by construction
 // slot. Fast scrolling shoves blobs along the camera path so they collide,
 // squash, and snap back like wax bloblets in a real lamp.
 
-const STIFFNESS = 4.5; // spring constant toward the anchor
-const DAMPING = 2.0; // < critical (2*sqrt(k)≈4.2) → jelly overshoot
-const RESTITUTION = 0.35; // squishy wax, not billiard balls
+const STIFFNESS = 2.2; // spring constant toward the anchor — heavy, slow wax
+const DAMPING = 1.1; // < critical (2*sqrt(k)≈3.0) → slow jelly overshoot
 const MAX_SPEED = 18; // world units/s, prevents tunneling
-const MAX_DEFORM = 0.22; // cap squash/stretch so blobs stay wax, not taffy
 const FLASH_INTERVAL = 1.0; // s between page flips while hovered
 const BURST_DURATION = 0.35; // s of glitch per flip
 
@@ -55,8 +52,6 @@ interface BlobSim {
 
 // Pre-allocated scratch — the sim runs single-threaded inside one useFrame.
 const _force = new THREE.Vector3();
-const _nrm = new THREE.Vector3();
-const _relVel = new THREE.Vector3();
 const _camRight = new THREE.Vector3();
 const _camUp = new THREE.Vector3();
 
@@ -104,13 +99,6 @@ const FlashbackOrb: React.FC<FlashbackOrbProps> = ({
   const lerpScaleTarget = useRef(new THREE.Vector3());
 
   const phase = sim.phase;
-
-  const setLinkCursor = (on: boolean) => {
-    window.dispatchEvent(
-      new CustomEvent("mnet:cursor", { detail: on ? "link" : "" })
-    );
-    document.body.style.cursor = on ? "pointer" : "";
-  };
 
   // If the orb unmounts mid-hover (e.g. navigation), release the cursor.
   useEffect(() => {
@@ -171,8 +159,8 @@ const FlashbackOrb: React.FC<FlashbackOrbProps> = ({
     mesh.visible = opacity > 0.001;
 
     // Report back to the sim: world radius (quad is 1.5 units, silhouette
-    // ≈0.36 of it with breathing/morph averaged in) and hover state.
-    sim.radius = mesh.scale.x * 1.5 * 0.36;
+    // ≈0.32 of it with breathing/morph averaged in) and hover state.
+    sim.radius = mesh.scale.x * 1.5 * 0.32;
     sim.hovered = hovered;
 
     // ---- hover flash state machine (all clock-driven, freezes with the
@@ -346,22 +334,7 @@ const MemoryFlashbacks: React.FC<MemoryFlashbacksProps> = ({
   }, []);
 
   // Four shared page textures for every blob (suspends until loaded).
-  const textures = useTexture(NAV_PAGES.map((p) => p.image));
-  const aspects = useMemo(
-    () =>
-      textures.map((tex) => {
-        tex.minFilter = THREE.LinearFilter;
-        tex.colorSpace = THREE.SRGBColorSpace;
-        tex.needsUpdate = true;
-        const img = tex.image as
-          | { naturalWidth?: number; naturalHeight?: number; width?: number; height?: number }
-          | undefined;
-        const w = img?.naturalWidth || img?.width || 0;
-        const h = img?.naturalHeight || img?.height || 0;
-        return w > 0 && h > 0 ? w / h : 1.0;
-      }),
-    [textures]
-  );
+  const { textures, aspects } = usePageTextures();
 
   // Layout slots along the camera path — same lanes/scatter as before, with
   // a random page of the site tree assigned to each blob.
@@ -400,7 +373,7 @@ const MemoryFlashbacks: React.FC<MemoryFlashbacksProps> = ({
           home,
           phase: Math.random() * Math.PI * 2,
           convSpeed: 0.16 + Math.random() * 0.09, // 25–40 s cycles
-          convAmp: 0.5 + Math.random() * 0.4,
+          convAmp: 0.8 + Math.random() * 0.6,
           impulseGain: 0.7 + Math.random() * 0.6, // ±30% jitter
           radius: 0,
           hovered: false,
@@ -468,83 +441,13 @@ const MemoryFlashbacks: React.FC<MemoryFlashbacksProps> = ({
       if (speed > MAX_SPEED) s.vel.multiplyScalar(MAX_SPEED / speed);
       s.pos.addScaledVector(s.vel, dt);
 
-      s.squashAmt = Math.max(0, s.squashAmt - dt * 2.5);
+      decayWaxSquash(s, dt);
     }
 
-    // --- pairwise wax collisions ------------------------------------------
-    for (let i = 0; i < sims.length; i++) {
-      const a = sims[i];
-      if (a.radius < 0.3) continue; // faded-out blobs don't collide
-      for (let j = i + 1; j < sims.length; j++) {
-        const b = sims[j];
-        if (b.radius < 0.3) continue;
-        _nrm.copy(a.pos).sub(b.pos);
-        const distC = _nrm.length();
-        const rSum = a.radius + b.radius;
-        if (distC >= rSum || distC < 1e-4) continue;
-        _nrm.multiplyScalar(1 / distC);
-        const overlap = rSum - distC;
-
-        // Soft positional separation — wax gives before it bounces
-        a.pos.addScaledVector(_nrm, overlap * 0.3);
-        b.pos.addScaledVector(_nrm, -overlap * 0.3);
-
-        _relVel.copy(a.vel).sub(b.vel);
-        const vn = _relVel.dot(_nrm);
-        if (vn < 0) {
-          const jImp = -(1 + RESTITUTION) * vn * 0.5; // equal masses
-          a.vel.addScaledVector(_nrm, jImp);
-          b.vel.addScaledVector(_nrm, -jImp);
-        }
-
-        // Record contact squash along the normal, projected to screen plane
-        const amt = Math.min(overlap / (rSum * 0.5), 1);
-        const ax = _nrm.dot(_camRight);
-        const ay = _nrm.dot(_camUp);
-        const len2d = Math.hypot(ax, ay);
-        if (len2d > 1e-3) {
-          if (amt > a.squashAmt) {
-            a.squashAmt = amt;
-            a.squashAxis.set(ax / len2d, ay / len2d);
-          }
-          if (amt > b.squashAmt) {
-            b.squashAmt = amt;
-            b.squashAxis.set(ax / len2d, ay / len2d);
-          }
-        }
-      }
-    }
-
-    // --- squash & stretch targets → packed sampling matrices ---------------
+    // Pairwise wax collisions, then squash/stretch → packed uDeform matrices
+    collideWax(sims, _camRight, _camUp);
     for (const s of sims) {
-      const vx = s.vel.dot(_camRight);
-      const vy = s.vel.dot(_camUp);
-      const sp = Math.hypot(vx, vy);
-      let targetS = 1;
-      if (s.squashAmt > 0.02) {
-        // Collision: compress along the contact normal
-        targetS = 1 - Math.min(s.squashAmt * 0.5, MAX_DEFORM);
-        s.deformAxis.set(s.squashAxis.x, s.squashAxis.y);
-      } else if (sp > 0.6) {
-        // Motion: stretch along the velocity, teardrop-style
-        targetS = 1 + Math.min((sp - 0.6) * 0.045, MAX_DEFORM);
-        s.deformAxis.set(vx / sp, vy / sp);
-      }
-      // Fast attack on impact, slow relax back to round
-      const rate = Math.abs(targetS - 1) > Math.abs(s.deformS - 1) ? 0.35 : 0.08;
-      s.deformS += (targetS - s.deformS) * rate;
-
-      // Pack the inverse deformation R·diag(1/s, s)·Rᵀ (volume-preserving)
-      const sS = THREE.MathUtils.clamp(s.deformS, 1 - MAX_DEFORM, 1 + MAX_DEFORM);
-      const p = 1 / sS;
-      const q = sS;
-      const ux = s.deformAxis.x;
-      const uy = s.deformAxis.y;
-      s.deform.set(
-        p * ux * ux + q * uy * uy,
-        p * uy * uy + q * ux * ux,
-        (p - q) * ux * uy
-      );
+      updateWaxDeform(s, _camRight, _camUp);
     }
   }, -1);
 
