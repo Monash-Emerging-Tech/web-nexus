@@ -19,6 +19,7 @@ const OurWorkButton = () => {
 
   return (
     <button
+      data-ccursor
       onClick={handleClick}
       className="hover:cursor-pointer text-xs md:text-[1rem] font-offbit font-bold h-fit px-5 py-2.5 md:px-8 md:py-3 bg-primary rounded-md pointer-events-auto transition-all duration-300"
     >
@@ -187,7 +188,7 @@ const Hero: React.FC<HeroProps> = ({ flashbackUrls = [], upcomingEvent = null })
               <h2 className="font-offbit font-bold md:text-2xl text-xs md:text-sm">
                 A Monash University student team pushing the boundaries of XR.
               </h2>
-              <div className={`flex items-center justify-center md:justify-start mt-0.5 ${isGlitching ? "spiderverse-component-glitch" : ""}`}>
+              <div className={`flex items-center justify-center md:justify-start mt-0.5 ${isGlitching ? "glitch-soft" : ""}`}>
                 <p className="font-offbit md:text-xl text-xs md:text-sm tracking-wide">
                   {typedText}
                 </p>
@@ -196,6 +197,7 @@ const Hero: React.FC<HeroProps> = ({ flashbackUrls = [], upcomingEvent = null })
               <div className="w-full flex flex-row items-center gap-4 justify-center md:justify-start mt-3">
                 <OurWorkButton />
                 <a
+                  data-ccursor
                   href="https://docs.google.com/forms/d/e/1FAIpQLSej1jyIYU_dy2uJqEs5zUvNY1GUN-6eN2DqxCbb2ucnYrTI7Q/viewform"
                   target="_blank"
                   rel="noopener noreferrer"

@@ -28,10 +28,10 @@ const Footer = () => {
       </div>
 
       <div style={{ marginBottom: '30px' }}>
-        <a href="https://au.linkedin.com/company/monashemergingtech" style={{ marginRight: '20px', color: 'white', fontSize: '1.5em' }} aria-label="LinkedIn"><LinkedInIcon className="w-[1em] h-[1em] inline-block align-[-0.125em]" /></a>
-        <a href="https://www.instagram.com/monashemergingtech/" style={{ marginRight: '20px', color: 'white', fontSize: '1.5em' }} aria-label="Instagram"><InstagramIcon className="w-[1em] h-[1em] inline-block align-[-0.125em]" /></a>
-        <a href="https://www.facebook.com/people/Monash-Nexus-for-Emerging-Technologies/61562647665251/" style={{ marginRight: '20px', color: 'white', fontSize: '1.5em' }} aria-label="Facebook"><FacebookIcon className="w-[1em] h-[1em] inline-block align-[-0.125em]" /></a>
-        <a href="https://discord.gg/hFxzMnxgbK" style={{ color: 'white', fontSize: '1.5em' }} aria-label="Discord"><DiscordIcon className="w-[1.2em] h-[1em] inline-block align-[-0.125em]" /></a>
+        <a data-ccursor href="https://au.linkedin.com/company/monashemergingtech" style={{ marginRight: '20px', color: 'white', fontSize: '1.5em' }} aria-label="LinkedIn"><LinkedInIcon className="w-[1em] h-[1em] inline-block align-[-0.125em]" /></a>
+        <a data-ccursor href="https://www.instagram.com/monashemergingtech/" style={{ marginRight: '20px', color: 'white', fontSize: '1.5em' }} aria-label="Instagram"><InstagramIcon className="w-[1em] h-[1em] inline-block align-[-0.125em]" /></a>
+        <a data-ccursor href="https://www.facebook.com/people/Monash-Nexus-for-Emerging-Technologies/61562647665251/" style={{ marginRight: '20px', color: 'white', fontSize: '1.5em' }} aria-label="Facebook"><FacebookIcon className="w-[1em] h-[1em] inline-block align-[-0.125em]" /></a>
+        <a data-ccursor href="https://discord.gg/hFxzMnxgbK" style={{ color: 'white', fontSize: '1.5em' }} aria-label="Discord"><DiscordIcon className="w-[1.2em] h-[1em] inline-block align-[-0.125em]" /></a>
       </div>
 
       <p style={{ fontSize: '0.9em', letterSpacing: '2px' }} className='font-offbit font-bold' suppressHydrationWarning>
