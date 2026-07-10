@@ -130,12 +130,12 @@ today to make world changers for tomorrow."
 Deeper operational detail (finance pipelines, MOU templates, recruitment rubrics, access
 transfer processes) lives in the Google Drive **Team Lead's Folder → Executives Folder**
 (Handover, Supervisor Information, Reporting) and the **DRAFT MNET Constitution** doc. The
-repo's working draft is `docs/constitution/MNET-Constitution-DRAFT.docx` (**v0.3, 10 July
-2026** — consolidation from the Google-Docs draft + handover docs; covers Mepo, meetings,
-ITTA, GIM, HCC/EmVis). A parallel **v0.2** draft
-(`MNET-Constitution-DRAFT-v0.2.docx`, same date) uniquely adds the Student Teams Procedure
-Ver 2 governance detail (annual reapplication, CPD/ENG4802, travel EOI, funding figures) —
-the two should be merged into a v0.4. EOY report
+repo's working draft is `docs/constitution/MNET-Constitution-DRAFT.docx` (**v0.4, 10 July
+2026** — merges the two parallel 10-July drafts: the handover-docs consolidation (v0.3:
+Mepo, meetings, code of conduct, leadership terms, sponsorship pipeline, honour roll) plus
+the Student Teams Procedure Ver 2 governance article, CPD/ENG4802, MNET Schedule norms,
+funding figures and stakeholder record. Regenerate via docx-js script, don't hand-edit XML;
+open questions remain under Article 14 (ratification, voting model, quorum). EOY report
 decks: 2024 `1fvf6qTAZ6j6H4pSYeGDLgOsWOzDz55ObTeT3RafOmQA`, 2025
 `1sbHAjhBmuhoLZiYOqS7Z-pKrqYveLOfKGVRoTtknMPk` (Google Slides). This file intentionally omits
 staff contact details and finance codes — the repo is public.
