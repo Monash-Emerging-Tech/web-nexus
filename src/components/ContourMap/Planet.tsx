@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { useFrame, useThree, ThreeEvent } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { useScroll } from "@react-three/drei";
 import * as THREE from "three";
 import MnetCube from "../MnetCube";
@@ -16,9 +16,6 @@ interface PlanetProps {
 // the AI Hardware Squeeze tower's OrbitControls damping).
 const BASE_ROT_Y = 0.3;
 const BASE_ROT_X = 0.18;
-const DRAG_SENSITIVITY = 0.008; // rad per px of pointer travel
-const INERTIA_LAMBDA = 1.5; // higher = flicks settle into autospin faster
-const MAX_SPIN = 8; // rad/s cap so violent flicks stay sane
 
 const setGrabCursor = (state: "grab" | "grabbing" | "default") => {
   window.dispatchEvent(new CustomEvent("mnet:cursor", { detail: state }));
@@ -65,52 +62,6 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef }) => {
   useEffect(() => {
     return () => setGrabCursor("default");
   }, []);
-
-  const endDrag = (e: ThreeEvent<PointerEvent>) => {
-    const drag = dragRef.current;
-    if (!drag.dragging || e.pointerId !== drag.pointerId) return;
-    drag.dragging = false;
-    drag.pointerId = -1;
-    (e.target as Element).releasePointerCapture?.(e.pointerId);
-    setGrabCursor(drag.hovered ? "grab" : "default");
-  };
-
-  const handlePointerDown = (e: ThreeEvent<PointerEvent>) => {
-    if (springRef.current.scale < 0.5) return; // cube not meaningfully visible yet
-    e.stopPropagation();
-    const drag = dragRef.current;
-    drag.dragging = true;
-    drag.touch = e.pointerType === "touch";
-    drag.pointerId = e.pointerId;
-    drag.lastX = e.clientX;
-    drag.lastY = e.clientY;
-    drag.pendingYaw = 0;
-    drag.pendingPitch = 0;
-    (e.target as Element).setPointerCapture?.(e.pointerId);
-    setGrabCursor("grabbing");
-  };
-
-  const handlePointerMove = (e: ThreeEvent<PointerEvent>) => {
-    const drag = dragRef.current;
-    if (!drag.dragging || e.pointerId !== drag.pointerId) return;
-    e.stopPropagation();
-    drag.pendingYaw += (e.clientX - drag.lastX) * DRAG_SENSITIVITY;
-    drag.pendingPitch += (e.clientY - drag.lastY) * DRAG_SENSITIVITY;
-    drag.lastX = e.clientX;
-    drag.lastY = e.clientY;
-  };
-
-  const handlePointerOver = (e: ThreeEvent<PointerEvent>) => {
-    if (springRef.current.scale < 0.5) return;
-    e.stopPropagation();
-    dragRef.current.hovered = true;
-    if (!dragRef.current.dragging) setGrabCursor("grab");
-  };
-
-  const handlePointerOut = () => {
-    dragRef.current.hovered = false;
-    if (!dragRef.current.dragging) setGrabCursor("default");
-  };
 
   useFrame((state, delta) => {
     const scrollOffset = scroll.offset;

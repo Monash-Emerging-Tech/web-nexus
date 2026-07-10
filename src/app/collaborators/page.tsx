@@ -75,9 +75,6 @@ const supportNetwork: ImageCard[] = [
       </>
     )
   },
-      </>
-    )
-  },
   {
     name: "Mixed Reality Studio",
     image: "/img/facilities/mixed-reality-studio.jpg",

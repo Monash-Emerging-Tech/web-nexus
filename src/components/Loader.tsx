@@ -22,13 +22,14 @@ const Loader = () => {
   const [done, setDone] = useState(false);
 
   useEffect(() => {
-    const overlay = overlayRef.current;
-    const number = numberRef.current;
+    const overlayEl = overlayRef.current;
     const html = document.documentElement;
-    if (!overlay || !number || !html.classList.contains("mnet-preload")) {
+    if (!overlayEl || !numberRef.current || !html.classList.contains("mnet-preload")) {
       setDone(true);
       return;
     }
+    const overlay = overlayEl;
+    const numberEl = numberRef.current;
 
     const startedAt = performance.now();
     let count = 0;
@@ -42,7 +43,7 @@ const Loader = () => {
     }, COUNT_INTERVAL_MS);
 
     const textTimer = window.setInterval(() => {
-      number.textContent = String(count);
+      numberEl.textContent = String(count);
     }, TEXT_INTERVAL_MS);
 
     const onLoad = () => {
@@ -64,10 +65,10 @@ const Loader = () => {
           // storage unavailable — loader will just show again next load
         }
 
-        number.textContent = "100";
+        numberEl.textContent = "100";
         requestAnimationFrame(() => {
-          number.style.transform = "scale(2)";
-          number.style.opacity = "0";
+          numberEl.style.transform = "scale(2)";
+          numberEl.style.opacity = "0";
           timers.push(
             window.setTimeout(() => {
               html.classList.remove("mnet-preload"); // navbar drops in
