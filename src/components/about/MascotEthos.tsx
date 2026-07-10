@@ -1,26 +1,35 @@
 // Static mascot + ethos section for the About Us page.
-// NOTE: the "why the platypus" origin copy is a draft — confirm with the team
-// before treating it as canon (see docs/MNET.md).
+// Mepo's origin verified 2026-07-10 from Notion (Publications meeting notes,
+// Members DB) and team records — see docs/MNET.md.
 
 const MascotEthos = () => (
   <section className="w-full bg-[#0B0B0B] px-6 py-16 md:px-12 md:py-24">
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-12 md:flex-row md:items-center md:gap-16">
       <div className="flex-1">
         <h2 className="font-offbit-dot text-5xl font-bold uppercase tracking-wider text-white md:text-6xl">
-          Why the Platypus?
+          Meet Mepo
         </h2>
         <p className="mt-6 font-offbit text-lg leading-relaxed text-white/80 md:text-xl">
-          Our mascot is the platypus — a creature so strange that the first
-          scientists to see one thought it was a hoax. Part duck, part beaver,
-          part otter, it refuses to fit a category. So do we. MNET blends
-          engineering, information technology, design and art into one team,
-          and builds things that don&apos;t fit neatly into any single
-          discipline.
+          Our mascot is Mepo the platypus — named on 15 July 2025, the day our
+          founder handed the team to its second generation of leads. The name
+          takes one letter from each of our four departments:{" "}
+          <span className="font-bold text-white">M</span>arketing,{" "}
+          <span className="font-bold text-white">E</span>ducation,{" "}
+          <span className="font-bold text-white">P</span>rojects,{" "}
+          <span className="font-bold text-white">O</span>perations.
         </p>
         <p className="mt-4 font-offbit text-lg leading-relaxed text-white/80 md:text-xl">
-          You&apos;ll find our platypus wandering through our projects — most
-          literally in Platypus Forest, our virtual home for showcasing what
-          the team builds.
+          Why a platypus? MNET is about the crossing from the digital ocean to
+          the physical landscape — and no animal moves between worlds like the
+          platypus. It senses electricity with its bill, chews with gravel,
+          sweats milk and glows under UV. A dozen strange talents in one
+          creature, just like the dozen technologies in one team.
+        </p>
+        <p className="mt-4 font-offbit text-lg leading-relaxed text-white/80 md:text-xl">
+          You&apos;ll find Mepo wandering through our projects — most literally
+          in Platypus Forest, our virtual home for showcasing what the team
+          builds. (In our members database, The Platypus is listed as a Team
+          Lead. We don&apos;t make the rules.)
         </p>
       </div>
       <div className="flex-1">

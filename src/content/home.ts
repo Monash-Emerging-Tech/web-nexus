@@ -42,7 +42,8 @@ export const homeContent: HomeContent = {
     recruitLabel: "MNET IS RECRUITING NOW!",
     recruitSuffix: "Join the emerging digital frontier!",
     heading: "MONASH NEXUS FOR EMERGING TECHNOLOGIES",
-    subheading: "A Monash University research and education group.",
+    subheading:
+      "Monash University's student team for emerging simulation technologies.",
     ctaLabel: "JOIN NOW",
     ctaHref: "https://team.monashemerging.tech/apply",
     typewriterWords: [

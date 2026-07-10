@@ -186,7 +186,8 @@ const Hero: React.FC<HeroProps> = ({ flashbackUrls = [], upcomingEvent = null })
                 MONASH NEXUS FOR <br className="hidden md:inline" /> EMERGING TECHNOLOGIES
               </h1>
               <h2 className="font-offbit font-bold md:text-2xl text-xs md:text-sm">
-                A Monash University student team pushing the boundaries of XR.
+                Monash University&apos;s student team for emerging simulation
+                technologies.
               </h2>
               <div className={`flex items-center justify-center md:justify-start mt-0.5 ${isGlitching ? "glitch-soft" : ""}`}>
                 <p className="font-offbit md:text-xl text-xs md:text-sm tracking-wide">

@@ -12,38 +12,44 @@ import OurValues from "@/components/OurValues/OurValues";
 import Timeline, { TimelineEntry } from "@/components/about/Timeline";
 import MascotEthos from "@/components/about/MascotEthos";
 
-// NOTE: dates/details below are drafted from Notion + legacy-site records —
-// flag inaccuracies to the leads before treating as canon (see docs/MNET.md).
+// Dates/details verified 2026-07-10 against the MNET Drive, Notion and the
+// 2024/2025 End of Year Reports to MSTI (see docs/MNET.md + docs/STUDENT-TEAMS.md).
 const HISTORY: TimelineEntry[] = [
   {
-    date: "2024",
-    title: "The Nexus forms",
+    date: "2022",
+    title: "The METTA era",
     description:
-      "MNET launches from the Digital Makerspace at Monash Clayton — a student team dedicated to emerging simulation technologies, from VR and AR to digital twins and quantum computing.",
+      "The team begins as METTA — Monash Emerging Technology Themes and Applications — incubated under eSolutions VARS, Monash's virtual and augmented reality services group.",
   },
   {
-    date: "May 2024",
+    date: "July 2024",
+    title: "METTA becomes MNET",
+    description:
+      "After a ground-up rebuild, the Faculty of IT approves our new name on 4 July 2024: Monash Nexus for Emerging Technologies. A nexus between students, researchers and industry.",
+  },
+  {
+    date: "Mid 2024",
     title: "First workshops",
     description:
-      "MNET x MAC: we teach the fundamentals of 3D with Spline alongside Monash's largest IT student club, kicking off our education program.",
-  },
-  {
-    date: "June 2024",
-    title: "Taking XR to high schools",
-    description:
-      "Immersive VR demos for Mac.Robertson Girls' High School students in experimental economics at the MonLEE excursion day.",
+      "MNET x MAC: we teach the fundamentals of 3D with Spline alongside Monash's largest IT student club, and run immersive VR demos for Mac.Robertson Girls' High School at MonLEE — the education program begins.",
   },
   {
     date: "Oct 2024",
     title: "SXSW Sydney",
     description:
-      "MNET hits the conference floor, representing Monash emerging tech among game developers, VFX studios and immersive technology teams.",
+      "Representing the Faculty of IT at SXSW Sydney with a 360° robot dog and the Globes App — historic maps in Apple Vision Pro, built with the Embodied Visualisation group and Stanford University, later demoed to the Education Ministers of Australia and India.",
+  },
+  {
+    date: "15 July 2025",
+    title: "A new generation — and Mepo",
+    description:
+      "Our founder hands over the reins, and the team names its platypus mascot: Mepo — one letter from each department. Marketing, Education, Projects, Operations.",
   },
   {
     date: "2025",
     title: "The collaboration era",
     description:
-      "Digital prototyping with Monash Boring (MBEST), digital twins with Monash Pilot Processes, AR visualisation with Monash Sustainable Buildings, and XR projects spanning Stanford to Bali.",
+      "The team grows to 70 members. Digital prototyping with MBEST, digital twins with MPP, Tech Futures Industry Nights with MDN and MAC, Bali temple heritage with EmVis and the Indonesian government, and awards entries at AWE and the SXSW XR Showcase.",
   },
   {
     date: "2026",
