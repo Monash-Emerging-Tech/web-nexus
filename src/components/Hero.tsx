@@ -177,7 +177,7 @@ const Hero: React.FC<HeroProps> = ({ flashbackUrls = [], upcomingEvent = null })
           <div className="w-full h-screen flex flex-col justify-center items-center md:items-start md:px-32 pointer-events-none">
             <div className="md:w-[70%] p-4 flex flex-col md:gap-0 gap-2.5 text-white text-center md:text-left pointer-events-auto">
               {eventActive && upcomingEvent && (
-                <p className="font-offbit font-bold md:text-2xl text-xs md:text-sm">
+                <p className="font-offbit font-bold md:text-2xl text-xs">
                   {upcomingEvent.title}: {date.days}d {date.hours}h {date.minutes}m{" "}
                   {date.seconds}s
                 </p>
@@ -185,12 +185,12 @@ const Hero: React.FC<HeroProps> = ({ flashbackUrls = [], upcomingEvent = null })
               <h1 className="font-offbit-dot font-bold md:text-7xl text-3xl leading-tight">
                 MONASH NEXUS FOR <br className="hidden md:inline" /> EMERGING TECHNOLOGIES
               </h1>
-              <h2 className="font-offbit font-bold md:text-2xl text-xs md:text-sm">
+              <h2 className="font-offbit font-bold md:text-2xl text-xs">
                 Monash University&apos;s student team for emerging simulation
                 technologies.
               </h2>
               <div className={`flex items-center justify-center md:justify-start mt-0.5 ${isGlitching ? "glitch-soft" : ""}`}>
-                <p className="font-offbit md:text-xl text-xs md:text-sm tracking-wide">
+                <p className="font-offbit md:text-xl text-xs tracking-wide">
                   {typedText}
                 </p>
                 <span className="ml-1 w-1.5 h-0.5 bg-white animate-pulse" />
