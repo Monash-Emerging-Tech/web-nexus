@@ -101,6 +101,21 @@ Codepen for the effect: https://codepen.io/jh3y/pen/jOXgxaj
     transition: all 1s cubic-bezier(0, -0.03, 0, 1);
   }
 
+  /* Soft white halo behind just the logo + MNET wordmark so the 3D cube reads
+     against the dark glass and the mark pops. The container background paints
+     behind its children, so the transparent cube canvas shows the glow. */
+  .nav-logo-glow {
+    background: radial-gradient(
+      75% 130% at 22% 50%,
+      rgba(255, 255, 255, 0.16),
+      rgba(255, 255, 255, 0.05) 55%,
+      transparent 78%
+    );
+    border-radius: 12px;
+    padding-left: 4px;
+    padding-right: 14px;
+  }
+
   /* While the loading screen is up the navbar waits above the viewport;
      Loader.tsx removing .mnet-preload lets the 1s transition drop it in. */
   html.mnet-preload .navbar {

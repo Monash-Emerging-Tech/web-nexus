@@ -11,7 +11,7 @@ import MnetCube from "../MnetCube";
 // real browser (this pane can't sustain the canvas's render loop). The cube
 // can be dragged away from it but always eases back here, so at rest the
 // navbar mark always reads as the logo.
-const HOME_EULER = new THREE.Euler(-0.615, 0.785, 0);
+const HOME_EULER = new THREE.Euler(0.42, 0.66, 0);
 // Orthographic pixels per world unit. The glb is a 2×2×2 cube centred at the
 // origin (verified from its POSITION bounds); at a 3/4 view its projected
 // span is ~2.8–3.5 units. Lower = more zoomed out. At ~5 the whole cube sits
@@ -74,7 +74,7 @@ const LogoCube: React.FC<{ drag: React.MutableRefObject<DragState> }> = ({ drag 
 
   return (
     <group ref={groupRef}>
-      <MnetCube scale={1} />
+      <MnetCube scale={1} edges={false} />
     </group>
   );
 };
@@ -145,16 +145,20 @@ const NavbarLogoCube: React.FC<{ className?: string }> = ({ className }) => {
       <Canvas
         orthographic
         camera={{ position: [0, 0, 6], zoom: CAMERA_ZOOM, near: 0.1, far: 100 }}
-        gl={{ alpha: true, antialias: true }}
-        frameloop="demand"
+        gl={{ alpha: true, antialias: true, preserveDrawingBuffer: true }}
+        // "always" (not "demand"): a demand-mode canvas' drawing buffer gets
+        // cleared by the compositor on scroll/repaint and, with nothing
+        // re-rendering it, the logo vanishes. Rendering every frame keeps the
+        // little cube on screen at all times. It's ~12 triangles — negligible.
+        frameloop="always"
         dpr={[1, 2]}
         onCreated={({ invalidate }) => {
           invalidateRef.current = invalidate;
         }}
       >
-        <ambientLight intensity={2.4} />
-        <pointLight position={[4, 4, 6]} intensity={40} />
-        <pointLight position={[-4, -2, 4]} color="#0033ff" intensity={20} />
+        <ambientLight intensity={3.2} />
+        <pointLight position={[4, 4, 6]} intensity={90} />
+        <pointLight position={[-4, -2, 4]} color="#0033ff" intensity={55} />
         <Suspense fallback={null}>
           <LogoCube drag={drag} />
         </Suspense>

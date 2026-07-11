@@ -8,6 +8,7 @@ import CameraHandler from "./CameraHandler";
 import MemoryFlashbacks from "./MemoryFlashbacks";
 import NavBubbles, { type CubeState } from "./NavBubbles";
 import CubeForge from "./CubeForge";
+import NeonBackdrop from "./NeonBackdrop";
 import type { PerformanceConfig } from "./usePerformanceTier";
 
 interface ExperienceProps {
@@ -22,7 +23,11 @@ const Experience: React.FC<ExperienceProps> = ({ perf, onNavigate }) => {
   return (
     <>
       <CameraHandler perf={perf} />
+      {/* Warp "force lines" — the rush streaks during the scroll transition. */}
       <SpeedLines count={perf.speedLineCount} />
+      {/* Neon lava-lamp downlight backdrop — glows in for the bottom/cube
+          section. */}
+      <NeonBackdrop perf={perf} />
 
       {/* Light that follows the camera's view */}
       <directionalLight position={[0, 0, 1]} intensity={1.5} />

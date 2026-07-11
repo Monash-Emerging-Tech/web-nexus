@@ -130,7 +130,7 @@ const Planet: React.FC<PlanetProps> = ({ cubeStateRef, reducedMotion = false }) 
       }
 
       const isMobile = size.width < 768;
-      const baseScale = isMobile ? 0.85 : 2.3;
+      const baseScale = isMobile ? 1.3 : 3.4;
       const animatedScale = springRef.current.scale;
       planetRef.current.scale.setScalar(animatedScale * baseScale);
       planetRef.current.visible = animatedScale > 0.001;
@@ -158,7 +158,10 @@ const Planet: React.FC<PlanetProps> = ({ cubeStateRef, reducedMotion = false }) 
 
       if (window.updateStarfield) {
         const zoom = 100 + animatedScale * 100;
-        window.updateStarfield(animatedScale, zoom);
+        // The starfield "airplanes" ramp in with the cube; keep them faint so
+        // the neon lava-lamp backdrop leads the last scene instead of a dense
+        // swarm of particles.
+        window.updateStarfield(animatedScale * 0.35, zoom);
       }
 
       // ---- cube telemetry for the nav bubbles ------------------------------

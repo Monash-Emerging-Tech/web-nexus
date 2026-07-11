@@ -2,8 +2,6 @@
 
 import React, { useRef, useState, useEffect, useMemo } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
-import Link from "next/link";
 import * as THREE from "three";
 import { NAV_PAGES } from "./navPages";
 import { setLinkCursor } from "./cursor";
@@ -28,9 +26,10 @@ const MAP_ANGLE = -Math.PI / 2.5;
 const NY = -Math.sin(MAP_ANGLE);
 const NZ = Math.cos(MAP_ANGLE);
 
-// Same heavy-wax spring feel as the flashback blobs.
-const STIFFNESS = 2.2;
-const DAMPING = 1.1;
+// Bubbles rise into place and settle via a smooth exponential follow (no
+// overshoot), so they float up from below rather than bouncing toward the
+// viewer. Higher = snappier settle.
+const FOLLOW_RATE = 6;
 const BURST_DURATION = 0.35;
 
 // Ring slots mirror the old leader-line quadrants (About top-right,
@@ -41,7 +40,52 @@ const _cubeCenter = new THREE.Vector3();
 const _camRight = new THREE.Vector3();
 const _camUp = new THREE.Vector3();
 const _anchor = new THREE.Vector3();
-const _spring = new THREE.Vector3();
+
+/**
+ * Bake a page label into a CanvasTexture so it can be drawn directly on the
+ * blob in-scene — reliable positioning that tracks the blob exactly, unlike a
+ * projected HTML overlay.
+ */
+function makeLabelTexture(text: string): THREE.CanvasTexture | null {
+  if (typeof document === "undefined") return null;
+  const dpr = 2;
+  const W = 512;
+  const H = 160;
+  const canvas = document.createElement("canvas");
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+  ctx.scale(dpr, dpr);
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  const family = "'OffBit', 'Arial Narrow', Arial, sans-serif";
+  let fontSize = 48;
+  const setFont = (s: number) => (ctx.font = `700 ${s}px ${family}`);
+  setFont(fontSize);
+  try {
+    (ctx as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = "2px";
+  } catch {
+    /* letterSpacing unsupported — fine */
+  }
+  while (ctx.measureText(text).width > W - 48 && fontSize > 16) {
+    fontSize -= 2;
+    setFont(fontSize);
+  }
+  // Dark halo for contrast against the neon wax, then white fill.
+  ctx.shadowColor = "rgba(0,0,0,0.95)";
+  ctx.shadowBlur = 10;
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = "rgba(0,0,0,0.6)";
+  ctx.strokeText(text, W / 2, H / 2);
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText(text, W / 2, H / 2);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 4;
+  tex.needsUpdate = true;
+  return tex;
+}
 
 interface NavBubbleProps {
   pageIndex: number;
@@ -60,24 +104,23 @@ const NavBubble: React.FC<NavBubbleProps> = ({
 }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const materialRef = useRef<LavaBlobMaterialImpl>(null);
-  const labelRef = useRef<HTMLAnchorElement>(null);
+  const labelMatRef = useRef<THREE.MeshBasicMaterial>(null);
   const { size, camera } = useThree();
 
   const [hovered, setHovered] = useState(false);
-  // Gates label tabIndex/display; only updated when crossing the threshold.
-  const [active, setActive] = useState(false);
-  const activeRef = useRef(false);
 
   const phase = useMemo(() => Math.random() * Math.PI * 2, []);
-  const convSpeed = useMemo(() => 0.10 + Math.random() * 0.06, []);
+  const convSpeed = useMemo(() => 0.1 + Math.random() * 0.06, []);
   const posRef = useRef(new THREE.Vector3());
-  const velRef = useRef(new THREE.Vector3());
   const initializedRef = useRef(false);
   const burstStartRef = useRef(-1);
   const prevHoveredRef = useRef(false);
 
   const page = NAV_PAGES[pageIndex];
   const angle = (angleDeg * Math.PI) / 180;
+
+  const labelTex = useMemo(() => makeLabelTexture(page.label), [page.label]);
+  useEffect(() => () => labelTex?.dispose(), [labelTex]);
 
   useEffect(() => {
     return () => {
@@ -102,16 +145,8 @@ const NavBubble: React.FC<NavBubbleProps> = ({
 
     const cubeRadiusPx = cubeStateRef.current.worldRadius / worldPerPx;
     const minWH = Math.min(size.width, size.height);
-    // Just smaller than the cube, floored for tap targets, capped for
-    // ultrawide screens (where cube size is height-driven anyway).
-    let bubblePx = THREE.MathUtils.clamp(
-      cubeRadiusPx * 2 * 0.72,
-      64,
-      minWH * 0.24
-    );
+    let bubblePx = THREE.MathUtils.clamp(cubeRadiusPx * 2 * 0.72, 64, minWH * 0.24);
     let ringPx = cubeRadiusPx + bubblePx / 2 + 16;
-    // Neighbours sit 70° apart at the closest — keep their chord ≥ a bubble
-    // diameter by shrinking bubbles (never below the tap floor) if cramped.
     if (ringPx < 0.9 * bubblePx) {
       bubblePx = Math.max(64, ringPx / 0.9);
       ringPx = cubeRadiusPx + bubblePx / 2 + 16;
@@ -127,54 +162,44 @@ const NavBubble: React.FC<NavBubbleProps> = ({
       .addScaledVector(_camRight, rxPx * Math.cos(angle) * worldPerPx)
       .addScaledVector(_camUp, ryPx * Math.sin(angle) * worldPerPx);
 
-    // Lava-lamp convection: slow rise/fall proportional to bubble size.
     const bubbleWorld = bubblePx * worldPerPx;
+
+    // Entrance: start below the ring spot and float straight up as the cube
+    // arrives, then hold. `entry` is 1 while below, 0 once settled.
+    const settle = THREE.MathUtils.smoothstep(s, 0.3, 0.85);
+    const entry = 1 - settle;
+    _anchor.addScaledVector(_camUp, -entry * bubbleWorld * 3.0);
+
+    // Gentle lava-lamp bob once settled — vertical only, never toward camera.
     if (!perf.reducedMotion) {
       _anchor.addScaledVector(
         _camUp,
-        Math.sin(t * convSpeed + phase) * bubbleWorld * 0.18
+        Math.sin(t * convSpeed + phase) * bubbleWorld * 0.12 * settle
       );
     }
 
-    // ---- heavy-wax spring toward the anchor -------------------------------
+    // Smooth exponential follow — eases up and settles, no overshoot.
     if (!initializedRef.current) {
       posRef.current.copy(_anchor);
       initializedRef.current = true;
     }
-    if (perf.reducedMotion) {
-      posRef.current.copy(_anchor);
-    } else {
-      _spring.copy(_anchor).sub(posRef.current).multiplyScalar(STIFFNESS);
-      _spring.addScaledVector(velRef.current, -DAMPING);
-      velRef.current.addScaledVector(_spring, dt);
-      posRef.current.addScaledVector(velRef.current, dt);
-    }
+    const follow = perf.reducedMotion ? 1 : 1 - Math.exp(-FOLLOW_RATE * dt);
+    posRef.current.lerp(_anchor, follow);
     mesh.position.copy(posRef.current);
-    mesh.lookAt(camera.position);
+    // Screen-parallel billboard (match the camera's orientation) rather than
+    // lookAt — keeps the baked label text dead horizontal for every bubble,
+    // no roll from off-centre positions.
+    mesh.quaternion.copy(camera.quaternion);
 
-    // Quad is 1.5 units; silhouette diameter ≈ 2 × BLOB_BASE_RADIUS of it.
-    const springIn = THREE.MathUtils.smoothstep(s, 0.3, 0.7);
+    // Scale eases from near-full to full as it rises.
     const meshScale =
       (bubbleWorld / (1.5 * 2 * BLOB_BASE_RADIUS)) *
-      springIn *
-      (hovered ? 1.08 : 1);
+      THREE.MathUtils.lerp(0.82, 1, settle) *
+      (hovered ? 1.06 : 1);
     mesh.scale.setScalar(meshScale);
-    const visible = s > 0.3;
-    mesh.visible = visible;
-    if (visible !== activeRef.current) {
-      activeRef.current = visible;
-      setActive(visible);
-    }
+    mesh.visible = s > 0.3;
 
-    // Size the title to the bubble so it always reads as "inside the wax".
-    if (labelRef.current) {
-      const fs = THREE.MathUtils.clamp(bubblePx * 0.13, 8, 18);
-      labelRef.current.style.fontSize = `${fs}px`;
-      labelRef.current.style.width = `${bubblePx * 0.82}px`;
-    }
-
-    // ---- single glitch burst on hover-in (no page flipping — this bubble
-    // IS its destination) ---------------------------------------------------
+    // ---- single glitch burst on hover-in ---------------------------------
     if (hovered && !prevHoveredRef.current && !perf.reducedMotion) {
       burstStartRef.current = t;
     }
@@ -186,6 +211,7 @@ const NavBubble: React.FC<NavBubbleProps> = ({
       else glitch = 1 - bt;
     }
 
+    const fade = THREE.MathUtils.smoothstep(s, 0.3, 0.6);
     mat.uniforms.uTime.value = perf.reducedMotion ? phase * 10 : t;
     mat.uniforms.uGlitch.value = glitch;
     mat.uniforms.uHover.value = THREE.MathUtils.lerp(
@@ -195,9 +221,10 @@ const NavBubble: React.FC<NavBubbleProps> = ({
     );
     mat.uniforms.uOpacity.value = THREE.MathUtils.lerp(
       mat.uniforms.uOpacity.value,
-      THREE.MathUtils.smoothstep(s, 0.3, 0.6),
+      fade,
       0.15
     );
+    if (labelMatRef.current) labelMatRef.current.opacity = fade;
   });
 
   return (
@@ -229,44 +256,21 @@ const NavBubble: React.FC<NavBubbleProps> = ({
         uHasPhoto={0}
         uGlowStrength={1}
       />
-      {/* Page title sits inside the wax as a real link (keyboard, screen
-          readers, crawlers) routed through onNavigate so the frameloop
-          freezes before the route transition. */}
-      <Html
-        center
-        position={[0, 0, 0]}
-        zIndexRange={[40, 0]}
-        style={{
-          pointerEvents: "none",
-          display: active ? undefined : "none",
-        }}
-      >
-        <Link
-          ref={labelRef}
-          href={page.route}
-          data-ccursor
-          className="cube-label"
-          tabIndex={active ? 0 : -1}
-          style={{
-            display: "block",
-            pointerEvents: "auto",
-            fontFamily: "var(--font-offbit, monospace)",
-            fontWeight: 700,
-            letterSpacing: "0.05em",
-            lineHeight: 1.05,
-            textAlign: "center",
-            color: "#fff",
-            textDecoration: "none",
-            textShadow: "0 0 6px rgba(0,0,0,0.95), 0 0 12px rgba(0,0,0,0.8)",
-          }}
-          onClick={(e) => {
-            e.preventDefault();
-            onNavigate(page.route);
-          }}
-        >
-          <span className="cube-label-text">{page.label}</span>
-        </Link>
-      </Html>
+      {/* Page title baked onto the blob so you always know what you're
+          clicking — drawn on top of the wax, tracks the blob exactly. */}
+      {labelTex && (
+        <mesh position={[0, 0, 0.02]} renderOrder={5}>
+          <planeGeometry args={[1.2, 0.375]} />
+          <meshBasicMaterial
+            ref={labelMatRef}
+            map={labelTex}
+            transparent
+            depthTest={false}
+            depthWrite={false}
+            toneMapped={false}
+          />
+        </mesh>
+      )}
     </mesh>
   );
 };
@@ -279,7 +283,7 @@ interface NavBubblesProps {
 
 /**
  * The cube's navigation, lava-lamp style: four neon wax bubbles — one per
- * page, its title glowing inside the wax — hugging the cube once it arrives,
+ * page, its title drawn on the wax — hugging the cube once it arrives,
  * replacing the old SVG leader-line labels.
  */
 const NavBubbles: React.FC<NavBubblesProps> = ({
