@@ -237,33 +237,39 @@ const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] })
                 );
               })()}
 
-              {/* Text label — a real link so it works for keyboards,
-                  screen readers, and crawlers, not just pointer clicks */}
-              <Link
-                href={NAV_ROUTES[label.text.toUpperCase()] ?? "/"}
-                data-ccursor
-                className="cube-label"
+              {/* Outer wrapper to handle absolute positioning and layout translation */}
+              <div
                 style={{
                   position: 'absolute',
                   left: isRight ? endX + (isMobile ? 6 : 14) : endX - (isMobile ? 6 : 14),
                   top: endY - (isMobile ? 7 : 11),
-                  whiteSpace: 'nowrap',
-                  fontFamily: 'var(--font-offbit, monospace)',
-                  fontSize: isMobile ? 12 : 18,
-                  fontWeight: 700,
-                  letterSpacing: '0.2em',
-                  textAlign: isRight ? 'left' : 'right',
                   transform: isRight ? 'none' : 'translateX(-100%)',
-                  cursor: 'pointer',
-                  pointerEvents: 'auto',
-                  color: 'inherit',
-                  textDecoration: 'none',
-                  display: 'block',
+                  pointerEvents: 'none',
                 }}
-                onClick={() => setLeaving(true)}
               >
-                <span className="cube-label-text">{label.text}</span>
-              </Link>
+                {/* Interactive Link that CustomCursor targets */}
+                <Link
+                  href={NAV_ROUTES[label.text.toUpperCase()] ?? "/"}
+                  data-ccursor
+                  className="cube-label"
+                  style={{
+                    whiteSpace: 'nowrap',
+                    fontFamily: 'var(--font-offbit, monospace)',
+                    fontSize: isMobile ? 12 : 18,
+                    fontWeight: 700,
+                    letterSpacing: '0.2em',
+                    textAlign: isRight ? 'left' : 'right',
+                    cursor: 'pointer',
+                    pointerEvents: 'auto',
+                    color: 'inherit',
+                    textDecoration: 'none',
+                    display: 'block',
+                  }}
+                  onClick={() => setLeaving(true)}
+                >
+                  <span className="cube-label-text">{label.text}</span>
+                </Link>
+              </div>
             </div>
           );
         })}

@@ -40,7 +40,7 @@ interface CraterProps {
 
 const Crater: React.FC<CraterProps> = ({ phi, theta, size, moonRadius, moonColor }) => {
   const craterSize = moonRadius * size;
-  
+
   const position = useMemo(() => {
     // Offset the crater position slightly outwards from the sphere surface to avoid z-fighting/clipping
     const offsetRadius = moonRadius + craterSize * 0.02;
@@ -136,16 +136,16 @@ const Moon: React.FC<MoonProps> = ({ label, color, emissive, orbitRadius, moonRa
     const sinAxis = Math.sin(axisAngle);
     const cosTilt = Math.cos(tilt);
     const sinTilt = Math.sin(tilt);
-    
+
     for (let i = 0; i <= count; i++) {
       const theta = (i / count) * Math.PI * 2;
       const c = Math.cos(theta);
       const s = Math.sin(theta);
-      
+
       const x = cosAxis * c * orbitRadius - sinAxis * s * cosTilt * orbitRadius;
       const y = sinAxis * c * orbitRadius + cosAxis * s * cosTilt * orbitRadius;
       const z = s * sinTilt * orbitRadius;
-      
+
       pts.push(new THREE.Vector3(x, y, z));
     }
     return pts;
@@ -172,16 +172,16 @@ const Moon: React.FC<MoonProps> = ({ label, color, emissive, orbitRadius, moonRa
     if (orbitRef.current) {
       const c = Math.cos(angleRef.current);
       const s = Math.sin(angleRef.current);
-      
+
       const cosAxis = Math.cos(axisAngle);
       const sinAxis = Math.sin(axisAngle);
       const cosTilt = Math.cos(tilt);
       const sinTilt = Math.sin(tilt);
-      
+
       const x = cosAxis * c * orbitRadius - sinAxis * s * cosTilt * orbitRadius;
       const y = sinAxis * c * orbitRadius + cosAxis * s * cosTilt * orbitRadius;
       const z = s * sinTilt * orbitRadius;
-      
+
       orbitRef.current.position.set(x, y, z);
 
       if (hovered) {
@@ -304,7 +304,7 @@ const Moons: React.FC<MoonsProps> = ({ cubeRadius }) => {
     <>
       <Moon
         label="PODCAST"
-        color="#0a0a0a"
+        color="#1a1a1a"
         emissive="#151515"
         orbitRadius={cubeRadius * 1.5}
         moonRadius={moonRadius}
