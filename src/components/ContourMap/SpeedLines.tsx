@@ -86,17 +86,24 @@ const SpeedLines: React.FC<SpeedLinesProps> = ({ count = 100 }) => {
       materialRef.current.uniforms.uTime.value = state.clock.elapsedTime;
       materialRef.current.uniforms.uScroll.value = scroll.offset;
     }
-    // Speed lines are only visible during active warp scroll transition
-    const isVisible = scroll.offset > 0.001 && scroll.offset < 0.999;
+    // Perceived visibility of the streaks, matching the vertex shader's
+    // opacity curve (sin(sqrt(scroll) * PI) * 0.4). Below ~0.12 intensity
+    // the lines are under ~5% opacity — effectively invisible — so treat
+    // that as gone rather than waiting for the damped scroll offset to
+    // crawl past 0.999, which fired the plasma hand-off seconds after the
+    // streaks had visually faded.
+    const warpIntensity = Math.sin(Math.sqrt(scroll.offset) * Math.PI);
+    const isVisible = scroll.offset > 0.001 && warpIntensity > 0.12;
     if (meshRef.current) {
       meshRef.current.visible = isVisible;
     }
 
-    if (wasVisible.current && !isVisible && !hasFiredGone.current) {
+    // Only the tail-end fade counts (offset > 0.5) — scrolling back up to
+    // the hero also drops the intensity to zero, but that must not reveal
+    // the plasma over the hero section.
+    if (wasVisible.current && !isVisible && scroll.offset > 0.5 && !hasFiredGone.current) {
       hasFiredGone.current = true;
-      // Signals ShaderBackground to start animating — the plasma shader
-      // stays on a static first frame until the warp streaks have played
-      // through and faded, so it doesn't compete for attention mid-warp.
+      // Signals ShaderBackground to fade the plasma in.
       window.dispatchEvent(new CustomEvent("mnet:speedlines-gone"));
     }
     wasVisible.current = isVisible;

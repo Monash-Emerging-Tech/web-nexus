@@ -110,7 +110,7 @@ const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] })
       <div
         ref={overlayRef}
         className="absolute top-0 left-0 pointer-events-none"
-        style={{ opacity: 0, transition: 'opacity 0.4s' }}
+        style={{ opacity: 0, visibility: 'hidden', transition: 'opacity 0.4s, visibility 0.4s' }}
       >
         {LABEL_CONFIG.map((label) => {
           let diagX = label.diag[0];
@@ -137,6 +137,17 @@ const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] })
             shelf *= 0.45; // Shorter shelf to prevent spilling off-screen
           }
 
+          // LABEL_CONFIG's diag/shelf pixel values were designed around the
+          // default 160px cube radius. Scale them with the cube's live
+          // projected radius so the whole assembly (arc, leader lines, text
+          // anchors) sits proportionally 20% outside the cube at every
+          // moment — including mid-spring, since cubeRadius updates every
+          // frame the cube is animating.
+          const k = cubeRadius / 160;
+          diagX *= k;
+          diagY *= k;
+          shelf *= k;
+
           const isRight = shelf > 0;
           const endX = diagX + shelf;
           const endY = diagY;
@@ -144,12 +155,10 @@ const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] })
           return (
             <div 
               key={label.text} 
-              style={{ 
-                position: 'absolute', 
-                left: 0, 
+              style={{
+                position: 'absolute',
+                left: 0,
                 top: 0,
-                transform: 'scale(var(--nav-scale, 0))',
-                transformOrigin: '0 0',
               }}
             >
               {(() => {

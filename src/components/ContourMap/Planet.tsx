@@ -30,6 +30,11 @@ const setGrabCursor = (state: "grab" | "grabbing" | "default") => {
 
 const Planet: React.FC<PlanetProps> = ({ overlayRef, onCubeRadiusChange }) => {
   const planetRef = useRef<THREE.Group>(null);
+  // Spin is applied to this inner group (cube + its lights) only, so the
+  // moons orbit in a fixed frame — freezing a moon's orbit angle on hover
+  // then actually holds it still on screen instead of it being carried
+  // along by the parent's rotation.
+  const spinRef = useRef<THREE.Group>(null);
   const scroll = useScroll();
   const { size } = useThree();
   const springRef = useRef({ scale: 0, velocity: 0 });
@@ -111,8 +116,10 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef, onCubeRadiusChange }) => {
       planetRef.current.position.y = ny * 80 * animatedScale;
       planetRef.current.position.z = nz * 80 * animatedScale;
       
-      planetRef.current.rotation.y += 0.005;
-      planetRef.current.rotation.x += 0.003;
+      if (spinRef.current) {
+        spinRef.current.rotation.y += 0.005;
+        spinRef.current.rotation.x += 0.003;
+      }
 
       // Project cube position to screen for HTML overlay labels
       if (overlayRef.current) {
@@ -128,8 +135,8 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef, onCubeRadiusChange }) => {
 
         if (cubeScale > 0.3) {
           overlayRef.current.style.opacity = '1';
+          overlayRef.current.style.visibility = 'visible';
           overlayRef.current.style.transform = `translate(${screenX}px, ${screenY}px)`;
-          overlayRef.current.style.setProperty('--nav-scale', animatedScale.toString());
 
           // Apparent on-screen radius of the cube: project a point offset
           // from its center by its world-space bounding radius along the
@@ -160,8 +167,11 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef, onCubeRadiusChange }) => {
             onCubeRadiusChange(Math.round(radiusPx * 2) / 2);
           }
         } else {
+          // visibility also kills hit-testing on the label links while
+          // hidden — the container's pointer-events: none doesn't, because
+          // the links override it with pointer-events: auto.
           overlayRef.current.style.opacity = '0';
-          overlayRef.current.style.setProperty('--nav-scale', '0');
+          overlayRef.current.style.visibility = 'hidden';
         }
       }
     }
@@ -174,10 +184,12 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef, onCubeRadiusChange }) => {
 
   return (
     <group ref={planetRef} position={[0, 8, 0]} scale={[0, 0, 0]}>
-      <MnetCube />
+      <group ref={spinRef}>
+        <MnetCube />
+        <pointLight intensity={500} distance={50} color="#ffffff" />
+        <pointLight position={[2, 2, 2]} intensity={200} color="#0033ff" />
+      </group>
       <Moons cubeRadius={cubeLocalRadius} />
-      <pointLight intensity={500} distance={50} color="#ffffff" />
-      <pointLight position={[2, 2, 2]} intensity={200} color="#0033ff" />
     </group>
   );
 };

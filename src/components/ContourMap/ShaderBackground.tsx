@@ -22,10 +22,11 @@ function ShaderScript({ type, source, name, dataSize }: ShaderScriptProps) {
 // HTMLElement at module scope, so it must stay behind a dynamic import —
 // importing it eagerly would crash during SSR.
 //
-// The <shader-art> element itself isn't mounted until SpeedLines.tsx
-// confirms the warp streak effect has played through and faded out, so
-// there's no plasma (not even a static first frame) competing for
-// attention while the warp transition is still the focal animation.
+// The <shader-art> element mounts immediately but stays at opacity 0 until
+// SpeedLines.tsx confirms the warp streaks have faded. Nothing competes
+// visually with the warp, yet the WebGL context and shaders are already
+// compiled and animating, so the plasma appears the instant the hand-off
+// event fires instead of paying mount + compile latency at reveal time.
 export function ShaderBackground() {
   const [canPlay, setCanPlay] = useState(false);
 
@@ -54,13 +55,14 @@ export function ShaderBackground() {
     return () => window.removeEventListener("mnet:speedlines-gone", handleSpeedlinesGone);
   }, []);
 
-  if (!canPlay) {
-    return <div className="absolute inset-0 z-0 bg-black pointer-events-none" />;
-  }
-
   return (
     <div className="absolute inset-0 z-0 bg-black pointer-events-none">
-      <shader-art autoPlay className="shader-bg">
+      <div
+        aria-hidden
+        className="w-full h-full"
+        style={{ opacity: canPlay ? 1 : 0, transition: "opacity 0.8s ease" }}
+      >
+        <shader-art autoPlay className="shader-bg">
         <uniform type="float" name="scale" value=".1" min="0.2" max="4" step="0.01" no-gui="true" />
         <uniform type="float" name="ax" value="5" min="1" max="15" step="0.01" no-gui="true" />
         <uniform type="float" name="ay" value="7" min="1" max="15" step="0.01" no-gui="true" />
@@ -128,7 +130,8 @@ void main() {
   gl_FragColor = vec4(color,1.);
 }`}
         />
-      </shader-art>
+        </shader-art>
+      </div>
     </div>
   );
 }
