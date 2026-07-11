@@ -23,10 +23,11 @@ function ShaderScript({ type, source, name, dataSize }: ShaderScriptProps) {
 // importing it eagerly would crash during SSR.
 //
 // The <shader-art> element mounts immediately but stays at opacity 0 until
-// SpeedLines.tsx confirms the warp streaks have faded. Nothing competes
-// visually with the warp, yet the WebGL context and shaders are already
-// compiled and animating, so the plasma appears the instant the hand-off
-// event fires instead of paying mount + compile latency at reveal time.
+// Planet.tsx signals the cube's nav labels have become visible, so the
+// plasma and the labels read as a single reveal. Nothing competes visually
+// with the warp before that, yet the WebGL context and shaders are already
+// compiled and animating, so the plasma appears the instant the event
+// fires instead of paying mount + compile latency at reveal time.
 export function ShaderBackground() {
   const [canPlay, setCanPlay] = useState(false);
 
@@ -50,9 +51,9 @@ export function ShaderBackground() {
   }, []);
 
   useEffect(() => {
-    const handleSpeedlinesGone = () => setCanPlay(true);
-    window.addEventListener("mnet:speedlines-gone", handleSpeedlinesGone);
-    return () => window.removeEventListener("mnet:speedlines-gone", handleSpeedlinesGone);
+    const handleLabelsShown = () => setCanPlay(true);
+    window.addEventListener("mnet:cube-labels-shown", handleLabelsShown);
+    return () => window.removeEventListener("mnet:cube-labels-shown", handleLabelsShown);
   }, []);
 
   return (

@@ -35,6 +35,9 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef, onCubeRadiusChange }) => {
   // then actually holds it still on screen instead of it being carried
   // along by the parent's rotation.
   const spinRef = useRef<THREE.Group>(null);
+  // Fires mnet:cube-labels-shown once, the first time the nav labels become
+  // visible, so the plasma background reveals in the same moment.
+  const labelsShownRef = useRef(false);
   const scroll = useScroll();
   const { size } = useThree();
   const springRef = useRef({ scale: 0, velocity: 0 });
@@ -137,6 +140,13 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef, onCubeRadiusChange }) => {
           overlayRef.current.style.opacity = '1';
           overlayRef.current.style.visibility = 'visible';
           overlayRef.current.style.transform = `translate(${screenX}px, ${screenY}px)`;
+
+          // The nav labels becoming visible is the cue for ShaderBackground
+          // to fade the plasma in — the two reveals read as one moment.
+          if (!labelsShownRef.current) {
+            labelsShownRef.current = true;
+            window.dispatchEvent(new CustomEvent("mnet:cube-labels-shown"));
+          }
 
           // Apparent on-screen radius of the cube: project a point offset
           // from its center by its world-space bounding radius along the
