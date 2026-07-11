@@ -6,7 +6,6 @@ import { Html } from "@react-three/drei";
 import Link from "next/link";
 import * as THREE from "three";
 import { NAV_PAGES } from "./navPages";
-import { usePageTextures } from "./usePageTextures";
 import { setLinkCursor } from "./cursor";
 import type { PerformanceConfig } from "./usePerformanceTier";
 import { BLOB_BASE_RADIUS } from "../LavaBlob/shaders";
@@ -48,8 +47,6 @@ interface NavBubbleProps {
   pageIndex: number;
   angleDeg: number;
   cubeStateRef: React.MutableRefObject<CubeState>;
-  textures: THREE.Texture[];
-  aspects: number[];
   perf: PerformanceConfig;
   onNavigate: (route: string) => void;
 }
@@ -58,13 +55,12 @@ const NavBubble: React.FC<NavBubbleProps> = ({
   pageIndex,
   angleDeg,
   cubeStateRef,
-  textures,
-  aspects,
   perf,
   onNavigate,
 }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const materialRef = useRef<LavaBlobMaterialImpl>(null);
+  const labelRef = useRef<HTMLAnchorElement>(null);
   const { size, camera } = useThree();
 
   const [hovered, setHovered] = useState(false);
@@ -170,6 +166,13 @@ const NavBubble: React.FC<NavBubbleProps> = ({
       setActive(visible);
     }
 
+    // Size the title to the bubble so it always reads as "inside the wax".
+    if (labelRef.current) {
+      const fs = THREE.MathUtils.clamp(bubblePx * 0.13, 8, 18);
+      labelRef.current.style.fontSize = `${fs}px`;
+      labelRef.current.style.width = `${bubblePx * 0.82}px`;
+    }
+
     // ---- single glitch burst on hover-in (no page flipping — this bubble
     // IS its destination) ---------------------------------------------------
     if (hovered && !prevHoveredRef.current && !perf.reducedMotion) {
@@ -223,19 +226,15 @@ const NavBubble: React.FC<NavBubbleProps> = ({
         depthWrite={false}
         uPhase={phase}
         uWobbleAmp={perf.reducedMotion ? 0 : perf.blobWobbleAmp * 1.1}
-        uHasPhoto={1}
-        uRestPhoto={0.25}
+        uHasPhoto={0}
         uGlowStrength={1}
-        uTexA={textures[pageIndex]}
-        uTexB={textures[pageIndex]}
-        uAspectA={aspects[pageIndex]}
-        uAspectB={aspects[pageIndex]}
       />
-      {/* Real link for keyboards, screen readers, and crawlers — routed
-          through onNavigate so the frameloop freezes before the transition. */}
+      {/* Page title sits inside the wax as a real link (keyboard, screen
+          readers, crawlers) routed through onNavigate so the frameloop
+          freezes before the route transition. */}
       <Html
         center
-        position={[0, -0.58, 0]}
+        position={[0, 0, 0]}
         zIndexRange={[40, 0]}
         style={{
           pointerEvents: "none",
@@ -243,20 +242,22 @@ const NavBubble: React.FC<NavBubbleProps> = ({
         }}
       >
         <Link
+          ref={labelRef}
           href={page.route}
           data-ccursor
           className="cube-label"
           tabIndex={active ? 0 : -1}
           style={{
+            display: "block",
             pointerEvents: "auto",
             fontFamily: "var(--font-offbit, monospace)",
-            fontSize: 14,
             fontWeight: 700,
-            letterSpacing: "0.2em",
-            whiteSpace: "nowrap",
+            letterSpacing: "0.05em",
+            lineHeight: 1.05,
+            textAlign: "center",
             color: "#fff",
             textDecoration: "none",
-            textShadow: "0 0 8px rgba(0,0,0,0.9)",
+            textShadow: "0 0 6px rgba(0,0,0,0.95), 0 0 12px rgba(0,0,0,0.8)",
           }}
           onClick={(e) => {
             e.preventDefault();
@@ -278,16 +279,14 @@ interface NavBubblesProps {
 
 /**
  * The cube's navigation, lava-lamp style: four neon wax bubbles — one per
- * page — hugging the cube once it arrives, replacing the old SVG
- * leader-line labels.
+ * page, its title glowing inside the wax — hugging the cube once it arrives,
+ * replacing the old SVG leader-line labels.
  */
 const NavBubbles: React.FC<NavBubblesProps> = ({
   cubeStateRef,
   perf,
   onNavigate,
 }) => {
-  const { textures, aspects } = usePageTextures();
-
   return (
     <group>
       {NAV_PAGES.map((page, i) => (
@@ -296,8 +295,6 @@ const NavBubbles: React.FC<NavBubblesProps> = ({
           pageIndex={i}
           angleDeg={BASE_ANGLES_DEG[i]}
           cubeStateRef={cubeStateRef}
-          textures={textures}
-          aspects={aspects}
           perf={perf}
           onNavigate={onNavigate}
         />

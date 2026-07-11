@@ -84,11 +84,20 @@ Codepen for the effect: https://codepen.io/jh3y/pen/jOXgxaj
     position: fixed;
     left: 0;
     right: 0;
-    border: 1px solid #2c2c2d;
+    /* Liquid glass: barely-there dark tint, heavy blur + saturation so the
+       colourful scene behind bleeds through, a bright top-edge sheen and a
+       soft drop shadow to lift the pane off the page. */
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 1rem;
-    background-color: rgba(0, 0, 0, 0.5);
-    -webkit-backdrop-filter: blur(12px) saturate(140%);
-    backdrop-filter: blur(12px) saturate(140%);
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(10, 10, 14, 0.22) 100%
+    );
+    -webkit-backdrop-filter: blur(22px) saturate(180%);
+    backdrop-filter: blur(22px) saturate(180%);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.22);
     transition: all 1s cubic-bezier(0, -0.03, 0, 1);
   }
 
@@ -115,10 +124,19 @@ Codepen for the effect: https://codepen.io/jh3y/pen/jOXgxaj
   .navbar.scrolled {
     margin: 0;
     border-radius: 0;
-    -webkit-backdrop-filter: blur(10px) saturate(140%);
-    backdrop-filter: blur(10px) saturate(140%);
+    border-color: rgba(255, 255, 255, 0.08);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
     height: 84px;
-    background-color: rgba(0, 0, 0, 0.9);
+    /* Still glassy when docked, just a touch denser for legibility over
+       whatever content scrolls beneath it. */
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.06) 0%,
+      rgba(10, 10, 14, 0.45) 100%
+    );
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.16);
     padding: 12px 32px;
   }
 

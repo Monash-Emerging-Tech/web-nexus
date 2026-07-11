@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { homeContent } from "../../content/home";
+import NavbarLogoCube from "./NavbarLogoCube";
 
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -116,7 +116,7 @@ export function Navbar() {
 
       <nav id="mainNavbar" className={`navbar ${scrolled ? "scrolled" : ""}`} aria-label="Primary">
         <div className="my-auto ml-0 flex h-8 flex-row md:h-auto">
-          <Image src="/img/logo.png" alt="MNET logo" width={32} height={32} className="m-auto mr-4 h-8 w-auto" />
+          <NavbarLogoCube className="m-auto mr-4 h-8 w-8 shrink-0" />
           <Link href="/" data-ccursor id="left" className="rounded-sm p-0.5">
             <h1 className="font-offbit-bold m-auto translate-y-0.5 text-left text-lg tracking-widest text-white md:mb-4 md:text-3xl">
               MNET

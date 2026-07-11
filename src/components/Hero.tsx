@@ -119,10 +119,10 @@ const Hero: React.FC<HeroProps> = ({ upcomingEvent = null }) => {
   }, []);
 
   return (
-    <section className="relative w-full h-screen overflow-hidden bg-black flex justify-center items-center">
+    <section className="relative w-full h-dvh overflow-hidden bg-black flex justify-center items-center">
       <div className="absolute inset-0 z-0">
         <ContourMap>
-          <div className="w-full h-screen flex flex-col justify-center items-center md:items-start md:px-32 pointer-events-none">
+          <div className="w-full h-dvh flex flex-col justify-center items-center md:items-start md:px-32 pointer-events-none">
             <div className="md:w-[70%] p-4 flex flex-col md:gap-0 gap-2.5 text-white text-center md:text-left pointer-events-auto">
               {eventActive && upcomingEvent && (
                 <p className="font-offbit font-bold md:text-2xl text-xs md:text-sm">

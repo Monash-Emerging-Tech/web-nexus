@@ -77,9 +77,13 @@ Push to `prod` after each phase; iterate as reference sites get supplied.
   no tailwind.config), TypeScript. Notion CMS layer in `src/lib/notion/` with DUMMY_ fail-soft
   fallbacks and 1 h `unstable_cache`.
 - 3D hero: `src/components/Hero.tsx` → `src/components/ContourMap/` (R3F, ScrollControls ×4
-  pages, performance tiers, lava-lamp page bubbles — physics-simmed blobs that represent site
-  pages, glitch-flash between them on hover, and navigate on click; blob shader is reusable via
-  `src/components/LavaBlob/`). **Do not restructure.**
+  pages, performance tiers). Matte topographic **lava blobs** (`LavaBlob/` shader module,
+  reusable): the mid-scroll `MemoryFlashbacks` page bubbles (glitch-flash between page images on
+  hover, navigate on click), the `CubeForge` (red/blue/black wax fight inside the terrain sphere
+  that "forges" the cube), and `NavBubbles` — four neon wax bubbles with their page title glowing
+  inside, hugging the cube and replacing the old SVG leader-line labels. Shared wax physics in
+  `waxPhysics.ts`; `Planet.tsx` cube is drag-to-spin with momentum. `LavaBlob/LavaBlobField.tsx`
+  is a drop-in ambient version for other pages (not yet placed). **Do not restructure.**
 - Navbar: `Navbar.tsx` re-exports `OldNavbar` (scramble-text MENU). The immersive
   `NavbarContent.tsx` menu is built but unmounted — future work.
 - Known quirks: both npm and pnpm lockfiles committed; `src/content/home.ts` is legacy (only
