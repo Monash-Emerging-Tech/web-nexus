@@ -54,6 +54,11 @@ const SpeedLines: React.FC<SpeedLinesProps> = ({ count = 100 }) => {
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const materialRef = useRef<THREE.ShaderMaterial>(null);
   const scroll = useScroll();
+  // Tracks the visible -> hidden transition (not the initial hidden state at
+  // scroll 0), so the "gone" signal fires once the warp has actually played
+  // and finished, not immediately on page load.
+  const wasVisible = useRef(false);
+  const hasFiredGone = useRef(false);
 
   // Create attributes once
   const { initialPositions, speeds } = useMemo(() => {
@@ -81,10 +86,20 @@ const SpeedLines: React.FC<SpeedLinesProps> = ({ count = 100 }) => {
       materialRef.current.uniforms.uTime.value = state.clock.elapsedTime;
       materialRef.current.uniforms.uScroll.value = scroll.offset;
     }
+    // Speed lines are only visible during active warp scroll transition
+    const isVisible = scroll.offset > 0.001 && scroll.offset < 0.999;
     if (meshRef.current) {
-      // Speed lines are only visible during active warp scroll transition
-      meshRef.current.visible = scroll.offset > 0.001 && scroll.offset < 0.999;
+      meshRef.current.visible = isVisible;
     }
+
+    if (wasVisible.current && !isVisible && !hasFiredGone.current) {
+      hasFiredGone.current = true;
+      // Signals ShaderBackground to start animating — the plasma shader
+      // stays on a static first frame until the warp streaks have played
+      // through and faded, so it doesn't compete for attention mid-warp.
+      window.dispatchEvent(new CustomEvent("mnet:speedlines-gone"));
+    }
+    wasVisible.current = isVisible;
   });
 
   return (

@@ -1,13 +1,17 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { useScroll } from "@react-three/drei";
+import { useGLTF, useScroll } from "@react-three/drei";
 import * as THREE from "three";
 import MnetCube from "../MnetCube";
 
 interface PlanetProps {
   overlayRef: React.RefObject<HTMLDivElement | null>;
+  // Reports the cube's current apparent on-screen radius (px), so the nav
+  // arcs (drawn outside the Canvas as HTML/SVG) can track the cube's actual
+  // projected size instead of guessing fixed pixel values.
+  onCubeRadiusChange?: (radiusPx: number) => void;
 }
 
 // Idle autospin rates (rad/s) — the previous per-frame constants (0.005/0.003)
@@ -23,11 +27,19 @@ const setGrabCursor = (state: "grab" | "grabbing" | "default") => {
   document.body.style.cursor = state === "default" ? "" : state;
 };
 
-const Planet: React.FC<PlanetProps> = ({ overlayRef }) => {
+const Planet: React.FC<PlanetProps> = ({ overlayRef, onCubeRadiusChange }) => {
   const planetRef = useRef<THREE.Group>(null);
   const scroll = useScroll();
   const { size } = useThree();
   const springRef = useRef({ scale: 0, velocity: 0 });
+  // Bounding-sphere radius of the cube mesh at scale=1, in local units —
+  // used every frame to derive its true projected screen radius so the nav
+  // arcs can stay locked to the cube's actual apparent size.
+  const { scene: cubeScene } = useGLTF('/assets/mnetcube.glb');
+  const cubeLocalRadius = useMemo(() => {
+    const sphere = new THREE.Box3().setFromObject(cubeScene).getBoundingSphere(new THREE.Sphere());
+    return sphere.radius;
+  }, [cubeScene]);
   const dragRef = useRef({
     dragging: false,
     touch: false,
@@ -61,14 +73,6 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef }) => {
 
   useEffect(() => {
     return () => setGrabCursor("default");
-  }, []);
-
-  // Planet only mounts once MnetCube's useGLTF suspense resolves (R3F's
-  // Canvas wraps its scene in Suspense), so this fires exactly when the
-  // cube has actually rendered — the cue ShaderBackground waits on before
-  // starting its animation loop.
-  useEffect(() => {
-    window.dispatchEvent(new CustomEvent("mnet:cube-ready"));
   }, []);
 
   useFrame((state, delta) => {
@@ -125,6 +129,35 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef }) => {
           overlayRef.current.style.opacity = '1';
           overlayRef.current.style.transform = `translate(${screenX}px, ${screenY}px)`;
           overlayRef.current.style.setProperty('--nav-scale', animatedScale.toString());
+
+          // Apparent on-screen radius of the cube: project a point offset
+          // from its center by its world-space bounding radius along the
+          // camera's right vector, then measure the pixel distance to the
+          // center. This accounts for perspective (the cube also moves
+          // toward/away from the camera as it scales), unlike a fixed pixel
+          // constant would. Only tracked while the labels are visible —
+          // matches the opacity gate above, since the arcs are invisible
+          // otherwise.
+          if (onCubeRadiusChange) {
+            const worldRadius = cubeLocalRadius * cubeScale;
+            const rightVec = state.camera.userData.rightVec || (state.camera.userData.rightVec = new THREE.Vector3());
+            rightVec.setFromMatrixColumn(state.camera.matrixWorld, 0);
+
+            const edgeWorld = state.camera.userData.edgeWorld || (state.camera.userData.edgeWorld = new THREE.Vector3());
+            edgeWorld.copy(worldPos).addScaledVector(rightVec, worldRadius);
+
+            const edgeProjected = state.camera.userData.edgeProjected || (state.camera.userData.edgeProjected = new THREE.Vector3());
+            edgeProjected.copy(edgeWorld).project(state.camera);
+
+            const edgeScreenX = (edgeProjected.x * 0.5 + 0.5) * size.width;
+            const edgeScreenY = (-edgeProjected.y * 0.5 + 0.5) * size.height;
+            const radiusPx = Math.hypot(edgeScreenX - screenX, edgeScreenY - screenY);
+
+            // Round to avoid re-render churn from sub-pixel float noise once
+            // the cube settles at rest (idle rotation doesn't change a
+            // bounding-sphere radius, so this converges to a stable value).
+            onCubeRadiusChange(Math.round(radiusPx * 2) / 2);
+          }
         } else {
           overlayRef.current.style.opacity = '0';
           overlayRef.current.style.setProperty('--nav-scale', '0');

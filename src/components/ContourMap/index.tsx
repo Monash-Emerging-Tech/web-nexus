@@ -32,6 +32,10 @@ const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] })
   // concurrently with (and block) the route transition.
   const [leaving, setLeaving] = useState(false);
   const perf = usePerformanceTier();
+  // Cube's live apparent on-screen radius (px), reported by Planet every
+  // frame it changes. Drives the nav arc radius so it always tracks the
+  // cube's actual projected size instead of a guessed constant.
+  const [cubeRadius, setCubeRadius] = useState(160);
 
   useEffect(() => {
     setMounted(true);
@@ -93,7 +97,7 @@ const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] })
         
         <ScrollControls pages={4} damping={perf.scrollDamping} style={{ scrollbarWidth: "none" }}>
           <ScrollProgressBridge />
-          <Experience overlayRef={overlayRef} perf={perf} flashbackUrls={flashbackUrls} />
+          <Experience overlayRef={overlayRef} perf={perf} flashbackUrls={flashbackUrls} onCubeRadiusChange={setCubeRadius} />
           {children && (
             <Scroll html style={{ width: '100%', height: '100%' }}>
               <Overlay>{children}</Overlay>
@@ -153,8 +157,10 @@ const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] })
                 const dy = diagY;
                 const theta = Math.atan2(dy, dx);
                 
-                // Radius of imaginary circle around the cube (larger than rotation scope)
-                const R = isMobile ? 65 : 160;
+                // Radius of imaginary circle around the cube — always 20%
+                // bigger than the cube's actual live on-screen radius, so
+                // the arc stays locked to the cube as it scales/rotates.
+                const R = cubeRadius * 1.2;
                 
                 // Arc span in radians (approx 15 degrees total)
                 const deltaTheta = 0.13; 

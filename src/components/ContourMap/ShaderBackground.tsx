@@ -23,8 +23,9 @@ function ShaderScript({ type, source, name, dataSize }: ShaderScriptProps) {
 // importing it eagerly would crash during SSR.
 //
 // Playback stays paused (a static first frame renders regardless) until
-// Planet.tsx confirms the MNET cube has mounted, so the shader doesn't
-// burn GPU cycles animating behind content nobody has scrolled to yet.
+// SpeedLines.tsx confirms the warp streak effect has played through and
+// faded out, so the plasma shader doesn't start competing for attention
+// while the warp transition is still the focal animation.
 export function ShaderBackground() {
   const [canPlay, setCanPlay] = useState(false);
 
@@ -48,9 +49,9 @@ export function ShaderBackground() {
   }, []);
 
   useEffect(() => {
-    const handleCubeReady = () => setCanPlay(true);
-    window.addEventListener("mnet:cube-ready", handleCubeReady);
-    return () => window.removeEventListener("mnet:cube-ready", handleCubeReady);
+    const handleSpeedlinesGone = () => setCanPlay(true);
+    window.addEventListener("mnet:speedlines-gone", handleSpeedlinesGone);
+    return () => window.removeEventListener("mnet:speedlines-gone", handleSpeedlinesGone);
   }, []);
 
   return (

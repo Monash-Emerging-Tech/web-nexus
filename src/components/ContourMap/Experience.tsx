@@ -12,20 +12,21 @@ interface ExperienceProps {
   overlayRef: React.RefObject<HTMLDivElement | null>;
   perf: PerformanceConfig;
   flashbackUrls?: string[];
+  onCubeRadiusChange?: (radiusPx: number) => void;
 }
 
-const Experience: React.FC<ExperienceProps> = ({ overlayRef, perf, flashbackUrls = [] }) => {
+const Experience: React.FC<ExperienceProps> = ({ overlayRef, perf, flashbackUrls = [], onCubeRadiusChange }) => {
   return (
     <>
       <CameraHandler perf={perf} />
       <SpeedLines count={perf.speedLineCount} />
-      
+
       {/* Light that follows the camera's view */}
       <directionalLight position={[0, 0, 1]} intensity={1.5} />
-      
+
       <Terrain perf={perf} />
       <MemoryFlashbacks flashbackUrls={flashbackUrls} />
-      <Planet overlayRef={overlayRef} />
+      <Planet overlayRef={overlayRef} onCubeRadiusChange={onCubeRadiusChange} />
     </>
   );
 };
