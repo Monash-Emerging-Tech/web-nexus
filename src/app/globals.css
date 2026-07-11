@@ -242,6 +242,10 @@ html.has-custom-cursor * {
   background-color: rgba(255, 255, 255, 0.6);
 }
 
+.c-cursor--pointer {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
 /* Respect OS-level reduced-motion preference: freeze decorative animations
    (glitch, shake, pulse) while leaving instant state changes intact. */
 @media (prefers-reduced-motion: reduce) {

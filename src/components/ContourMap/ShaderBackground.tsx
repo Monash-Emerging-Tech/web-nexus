@@ -52,8 +52,13 @@ export function ShaderBackground() {
 
   useEffect(() => {
     const handleLabelsShown = () => setCanPlay(true);
+    const handleLabelsHidden = () => setCanPlay(false);
     window.addEventListener("mnet:cube-labels-shown", handleLabelsShown);
-    return () => window.removeEventListener("mnet:cube-labels-shown", handleLabelsShown);
+    window.addEventListener("mnet:cube-labels-hidden", handleLabelsHidden);
+    return () => {
+      window.removeEventListener("mnet:cube-labels-shown", handleLabelsShown);
+      window.removeEventListener("mnet:cube-labels-hidden", handleLabelsHidden);
+    };
   }, []);
 
   return (

@@ -36,6 +36,26 @@ const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] })
   // frame it changes. Drives the nav arc radius so it always tracks the
   // cube's actual projected size instead of a guessed constant.
   const [cubeRadius, setCubeRadius] = useState(160);
+  const moonTooltipRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleMoonHover = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      const el = moonTooltipRef.current;
+      if (!el) return;
+      if (detail.visible) {
+        el.style.display = "block";
+        el.style.left = `${detail.x}px`;
+        el.style.top = `${detail.y}px`;
+        const textEl = el.firstElementChild as HTMLElement;
+        if (textEl) textEl.textContent = detail.label;
+      } else {
+        el.style.display = "none";
+      }
+    };
+    window.addEventListener("mnet:moon-hover", handleMoonHover);
+    return () => window.removeEventListener("mnet:moon-hover", handleMoonHover);
+  }, []);
 
   useEffect(() => {
     setMounted(true);
@@ -99,7 +119,7 @@ const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] })
           <ScrollProgressBridge />
           <Experience overlayRef={overlayRef} perf={perf} flashbackUrls={flashbackUrls} onCubeRadiusChange={setCubeRadius} />
           {children && (
-            <Scroll html style={{ width: '100%', height: '100%' }}>
+            <Scroll html style={{ width: '100%', height: '100%', pointerEvents: 'none' }}>
               <Overlay>{children}</Overlay>
             </Scroll>
           )}
@@ -247,6 +267,39 @@ const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] })
             </div>
           );
         })}
+      </div>
+
+      <div
+        ref={moonTooltipRef}
+        className="pointer-events-none"
+        style={{
+          position: "absolute",
+          left: 0,
+          top: 0,
+          transform: "translate(-50%, -50%)",
+          zIndex: 1000,
+          display: "none",
+        }}
+      >
+        <div
+          className="glitch-soft"
+          style={{
+            fontFamily: "var(--font-offbit, monospace)",
+            fontSize: 12,
+            fontWeight: 700,
+            letterSpacing: "0.25em",
+            color: "#ffffff",
+            backgroundColor: "rgba(0, 0, 0, 0.75)",
+            backdropFilter: "blur(4px)",
+            WebkitBackdropFilter: "blur(4px)",
+            border: "1px solid rgba(255, 255, 255, 0.15)",
+            padding: "6px 12px",
+            borderRadius: "4px",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1)",
+            whiteSpace: "nowrap",
+            textAlign: "center",
+          }}
+        />
       </div>
     </div>
   );

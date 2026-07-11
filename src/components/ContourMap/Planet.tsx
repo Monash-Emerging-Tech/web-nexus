@@ -182,6 +182,13 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef, onCubeRadiusChange }) => {
           // the links override it with pointer-events: auto.
           overlayRef.current.style.opacity = '0';
           overlayRef.current.style.visibility = 'hidden';
+
+          // When scrolling back up/out, reset the ref and dispatch an event
+          // to hide the plasma.
+          if (labelsShownRef.current) {
+            labelsShownRef.current = false;
+            window.dispatchEvent(new CustomEvent("mnet:cube-labels-hidden"));
+          }
         }
       }
     }

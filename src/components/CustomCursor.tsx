@@ -113,8 +113,16 @@ const CustomCursor = () => {
       const detail = (e as CustomEvent<string>).detail;
       cursor.classList.toggle("c-cursor--grab", detail === "grab");
       cursor.classList.toggle("c-cursor--grabbing", detail === "grabbing");
+      cursor.classList.toggle("c-cursor--pointer", detail === "pointer");
       if (!morphRef.current) {
-        sizeRef.current = detail === "grab" ? 34 : detail === "grabbing" ? 26 : RADIUS;
+        sizeRef.current =
+          detail === "grab"
+            ? 34
+            : detail === "grabbing"
+            ? 26
+            : detail === "pointer"
+            ? 30
+            : RADIUS;
         move({ width: sizeRef.current, height: sizeRef.current });
       }
     };

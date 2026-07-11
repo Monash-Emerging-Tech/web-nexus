@@ -225,6 +225,20 @@ const FlashbackOrb: React.FC<FlashbackOrbProps> = ({
   const [aspect, setAspect] = useState(1);
   const [hovered, setHovered] = useState(false);
 
+  useEffect(() => {
+    if (hovered) {
+      window.dispatchEvent(new CustomEvent("mnet:cursor", { detail: "pointer" }));
+      document.body.style.cursor = "pointer";
+    } else {
+      window.dispatchEvent(new CustomEvent("mnet:cursor", { detail: "default" }));
+      document.body.style.cursor = "";
+    }
+    return () => {
+      window.dispatchEvent(new CustomEvent("mnet:cursor", { detail: "default" }));
+      document.body.style.cursor = "";
+    };
+  }, [hovered]);
+
   // Pre-allocated to avoid per-frame GC pressure
   const lerpPosTarget = useRef(new THREE.Vector3());
   const lerpScaleTarget = useRef(new THREE.Vector3());
