@@ -5,6 +5,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useGLTF, useScroll } from "@react-three/drei";
 import * as THREE from "three";
 import MnetCube from "../MnetCube";
+import Moons from "./Moons";
 
 interface PlanetProps {
   overlayRef: React.RefObject<HTMLDivElement | null>;
@@ -174,6 +175,7 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef, onCubeRadiusChange }) => {
   return (
     <group ref={planetRef} position={[0, 8, 0]} scale={[0, 0, 0]}>
       <MnetCube />
+      <Moons cubeRadius={cubeLocalRadius} />
       <pointLight intensity={500} distance={50} color="#ffffff" />
       <pointLight position={[2, 2, 2]} intensity={200} color="#0033ff" />
     </group>
