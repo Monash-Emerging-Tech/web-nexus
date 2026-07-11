@@ -8,7 +8,7 @@ import Overlay from "./Overlay";
 import ScrollProgressBridge from "./ScrollProgressBridge";
 import { LABEL_CONFIG } from "./Labels";
 import usePerformanceTier from "./usePerformanceTier";
-import { Starfield } from "../Starfield";
+import { ShaderBackground } from "./ShaderBackground";
 import Link from "next/link";
 
 interface ContourMapProps {
@@ -77,7 +77,7 @@ const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] })
 
   return (
     <div className="contour-scene w-full h-full overflow-hidden bg-black relative">
-      <Starfield perf={perf} />
+      <ShaderBackground />
       <Canvas
         camera={{ position: [0, 5, 15], fov: 40 }}
         gl={{ antialias: perf.antialias }}

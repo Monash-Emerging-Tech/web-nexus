@@ -19,7 +19,9 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "shader-art": ["./node_modules/shader-art/dist/index.d.ts"],
+      "@shader-art/plugin-uniform": ["./node_modules/@shader-art/plugin-uniform/dist/index.d.ts"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

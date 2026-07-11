@@ -182,6 +182,24 @@ html {
   scrollbar-width: none;
 }
 
+.shader-bg,
+.shader-bg canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* @shader-art/plugin-uniform mounts a dat.GUI debug panel onto <body>
+   for tweaking shader uniforms live. It's a dev tool, not UI — hide it. */
+.dg,
+.dg.main,
+.dg.ac {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 .contour-scene div::-webkit-scrollbar {
   display: none;
 }

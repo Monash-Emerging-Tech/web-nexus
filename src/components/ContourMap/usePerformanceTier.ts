@@ -24,14 +24,6 @@ export interface PerformanceConfig {
   enableEnvironment: boolean;
   /** Contour line frequency in the fragment shader */
   contourFrequency: number;
-  /** Starfield GPGPU texture size (particles = size * size) */
-  starfieldGpgpuSize: number;
-  /** Sparkle effect frequency in milliseconds */
-  sparkleIntervalMs: number;
-  /** Sparkle duration in milliseconds */
-  sparkleDurationMs: number;
-  /** Percentage of stars to sparkle */
-  sparkleFraction: number;
 }
 
 const TIER_CONFIGS: Record<PerformanceTier, PerformanceConfig> = {
@@ -46,10 +38,6 @@ const TIER_CONFIGS: Record<PerformanceTier, PerformanceConfig> = {
     scrollDamping: 0.15,
     enableEnvironment: false,
     contourFrequency: 8.0,
-    starfieldGpgpuSize: 32,
-    sparkleIntervalMs: 500,
-    sparkleDurationMs: 200,
-    sparkleFraction: 0.005,
   },
   mid: {
     tier: "mid",
@@ -62,10 +50,6 @@ const TIER_CONFIGS: Record<PerformanceTier, PerformanceConfig> = {
     scrollDamping: 0.1,
     enableEnvironment: true,
     contourFrequency: 12.0,
-    starfieldGpgpuSize: 60,
-    sparkleIntervalMs: 250,
-    sparkleDurationMs: 100,
-    sparkleFraction: 0.01,
   },
   high: {
     tier: "high",
@@ -78,10 +62,6 @@ const TIER_CONFIGS: Record<PerformanceTier, PerformanceConfig> = {
     scrollDamping: 0.1,
     enableEnvironment: true,
     contourFrequency: 14.0,
-    starfieldGpgpuSize: 80,
-    sparkleIntervalMs: 150,
-    sparkleDurationMs: 80,
-    sparkleFraction: 0.02,
   },
 };
 
@@ -188,11 +168,10 @@ export function usePerformanceTier(): PerformanceConfig {
 
       if (reducedMotion) {
         // Respect the OS-level motion preference: minimal animation work,
-        // no camera shake, no sparkle churn.
+        // no camera shake.
         setConfig({
           ...TIER_CONFIGS.low,
           cameraShake: false,
-          sparkleFraction: 0,
         });
         return;
       }

@@ -63,6 +63,14 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef }) => {
     return () => setGrabCursor("default");
   }, []);
 
+  // Planet only mounts once MnetCube's useGLTF suspense resolves (R3F's
+  // Canvas wraps its scene in Suspense), so this fires exactly when the
+  // cube has actually rendered — the cue ShaderBackground waits on before
+  // starting its animation loop.
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("mnet:cube-ready"));
+  }, []);
+
   useFrame((state, delta) => {
     const scrollOffset = scroll.offset;
     
@@ -100,11 +108,6 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef }) => {
       
       planetRef.current.rotation.y += 0.005;
       planetRef.current.rotation.x += 0.003;
-
-      if (window.updateStarfield) {
-        const zoom = 100 + animatedScale * 100;
-        window.updateStarfield(animatedScale, zoom);
-      }
 
       // Project cube position to screen for HTML overlay labels
       if (overlayRef.current) {
