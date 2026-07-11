@@ -18,6 +18,10 @@ interface MoonProps {
   // camera for depth. Keep |tilt| small enough that the projected ring stays
   // outside the nav label arc (see Moons below).
   tilt: number;
+  // On-screen orientation (radians, counterclockwise from horizontal) of the
+  // ring's major axis — the line the ring appears to rotate about is the
+  // perpendicular. Used to slot each orbit into the gaps between nav labels.
+  axisAngle: number;
 }
 
 // A single moon circling the cube in a camera-facing plane: the orbit is
@@ -26,12 +30,18 @@ interface MoonProps {
 // constant on-screen distance) instead of sweeping edge-on across its face.
 // The parent group carries no rotation and uniform scale, so world-space
 // camera directions are valid as local ones here.
-const Moon: React.FC<MoonProps> = ({ label, color, emissive, orbitRadius, moonRadius, speed, phase, tilt }) => {
+const Moon: React.FC<MoonProps> = ({ label, color, emissive, orbitRadius, moonRadius, speed, phase, tilt, axisAngle }) => {
   const angleRef = useRef(phase);
   const orbitRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
-  const { camRight, camUp, camForward } = useMemo(
-    () => ({ camRight: new THREE.Vector3(), camUp: new THREE.Vector3(), camForward: new THREE.Vector3() }),
+  const { camRight, camUp, camForward, major, minor } = useMemo(
+    () => ({
+      camRight: new THREE.Vector3(),
+      camUp: new THREE.Vector3(),
+      camForward: new THREE.Vector3(),
+      major: new THREE.Vector3(),
+      minor: new THREE.Vector3(),
+    }),
     []
   );
 
@@ -44,12 +54,22 @@ const Moon: React.FC<MoonProps> = ({ label, color, emissive, orbitRadius, moonRa
       camRight.setFromMatrixColumn(state.camera.matrixWorld, 0);
       camUp.setFromMatrixColumn(state.camera.matrixWorld, 1);
       camForward.setFromMatrixColumn(state.camera.matrixWorld, 2);
+      // Screen-plane ring basis rotated by axisAngle: `major` is the ring's
+      // widest on-screen direction, `minor` the direction squashed by tilt.
+      major
+        .set(0, 0, 0)
+        .addScaledVector(camRight, Math.cos(axisAngle))
+        .addScaledVector(camUp, Math.sin(axisAngle));
+      minor
+        .set(0, 0, 0)
+        .addScaledVector(camRight, -Math.sin(axisAngle))
+        .addScaledVector(camUp, Math.cos(axisAngle));
       const c = Math.cos(angleRef.current);
       const s = Math.sin(angleRef.current);
       orbitRef.current.position
         .set(0, 0, 0)
-        .addScaledVector(camRight, c * orbitRadius)
-        .addScaledVector(camUp, s * Math.cos(tilt) * orbitRadius)
+        .addScaledVector(major, c * orbitRadius)
+        .addScaledVector(minor, s * Math.cos(tilt) * orbitRadius)
         .addScaledVector(camForward, s * Math.sin(tilt) * orbitRadius);
     }
   });
@@ -102,12 +122,19 @@ interface MoonsProps {
 }
 
 const Moons: React.FC<MoonsProps> = ({ cubeRadius }) => {
-  const moonRadius = cubeRadius * 0.22;
+  const moonRadius = cubeRadius * 0.14;
 
   // The nav label arc sits at 1.2x the cube's projected radius. With
   // camera-facing orbits the on-screen distance is orbitRadius (shrunk
-  // vertically by cos(tilt)), so 1.5x / 1.85x keeps both rings clearly
-  // outside the arc at every point of the orbit without flying off-screen.
+  // along the minor axis by cos(tilt)), so 1.5x / 1.85x keeps both rings
+  // clearly outside the arc at every point of the orbit without flying
+  // off-screen.
+  //
+  // The labels sit at 23°, 73°, 203° and 253° on screen (LABEL_CONFIG diag
+  // directions), i.e. two antipodal pairs. The bisectors of the gaps
+  // between them are the 48° and 138° lines, so each ring's axis takes one
+  // of those — evenly spaced between the labels, perpendicular to each
+  // other.
   return (
     <>
       <Moon
@@ -119,6 +146,7 @@ const Moons: React.FC<MoonsProps> = ({ cubeRadius }) => {
         speed={0.35}
         phase={0}
         tilt={0.35}
+        axisAngle={THREE.MathUtils.degToRad(48)}
       />
       <Moon
         label="REALITY CHECK"
@@ -129,6 +157,7 @@ const Moons: React.FC<MoonsProps> = ({ cubeRadius }) => {
         speed={-0.24}
         phase={Math.PI}
         tilt={-0.5}
+        axisAngle={THREE.MathUtils.degToRad(138)}
       />
     </>
   );
