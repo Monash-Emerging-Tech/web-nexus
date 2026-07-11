@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
@@ -13,35 +13,49 @@ interface MoonProps {
   moonRadius: number;
   speed: number;
   phase: number;
+  // Inclination (radians) of the orbit ring out of the screen plane — 0 is a
+  // flat on-screen circle; larger values swing the moon toward/away from the
+  // camera for depth. Keep |tilt| small enough that the projected ring stays
+  // outside the nav label arc (see Moons below).
   tilt: number;
 }
 
-// A single moon orbiting the cube on a tilted circular path. The tilt lives
-// on the outer group so the (x, z) position written every frame on the inner
-// group is expressed in the tilted local space, bending the flat circle into
-// an inclined orbit instead of just spinning the (symmetric) sphere.
+// A single moon circling the cube in a camera-facing plane: the orbit is
+// built every frame from the camera's right/up/forward basis vectors, so
+// from the viewer's perspective the moon traces a ring around the cube (at a
+// constant on-screen distance) instead of sweeping edge-on across its face.
+// The parent group carries no rotation and uniform scale, so world-space
+// camera directions are valid as local ones here.
 const Moon: React.FC<MoonProps> = ({ label, color, emissive, orbitRadius, moonRadius, speed, phase, tilt }) => {
   const angleRef = useRef(phase);
   const orbitRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
+  const { camRight, camUp, camForward } = useMemo(
+    () => ({ camRight: new THREE.Vector3(), camUp: new THREE.Vector3(), camForward: new THREE.Vector3() }),
+    []
+  );
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     // Hover freezes the orbit in place so the label has a stable anchor.
     if (!hovered) {
       angleRef.current += speed * delta;
     }
     if (orbitRef.current) {
-      orbitRef.current.position.set(
-        Math.cos(angleRef.current) * orbitRadius,
-        0,
-        Math.sin(angleRef.current) * orbitRadius
-      );
+      camRight.setFromMatrixColumn(state.camera.matrixWorld, 0);
+      camUp.setFromMatrixColumn(state.camera.matrixWorld, 1);
+      camForward.setFromMatrixColumn(state.camera.matrixWorld, 2);
+      const c = Math.cos(angleRef.current);
+      const s = Math.sin(angleRef.current);
+      orbitRef.current.position
+        .set(0, 0, 0)
+        .addScaledVector(camRight, c * orbitRadius)
+        .addScaledVector(camUp, s * Math.cos(tilt) * orbitRadius)
+        .addScaledVector(camForward, s * Math.sin(tilt) * orbitRadius);
     }
   });
 
   return (
-    <group rotation={[tilt, 0, 0]}>
-      <group ref={orbitRef}>
+    <group ref={orbitRef}>
         <mesh
           onPointerOver={(e) => {
             e.stopPropagation();
@@ -76,7 +90,6 @@ const Moon: React.FC<MoonProps> = ({ label, color, emissive, orbitRadius, moonRa
             </span>
           </Html>
         )}
-      </group>
     </group>
   );
 };
@@ -91,13 +104,17 @@ interface MoonsProps {
 const Moons: React.FC<MoonsProps> = ({ cubeRadius }) => {
   const moonRadius = cubeRadius * 0.22;
 
+  // The nav label arc sits at 1.2x the cube's projected radius. With
+  // camera-facing orbits the on-screen distance is orbitRadius (shrunk
+  // vertically by cos(tilt)), so 1.5x / 1.85x keeps both rings clearly
+  // outside the arc at every point of the orbit without flying off-screen.
   return (
     <>
       <Moon
         label="PODCAST"
         color="#0a0a0a"
         emissive="#151515"
-        orbitRadius={cubeRadius * 2.3}
+        orbitRadius={cubeRadius * 1.5}
         moonRadius={moonRadius}
         speed={0.35}
         phase={0}
@@ -107,11 +124,11 @@ const Moons: React.FC<MoonsProps> = ({ cubeRadius }) => {
         label="REALITY CHECK"
         color="#f5f5f5"
         emissive="#ffffff"
-        orbitRadius={cubeRadius * 2.9}
+        orbitRadius={cubeRadius * 1.85}
         moonRadius={moonRadius}
         speed={-0.24}
         phase={Math.PI}
-        tilt={-0.25}
+        tilt={-0.5}
       />
     </>
   );
