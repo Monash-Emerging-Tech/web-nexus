@@ -1,27 +1,21 @@
 "use server"
 
 import Hero, { UpcomingEvent } from "@/components/Hero";
-import Footer from "@/components/Footer";
-import FeaturedProjects from "@/components/home/FeaturedProjects";
-import { getPortfolios, getFeaturedPortfolios } from "@/lib/notion/portfolios";
+import { getPortfolios } from "@/lib/notion/portfolios";
 import { getLeads, getSeniorMembers, getActiveMembers } from "@/lib/notion/members";
-import { Portfolio } from "@/lib/notion/types";
 
 const Home = async () => {
   let flashbackUrls: string[] = [];
-  let projectData: Portfolio[] = [];
   let upcomingEvent: UpcomingEvent | null = null;
   try {
-    const [portfolios, leads, seniors, active, featured, upcoming] =
+    const [portfolios, leads, seniors, active, upcoming] =
       await Promise.all([
         getPortfolios(),
         getLeads(),
         getSeniorMembers(),
         getActiveMembers(),
-        getFeaturedPortfolios(),
         getPortfolios({ department: "Marketing", timeWindow: "upcoming", limit: 1 }),
       ]);
-    projectData = featured;
 
     const nextEvent = upcoming[0];
     if (nextEvent?.date?.start) {
@@ -53,10 +47,6 @@ const Home = async () => {
   return (
     <div className="relative overflow-x-hidden">
       <Hero flashbackUrls={flashbackUrls} upcomingEvent={upcomingEvent} />
-      <div className="bg-[url(/img/wireframe_1.png)] bg-[length:120%] bg-no-repeat bg-[position:-100px_50px] pb-16">
-        <FeaturedProjects data={projectData} />
-      </div>
-      <Footer />
     </div>
   );
 }

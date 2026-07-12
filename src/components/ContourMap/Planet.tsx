@@ -92,15 +92,16 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef, onCubeRadiusChange }) => {
       const ny = -Math.sin(mapAngle);
       const nz = Math.cos(mapAngle);
       
-      const targetScale = smoothstep(0.6, 1.0, scrollOffset);
+      const targetScale = smoothstep(0.48, 0.98, scrollOffset);
       
-      // Spring physics: stiffness = 250, damping = 10 (explosive/springy overshoot)
-      const stiffness = 250;
-      const damping = 10;
+      // Critically damped spring physics: no weird/explosive overshoot wiggles
+      // but still has a natural physical settle (zeta ≈ 1.0).
+      const stiffness = 180;
+      const damping = 27; // 2 * sqrt(180) ≈ 26.83
       const force = stiffness * (targetScale - springRef.current.scale) - damping * springRef.current.velocity;
       
       // Limit dt to avoid spikes
-      const dt = Math.min(delta, 0.1);
+      const dt = Math.min(delta, 0.05);
       springRef.current.velocity += force * dt;
       springRef.current.scale += springRef.current.velocity * dt;
 
@@ -136,7 +137,7 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef, onCubeRadiusChange }) => {
         const screenY = (-projected.y * 0.5 + 0.5) * size.height;
         const cubeScale = planetRef.current.scale.x;
 
-        if (cubeScale > 0.3) {
+        if (animatedScale > 0.55) {
           overlayRef.current.style.opacity = '1';
           overlayRef.current.style.visibility = 'visible';
           overlayRef.current.style.transform = `translate(${screenX}px, ${screenY}px)`;

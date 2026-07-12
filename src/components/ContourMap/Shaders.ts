@@ -80,9 +80,9 @@ export const fragmentShader = `
 
   void main() {
     float t = clamp(vElevation / 3.0, 0.0, 1.0);
-    // Blue-Red Gradient
-    vec3 colorLow = vec3(0.008, 0.051, 0.671);
-    vec3 colorHigh = vec3(0.82, 0.008, 0.224);
+    // Blue-Red Gradient matching memory flashback bubbles
+    vec3 colorLow = vec3(3.0 / 255.0, 12.0 / 255.0, 171.0 / 255.0); // #030CAB
+    vec3 colorHigh = vec3(220.0 / 255.0, 0.0 / 255.0, 59.0 / 255.0); // #DC003B
     vec3 lineColor = mix(colorLow, colorHigh, t);
     
     float frequency = uContourFrequency;

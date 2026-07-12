@@ -12,7 +12,7 @@ const OurWorkButton = () => {
     if (scroll && scroll.el) {
       scroll.el.scrollTo({
         top: scroll.el.scrollHeight,
-        behavior: "smooth",
+        behavior: "auto",
       });
     }
   };

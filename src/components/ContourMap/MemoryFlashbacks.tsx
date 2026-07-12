@@ -23,8 +23,8 @@ const PATH_DIR = new THREE.Vector3(0, NY, NZ); // unit length by construction
 const STIFFNESS = 2.2; // spring constant toward the anchor — heavy, slow wax
 const DAMPING = 1.1; // < critical (2*sqrt(k)≈3.0) → slow jelly overshoot
 const MAX_SPEED = 18; // world units/s, prevents tunneling
-const FLASH_INTERVAL = 1.0; // s between page flips while hovered
-const BURST_DURATION = 0.35; // s of glitch per flip
+const FLASH_INTERVAL = 0.5; // s between page flips while hovered
+const BURST_DURATION = 0.25; // s of glitch per flip
 
 interface BlobSim {
   pos: THREE.Vector3;
@@ -423,7 +423,7 @@ const FlashbackOrb: React.FC<FlashbackOrbProps> = ({
       uGlitch: { value: 0 },
       uPhase: { value: phase },
       uWobbleAmp: { value: wobbleAmp },
-      uRestPhoto: { value: 0.35 },
+      uRestPhoto: { value: 0.0 },
       uHasPhoto: { value: 1.0 },
       uInkColor: { value: new THREE.Color(MNET_BLOB_COLORS.ink) },
       uContourStrength: { value: 1.5 },
