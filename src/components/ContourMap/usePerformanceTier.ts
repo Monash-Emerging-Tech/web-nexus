@@ -24,6 +24,12 @@ export interface PerformanceConfig {
   enableEnvironment: boolean;
   /** Contour line frequency in the fragment shader */
   contourFrequency: number;
+  /** Number of memory flashback bubbles */
+  flashbackCount?: number;
+  /** Wobble amplitude for the memory flashback blobs */
+  blobWobbleAmp?: number;
+  /** Support for reduced motion preferences */
+  reducedMotion?: boolean;
 }
 
 const TIER_CONFIGS: Record<PerformanceTier, PerformanceConfig> = {
