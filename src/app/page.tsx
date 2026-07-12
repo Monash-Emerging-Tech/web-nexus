@@ -1,21 +1,16 @@
 "use server"
 
 import Hero, { UpcomingEvent } from "@/components/Hero";
-import Footer from "@/components/Footer";
-import FeaturedProjects from "@/components/home/FeaturedProjects";
-import { getPortfolios, getFeaturedPortfolios } from "@/lib/notion/portfolios";
-import { Portfolio } from "@/lib/notion/types";
+import { getPortfolios } from "@/lib/notion/portfolios";
 
 const Home = async () => {
-  let projectData: Portfolio[] = [];
   let upcomingEvent: UpcomingEvent | null = null;
   try {
-    const [featured, upcoming] = await Promise.all([
-      getFeaturedPortfolios(),
-      getPortfolios({ department: "Marketing", timeWindow: "upcoming", limit: 1 }),
-    ]);
-    projectData = featured;
-
+    const upcoming = await getPortfolios({
+      department: "Marketing",
+      timeWindow: "upcoming",
+      limit: 1,
+    });
     const nextEvent = upcoming[0];
     if (nextEvent?.date?.start) {
       upcomingEvent = {
@@ -28,13 +23,7 @@ const Home = async () => {
   }
 
   return (
-    <div className="relative overflow-x-hidden">
-      <Hero upcomingEvent={upcomingEvent} />
-      <div className="bg-[url(/img/wireframe_1.png)] bg-[length:120%] bg-no-repeat bg-[position:-100px_50px] pb-16">
-        <FeaturedProjects data={projectData} />
-      </div>
-      <Footer />
-    </div>
+    <Hero upcomingEvent={upcomingEvent} />
   );
 }
 

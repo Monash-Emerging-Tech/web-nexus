@@ -13,8 +13,9 @@ interface CameraHandlerProps {
 const CameraHandler: React.FC<CameraHandlerProps> = ({ perf }) => {
   const scroll = useScroll();
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     const scrollOffset = scroll.offset;
+    const dt = Math.min(delta, 0.05);
     
     // Warp Intensity: Start immediately, peak fast, fade out at the very end
     const warpIntensity = Math.sin(Math.pow(scrollOffset, 0.5) * Math.PI); 
@@ -23,11 +24,7 @@ const CameraHandler: React.FC<CameraHandlerProps> = ({ perf }) => {
     const targetFov = 40 + warpIntensity * 60; 
     const camera = state.camera as THREE.PerspectiveCamera;
     const prevFov = camera.fov;
-    camera.fov = THREE.MathUtils.lerp(
-      prevFov, 
-      targetFov, 
-      0.15
-    );
+    camera.fov = THREE.MathUtils.damp(prevFov, targetFov, 6, dt);
     if (Math.abs(camera.fov - prevFov) > 0.01) {
       camera.updateProjectionMatrix();
     }
@@ -45,13 +42,17 @@ const CameraHandler: React.FC<CameraHandlerProps> = ({ perf }) => {
     const targetCamY = ny * distance - 5; // offset to stay centered
     const targetCamZ = nz * distance;
     
-    // Camera shake — skip entirely on low-end devices
+    // Coherent shake during the early warp only. The previous per-frame
+    // random offsets made the arriving cube visibly judder even when its own
+    // transform was smooth.
     let shakeX = 0, shakeY = 0, shakeZ = 0;
     if (perf.cameraShake) {
-      const shake = warpIntensity * 0.2;
-      shakeX = (Math.random() - 0.5) * shake;
-      shakeY = (Math.random() - 0.5) * shake;
-      shakeZ = (Math.random() - 0.5) * shake;
+      const cubeApproachFade = 1 - THREE.MathUtils.smoothstep(scrollOffset, 0.34, 0.68);
+      const shake = warpIntensity * cubeApproachFade * 0.1;
+      const time = state.clock.elapsedTime;
+      shakeX = Math.sin(time * 7.1) * shake * 0.55;
+      shakeY = Math.sin(time * 5.3 + 1.2) * shake * 0.4;
+      shakeZ = Math.sin(time * 6.2 + 2.4) * shake * 0.3;
     }
     
     state.camera.position.set(targetCamX + shakeX, targetCamY + shakeY, targetCamZ + shakeZ);

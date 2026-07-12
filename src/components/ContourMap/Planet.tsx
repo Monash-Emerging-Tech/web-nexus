@@ -1,24 +1,28 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { useScroll } from "@react-three/drei";
+import { useGLTF, useScroll } from "@react-three/drei";
 import * as THREE from "three";
 import MnetCube from "../MnetCube";
-import type { CubeState } from "./NavBubbles";
+import OrbitingArtifacts from "./OrbitingArtifacts";
+import {
+  CUBE_IDLE_SPIN,
+  CUBE_SPIN_AXIS,
+  CUBE_SPIN_DURATION,
+  createCubeRevealState,
+  cubeSpinEase,
+} from "../cubeMotion";
 
 interface PlanetProps {
-  cubeStateRef: React.MutableRefObject<CubeState>;
+  overlayRef: React.RefObject<HTMLDivElement | null>;
+  onCubeRadiusChange?: (radiusPx: number) => void;
   reducedMotion?: boolean;
 }
 
-// Idle autospin rates (rad/s) — drag momentum decays back TO these rates, so
-// letting go of a flick blends seamlessly into the autospin (feel inspired by
-// the AI Hardware Squeeze tower's OrbitControls damping).
-const BASE_ROT_Y = 0.3;
-const BASE_ROT_X = 0.18;
 const DRAG_RAD_PER_PX = 0.008;
 const MAX_SPIN = 6; // rad/s flick cap
+const _introSpinQuaternion = new THREE.Quaternion();
 
 const setGrabCursor = (state: "grab" | "grabbing" | "default") => {
   window.dispatchEvent(new CustomEvent("mnet:cursor", { detail: state }));
@@ -26,13 +30,21 @@ const setGrabCursor = (state: "grab" | "grabbing" | "default") => {
   document.body.style.cursor = state === "default" ? "" : state;
 };
 
-const Planet: React.FC<PlanetProps> = ({ cubeStateRef, reducedMotion = false }) => {
+const Planet: React.FC<PlanetProps> = ({ overlayRef, onCubeRadiusChange, reducedMotion = false }) => {
   const planetRef = useRef<THREE.Group>(null);
+  const spinRef = useRef<THREE.Group>(null);
   const scroll = useScroll();
   const { size } = useThree();
-  const springRef = useRef({ scale: 0, velocity: 0 });
-  // Cube bounding radius in group-local units, measured once from the glb.
-  const localRadiusRef = useRef(0);
+  const scaleRef = useRef(0);
+  const revealRef = useRef(createCubeRevealState());
+  const labelsShownRef = useRef(false);
+  const lastReportedRadiusRef = useRef(-1);
+  const { scene: cubeScene } = useGLTF("/assets/mnetcube.glb");
+  const cubeLocalRadius = useMemo(() => {
+    return new THREE.Box3()
+      .setFromObject(cubeScene)
+      .getBoundingSphere(new THREE.Sphere()).radius;
+  }, [cubeScene]);
   const dragRef = useRef({
     dragging: false,
     touch: false,
@@ -42,8 +54,8 @@ const Planet: React.FC<PlanetProps> = ({ cubeStateRef, reducedMotion = false }) 
     lastT: 0,
     pendingYaw: 0,
     pendingPitch: 0,
-    vx: BASE_ROT_X,
-    vy: BASE_ROT_Y,
+    vx: 0,
+    vy: 0,
     hovered: false,
   });
 
@@ -111,49 +123,84 @@ const Planet: React.FC<PlanetProps> = ({ cubeStateRef, reducedMotion = false }) 
       const ny = -Math.sin(mapAngle);
       const nz = Math.cos(mapAngle);
 
-      const targetScale = smoothstep(0.6, 1.0, scrollOffset);
+      // Begin the arrival earlier and ease it across the final section with
+      // frame-rate-independent damping instead of a snapping scale change.
+      const targetScale = smoothstep(0.48, 0.98, scrollOffset);
 
-      // Spring physics: stiffness = 250, damping = 10 (explosive/springy overshoot)
-      const stiffness = 250;
-      const damping = 10;
-      const force = stiffness * (targetScale - springRef.current.scale) - damping * springRef.current.velocity;
-
-      // Limit dt to avoid spikes
-      const dt = Math.min(delta, 0.1);
-      springRef.current.velocity += force * dt;
-      springRef.current.scale += springRef.current.velocity * dt;
-
-      // Clamp scale to 0 to avoid negative scale and bounce back
-      if (springRef.current.scale < 0) {
-        springRef.current.scale = 0;
-        springRef.current.velocity = 0;
-      }
+      const dt = Math.min(delta, 0.05);
+      scaleRef.current = THREE.MathUtils.damp(
+        scaleRef.current,
+        targetScale,
+        reducedMotion ? 8 : 3.6,
+        dt,
+      );
 
       const isMobile = size.width < 768;
       const baseScale = isMobile ? 1.3 : 3.4;
-      const animatedScale = springRef.current.scale;
+      const animatedScale = scaleRef.current;
       planetRef.current.scale.setScalar(animatedScale * baseScale);
       planetRef.current.visible = animatedScale > 0.001;
 
       planetRef.current.position.y = ny * 80 * animatedScale;
       planetRef.current.position.z = nz * 80 * animatedScale;
 
-      // ---- spin: drag follows the pointer; release keeps the flick's
-      // momentum and decays back into the idle autospin ---------------------
+      // ---- one complete intro spin, then user-controlled movement only ----
       const d = dragRef.current;
-      if (d.dragging) {
-        planetRef.current.rotation.y += d.pendingYaw;
-        planetRef.current.rotation.x += d.pendingPitch;
+      const reveal = revealRef.current;
+      const spin = spinRef.current;
+
+      if (animatedScale <= 0.02) {
+        reveal.phase = "waiting";
+        reveal.elapsed = 0;
+        spin?.quaternion.identity();
+      } else if (reveal.phase === "waiting" && spin) {
         d.pendingYaw = 0;
         d.pendingPitch = 0;
-      } else {
+        d.vx = 0;
+        d.vy = 0;
+        if (reducedMotion) {
+          reveal.phase = "idle";
+        } else {
+          reveal.phase = "spin";
+          reveal.elapsed = 0;
+          reveal.spinFrom.copy(spin.quaternion);
+        }
+      }
+
+      if (spin && reveal.phase === "spin") {
+        reveal.elapsed += dt;
+        const progress = Math.min(reveal.elapsed / CUBE_SPIN_DURATION, 1);
+        _introSpinQuaternion.setFromAxisAngle(
+          CUBE_SPIN_AXIS,
+          cubeSpinEase(progress) * Math.PI * 2,
+        );
+        spin.quaternion
+          .copy(reveal.spinFrom)
+          .multiply(_introSpinQuaternion);
+        if (progress >= 1) {
+          reveal.phase = "idle";
+          reveal.elapsed = 0;
+        }
+      } else if (reveal.phase === "idle" && d.dragging) {
+        if (spin) {
+          spin.rotateY(d.pendingYaw);
+          spin.rotateX(d.pendingPitch);
+        }
+        d.pendingYaw = 0;
+        d.pendingPitch = 0;
+      } else if (reveal.phase === "idle") {
         d.vx = THREE.MathUtils.clamp(d.vx, -MAX_SPIN, MAX_SPIN);
         d.vy = THREE.MathUtils.clamp(d.vy, -MAX_SPIN, MAX_SPIN);
-        planetRef.current.rotation.y += d.vy * dt;
-        planetRef.current.rotation.x += d.vx * dt;
+        // Constant slow turntable spin as the resting state; any drag-flick
+        // momentum (d.vy/d.vx) rides on top and decays back onto it.
+        const baseSpin = reducedMotion ? 0 : CUBE_IDLE_SPIN;
+        if (spin) {
+          spin.rotateY(baseSpin * dt + d.vy * dt);
+          spin.rotateX(d.vx * dt);
+        }
         const decay = Math.exp(-dt * (reducedMotion ? 10.8 : 1.8));
-        d.vy = BASE_ROT_Y + (d.vy - BASE_ROT_Y) * decay;
-        d.vx = BASE_ROT_X + (d.vx - BASE_ROT_X) * decay;
+        d.vy *= decay;
+        d.vx *= decay;
       }
 
       if (window.updateStarfield) {
@@ -164,20 +211,58 @@ const Planet: React.FC<PlanetProps> = ({ cubeStateRef, reducedMotion = false }) 
         window.updateStarfield(animatedScale * 0.35, zoom);
       }
 
-      // ---- cube telemetry for the nav bubbles ------------------------------
-      // Measure the glb's local bounding radius once it has real size.
-      const groupScale = planetRef.current.scale.x;
-      if (localRadiusRef.current === 0 && groupScale > 0.05) {
-        const box = new THREE.Box3().setFromObject(planetRef.current);
-        if (!box.isEmpty()) {
-          const sphere = box.getBoundingSphere(new THREE.Sphere());
-          if (sphere.radius > 0) {
-            localRadiusRef.current = sphere.radius / groupScale;
+      // Moon-branch composition: project the cube centre and radius into
+      // screen space so its HTML/SVG navigation remains locked to the model.
+      const overlay = overlayRef.current;
+      if (overlay) {
+        const worldPos = state.camera.userData.cubeWorldPos ||
+          (state.camera.userData.cubeWorldPos = new THREE.Vector3());
+        const projected = state.camera.userData.cubeProjected ||
+          (state.camera.userData.cubeProjected = new THREE.Vector3());
+        planetRef.current.getWorldPosition(worldPos);
+        projected.copy(worldPos).project(state.camera);
+        const screenX = (projected.x * 0.5 + 0.5) * size.width;
+        const screenY = (-projected.y * 0.5 + 0.5) * size.height;
+
+        if (animatedScale > 0.3 && reveal.phase === "idle") {
+          overlay.style.opacity = "1";
+          overlay.style.visibility = "visible";
+          overlay.style.transform = `translate(${screenX}px, ${screenY}px)`;
+
+          if (!labelsShownRef.current) {
+            labelsShownRef.current = true;
+            window.dispatchEvent(new CustomEvent("mnet:cube-labels-shown"));
+          }
+
+          if (onCubeRadiusChange) {
+            const right = state.camera.userData.cubeRight ||
+              (state.camera.userData.cubeRight = new THREE.Vector3());
+            const edge = state.camera.userData.cubeEdge ||
+              (state.camera.userData.cubeEdge = new THREE.Vector3());
+            right.setFromMatrixColumn(state.camera.matrixWorld, 0);
+            edge.copy(worldPos).addScaledVector(
+              right,
+              cubeLocalRadius * planetRef.current.scale.x,
+            ).project(state.camera);
+            const edgeX = (edge.x * 0.5 + 0.5) * size.width;
+            const edgeY = (-edge.y * 0.5 + 0.5) * size.height;
+            const radius = Math.round(
+              Math.hypot(edgeX - screenX, edgeY - screenY) * 2,
+            ) / 2;
+            if (radius !== lastReportedRadiusRef.current) {
+              lastReportedRadiusRef.current = radius;
+              onCubeRadiusChange(radius);
+            }
+          }
+        } else {
+          overlay.style.opacity = "0";
+          overlay.style.visibility = "hidden";
+          if (labelsShownRef.current) {
+            labelsShownRef.current = false;
+            window.dispatchEvent(new CustomEvent("mnet:cube-labels-hidden"));
           }
         }
       }
-      cubeStateRef.current.scale = animatedScale;
-      cubeStateRef.current.worldRadius = localRadiusRef.current * groupScale;
     }
   });
 
@@ -192,7 +277,7 @@ const Planet: React.FC<PlanetProps> = ({ cubeStateRef, reducedMotion = false }) 
       position={[0, 8, 0]}
       scale={[0, 0, 0]}
       onPointerOver={(e) => {
-        if (springRef.current.scale < 0.3) return;
+        if (scaleRef.current < 0.3 || revealRef.current.phase !== "idle") return;
         e.stopPropagation();
         dragRef.current.hovered = true;
         if (!dragRef.current.dragging) setGrabCursor("grab");
@@ -202,7 +287,7 @@ const Planet: React.FC<PlanetProps> = ({ cubeStateRef, reducedMotion = false }) 
         if (!dragRef.current.dragging) setGrabCursor("default");
       }}
       onPointerDown={(e) => {
-        if (springRef.current.scale < 0.3) return;
+        if (scaleRef.current < 0.3 || revealRef.current.phase !== "idle") return;
         e.stopPropagation();
         const d = dragRef.current;
         d.dragging = true;
@@ -216,9 +301,12 @@ const Planet: React.FC<PlanetProps> = ({ cubeStateRef, reducedMotion = false }) 
         setGrabCursor("grabbing");
       }}
     >
-      <MnetCube />
-      <pointLight intensity={500} distance={50} color="#ffffff" />
-      <pointLight position={[2, 2, 2]} intensity={200} color="#0033ff" />
+      <group ref={spinRef}>
+        <MnetCube />
+        <pointLight intensity={500} distance={50} color="#ffffff" />
+        <pointLight position={[2, 2, 2]} intensity={200} color="#0033ff" />
+      </group>
+      <OrbitingArtifacts cubeRadius={cubeLocalRadius} />
     </group>
   );
 };

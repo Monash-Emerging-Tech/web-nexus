@@ -1,41 +1,75 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useCallback, useRef, useState, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { ScrollControls, Scroll, Environment } from "@react-three/drei";
-import { useRouter } from "next/navigation";
 import Experience from "./Experience";
 import Overlay from "./Overlay";
 import ScrollProgressBridge from "./ScrollProgressBridge";
+import { LABEL_CONFIG } from "./Labels";
 import usePerformanceTier from "./usePerformanceTier";
-import { Starfield } from "../Starfield";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface ContourMapProps {
   children?: React.ReactNode;
 }
 
+const NAV_ROUTES: Record<string, string> = {
+  "ABOUT US": "/about-us",
+  "OUTREACH": "/outreach",
+  "PORTFOLIO": "/portfolios",
+  "COLLABORATORS": "/collaborators",
+};
+
 const ContourMap: React.FC<ContourMapProps> = ({ children }) => {
+  const overlayRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
-  // Set the instant a nav bubble (or any link leaving "/") is clicked, before
-  // router.push. Freezes the R3F render loop immediately so the WebGL scene's
-  // teardown doesn't run concurrently with (and block) the route transition.
+  const [isMobile, setIsMobile] = useState(false);
+  // Set the instant a nav label is clicked, before router.push. Freezes the
+  // R3F render loop immediately so the WebGL scene's teardown doesn't run
+  // concurrently with (and block) the route transition.
   const [leaving, setLeaving] = useState(false);
   const perf = usePerformanceTier();
   const router = useRouter();
+  // Cube's live apparent on-screen radius (px), reported by Planet every
+  // frame it changes. Drives the nav arc radius so it always tracks the
+  // cube's actual projected size instead of a guessed constant.
+  const [cubeRadius, setCubeRadius] = useState(160);
+  const artifactTooltipRef = useRef<HTMLDivElement>(null);
 
-  // Navigation triggered from inside the WebGL scene (lava-blob and nav-bubble
-  // clicks). Freeze the render loop first so teardown doesn't compete with
-  // the route transition.
-  const handleSceneNavigate = useCallback(
-    (route: string) => {
-      setLeaving(true);
-      router.push(route);
-    },
-    [router]
-  );
+  const handleSceneNavigate = useCallback((route: string) => {
+    setLeaving(true);
+    router.push(route);
+  }, [router]);
+
+  useEffect(() => {
+    const handleArtifactHover = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      const el = artifactTooltipRef.current;
+      if (!el) return;
+      if (detail.visible) {
+        el.style.display = "block";
+        el.style.left = `${detail.x}px`;
+        el.style.top = `${detail.y}px`;
+        const textEl = el.firstElementChild as HTMLElement;
+        if (textEl) textEl.textContent = detail.label;
+      } else {
+        el.style.display = "none";
+      }
+    };
+    window.addEventListener("mnet:artifact-hover", handleArtifactHover);
+    return () => window.removeEventListener("mnet:artifact-hover", handleArtifactHover);
+  }, []);
 
   useEffect(() => {
     setMounted(true);
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   // ContourMap only ever mounts on the home page, so any click on a link
@@ -72,7 +106,6 @@ const ContourMap: React.FC<ContourMapProps> = ({ children }) => {
 
   return (
     <div className="contour-scene w-full h-full overflow-hidden bg-black relative">
-      <Starfield perf={perf} />
       <Canvas
         camera={{ position: [0, 5, 15], fov: 40 }}
         gl={{ antialias: perf.antialias }}
@@ -88,14 +121,210 @@ const ContourMap: React.FC<ContourMapProps> = ({ children }) => {
 
         <ScrollControls pages={4} damping={perf.scrollDamping} style={{ scrollbarWidth: "none" }}>
           <ScrollProgressBridge />
-          <Experience perf={perf} onNavigate={handleSceneNavigate} />
+          <Experience
+            overlayRef={overlayRef}
+            perf={perf}
+            onNavigate={handleSceneNavigate}
+            onCubeRadiusChange={setCubeRadius}
+          />
           {children && (
-            <Scroll html style={{ width: '100%', height: '100%' }}>
+            <Scroll html style={{ width: '100%', height: '100%', pointerEvents: 'none' }}>
               <Overlay>{children}</Overlay>
             </Scroll>
           )}
         </ScrollControls>
       </Canvas>
+
+      {/* 2D Anatomical Labels — rendered outside Canvas, positioned via projected coords */}
+      <div
+        ref={overlayRef}
+        className="absolute top-0 left-0 pointer-events-none"
+        style={{ opacity: 0, visibility: 'hidden', transition: 'opacity 0.4s, visibility 0.4s' }}
+      >
+        {LABEL_CONFIG.map((label) => {
+          let diagX = label.diag[0];
+          let diagY = label.diag[1];
+          let shelf = label.shelf;
+
+          if (isMobile) {
+            // Push labels higher/lower and compress horizontal distance (smaller diagX) to prevent cutoffs
+            if (label.text === "ABOUT US") {
+              diagX = 30;
+              diagY = -320;
+            } else if (label.text === "PORTFOLIO") {
+              diagX = 55;
+              diagY = -190;
+            } else if (label.text === "OUTREACH") {
+              diagX = -55;
+              diagY = 320;
+            } else if (label.text === "COLLABORATORS") {
+              diagX = -30;
+              diagY = 190;
+            }
+            diagX *= 0.65;
+            diagY *= 0.65;
+            shelf *= 0.45; // Shorter shelf to prevent spilling off-screen
+          }
+
+          // LABEL_CONFIG's diag/shelf pixel values were designed around the
+          // default 160px cube radius. Scale them with the cube's live
+          // projected radius so the whole assembly (arc, leader lines, text
+          // anchors) sits proportionally 20% outside the cube at every
+          // moment — including mid-spring, since cubeRadius updates every
+          // frame the cube is animating.
+          // On narrow screens the cube is intentionally smaller, but the
+          // navigation still needs a minimum readable spread around it.
+          const k = isMobile ? Math.max(cubeRadius / 160, 0.75) : cubeRadius / 160;
+          diagX *= k;
+          diagY *= k;
+          shelf *= k;
+
+          const isRight = shelf > 0;
+          const endX = diagX + shelf;
+          const endY = diagY;
+
+          return (
+            <div
+              key={label.text}
+              style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+              }}
+            >
+              {(() => {
+                const dx = diagX;
+                const dy = diagY;
+                const theta = Math.atan2(dy, dx);
+
+                // Radius of imaginary circle around the cube — always 20%
+                // bigger than the cube's actual live on-screen radius, so
+                // the arc stays locked to the cube as it scales/rotates.
+                const R = cubeRadius * 1.2;
+
+                // Arc span in radians (approx 15 degrees total)
+                const deltaTheta = 0.13;
+                const theta1 = theta - deltaTheta;
+                const theta2 = theta + deltaTheta;
+
+                // Arc start and end coordinates
+                const xArc1 = R * Math.cos(theta1);
+                const yArc1 = R * Math.sin(theta1);
+                const xArc2 = R * Math.cos(theta2);
+                const yArc2 = R * Math.sin(theta2);
+
+                // Diagonal leader line starts from the center of the arc
+                const xStart = R * Math.cos(theta);
+                const yStart = R * Math.sin(theta);
+
+                return (
+                  <svg style={{
+                    position: 'absolute', left: 0, top: 0,
+                    overflow: 'visible', width: 1, height: 1,
+                    pointerEvents: 'none',
+                  }}>
+                    {/* The circular arc segment */}
+                    <path
+                      d={`M ${xArc1},${yArc1} A ${R},${R} 0 0,1 ${xArc2},${yArc2}`}
+                      fill="none"
+                      stroke="rgba(255,255,255,0.7)"
+                      strokeWidth={isMobile ? 1.25 : 2}
+                    />
+                    {/* Leader Line starting from the arc */}
+                    <polyline
+                      points={`${xStart},${yStart} ${dx},${dy} ${endX},${endY}`}
+                      fill="none"
+                      stroke="rgba(255,255,255,0.7)"
+                      strokeWidth={isMobile ? 1.25 : 2}
+                    />
+                    {/* Horizontal tick marker */}
+                    <line
+                      x1={endX} y1={endY - (isMobile ? 3 : 6)}
+                      x2={endX} y2={endY + (isMobile ? 3 : 6)}
+                      stroke="rgba(255,255,255,0.7)"
+                      strokeWidth={isMobile ? 1.25 : 2}
+                    />
+                  </svg>
+                );
+              })()}
+
+              {/* Outer wrapper to handle absolute positioning and layout translation */}
+              <div
+                style={{
+                  position: 'absolute',
+                  left: isRight ? endX + (isMobile ? 6 : 14) : endX - (isMobile ? 6 : 14),
+                  top: endY - (isMobile ? 7 : 11),
+                  transform: isRight ? 'none' : 'translateX(-100%)',
+                  pointerEvents: 'none',
+                }}
+              >
+                {/* Interactive Link that CustomCursor targets */}
+                <Link
+                  href={NAV_ROUTES[label.text.toUpperCase()] ?? "/"}
+                  data-ccursor
+                  className="cube-label cube-label-box"
+                  style={{
+                    whiteSpace: 'nowrap',
+                    fontFamily: 'var(--font-offbit-dot, monospace)',
+                    fontSize: isMobile ? 12 : 18,
+                    fontWeight: 700,
+                    letterSpacing: '0.2em',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    pointerEvents: 'auto',
+                    color: 'inherit',
+                    textDecoration: 'none',
+                    // DVP "dossier" boxed callout — border, flat faint fill and
+                    // corner ticks — but lightly rounded (0.375rem) to match the
+                    // navbar MENU button.
+                    display: 'inline-block',
+                    padding: isMobile ? '3px 7px' : '5px 12px',
+                    border: `${isMobile ? 1.5 : 2}px solid rgba(255,255,255,0.85)`,
+                    borderRadius: '0.375rem',
+                    background: 'rgba(10,10,14,0.55)',
+                  }}
+                  onClick={() => setLeaving(true)}
+                >
+                  <span className="cube-label-text">{label.text}</span>
+                </Link>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div
+        ref={artifactTooltipRef}
+        className="pointer-events-none"
+        style={{
+          position: "absolute",
+          left: 0,
+          top: 0,
+          transform: "translate(-50%, -50%)",
+          zIndex: 1000,
+          display: "none",
+        }}
+      >
+        <div
+          className="glitch-soft"
+          style={{
+            fontFamily: "var(--font-offbit-dot, monospace)",
+            fontSize: 12,
+            fontWeight: 700,
+            letterSpacing: "0.25em",
+            color: "#ffffff",
+            backgroundColor: "rgba(0, 0, 0, 0.75)",
+            backdropFilter: "blur(4px)",
+            WebkitBackdropFilter: "blur(4px)",
+            border: "1px solid rgba(255, 255, 255, 0.15)",
+            padding: "6px 12px",
+            borderRadius: "4px",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1)",
+            whiteSpace: "nowrap",
+            textAlign: "center",
+          }}
+        />
+      </div>
     </div>
   );
 };

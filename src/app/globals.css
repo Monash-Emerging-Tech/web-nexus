@@ -84,36 +84,16 @@ Codepen for the effect: https://codepen.io/jh3y/pen/jOXgxaj
     position: fixed;
     left: 0;
     right: 0;
-    /* Liquid glass: barely-there dark tint, heavy blur + saturation so the
-       colourful scene behind bleeds through, a bright top-edge sheen and a
-       soft drop shadow to lift the pane off the page. */
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid #2c2c2d;
     border-radius: 1rem;
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.08) 0%,
-      rgba(10, 10, 14, 0.22) 100%
-    );
-    -webkit-backdrop-filter: blur(22px) saturate(180%);
-    backdrop-filter: blur(22px) saturate(180%);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35),
-      inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    background-color: rgba(0, 0, 0, 0.5);
+    -webkit-backdrop-filter: blur(12px) saturate(140%);
+    backdrop-filter: blur(12px) saturate(140%);
     transition: all 1s cubic-bezier(0, -0.03, 0, 1);
   }
 
-  /* Soft white halo behind just the logo + MNET wordmark so the 3D cube reads
-     against the dark glass and the mark pops. The container background paints
-     behind its children, so the transparent cube canvas shows the glow. */
   .nav-logo-glow {
-    background: radial-gradient(
-      75% 130% at 22% 50%,
-      rgba(255, 255, 255, 0.16),
-      rgba(255, 255, 255, 0.05) 55%,
-      transparent 78%
-    );
-    border-radius: 12px;
-    padding-left: 4px;
-    padding-right: 14px;
+    background: transparent;
   }
 
   /* While the loading screen is up the navbar waits above the viewport;
@@ -139,19 +119,10 @@ Codepen for the effect: https://codepen.io/jh3y/pen/jOXgxaj
   .navbar.scrolled {
     margin: 0;
     border-radius: 0;
-    border-color: rgba(255, 255, 255, 0.08);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+    backdrop-filter: blur(10px) saturate(140%);
     height: 84px;
-    /* Still glassy when docked, just a touch denser for legibility over
-       whatever content scrolls beneath it. */
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.06) 0%,
-      rgba(10, 10, 14, 0.45) 100%
-    );
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4),
-      inset 0 1px 0 rgba(255, 255, 255, 0.16);
+    background-color: rgba(0, 0, 0, 0.9);
     padding: 12px 32px;
   }
 
@@ -201,6 +172,33 @@ Codepen for the effect: https://codepen.io/jh3y/pen/jOXgxaj
 
 .cube-label:hover .cube-label-text {
   animation: soft-glitch 0.3s steps(2, end) 1;
+}
+
+/* DVP "dossier" boxed callout: outward L-shaped corner ticks on the nav-label
+   boxes (top-left + bottom-right), crisp and square — the brutalist accent
+   from the data-vis project. */
+.cube-label-box {
+  position: relative;
+}
+.cube-label-box::before,
+.cube-label-box::after {
+  content: "";
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-color: rgba(255, 255, 255, 0.9);
+  border-style: solid;
+  pointer-events: none;
+}
+.cube-label-box::before {
+  top: -3px;
+  left: -3px;
+  border-width: 2px 0 0 2px;
+}
+.cube-label-box::after {
+  right: -3px;
+  bottom: -3px;
+  border-width: 0 2px 2px 0;
 }
 
 /* Hide native scrollbars (legacy-site port) — the ScrollIndicator pill is the
