@@ -115,10 +115,17 @@ export function Navbar() {
         />
 
       <nav id="mainNavbar" className={`navbar ${scrolled ? "scrolled" : ""}`} aria-label="Primary">
-        <div className="my-auto ml-0 flex h-8 flex-row md:h-auto">
-          <Image src="/img/logo.png" alt="MNET logo" width={32} height={32} className="m-auto mr-4 h-8 w-auto" />
+        <div className="nav-logo-glow my-auto ml-0 flex h-8 flex-row items-center md:h-auto">
+          <Image
+            src="/img/logo.png"
+            alt="MNET logo"
+            width={163}
+            height={168}
+            priority
+            className="m-auto mr-4 h-8 w-auto shrink-0 object-contain md:h-12"
+          />
           <Link href="/" data-ccursor id="left" className="rounded-sm p-0.5">
-            <h1 className="font-offbit-bold m-auto translate-y-0.5 text-left text-lg tracking-widest text-white md:mb-4 md:text-3xl">
+            <h1 className="font-offbit font-bold m-auto translate-y-0.5 text-left text-lg tracking-widest text-white md:mb-4 md:text-3xl">
               MNET
             </h1>
             <h2 className="font-offbit-dot m-auto -mt-4 hidden text-left tracking-wide text-white uppercase md:block">

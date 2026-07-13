@@ -92,6 +92,10 @@ Codepen for the effect: https://codepen.io/jh3y/pen/jOXgxaj
     transition: all 1s cubic-bezier(0, -0.03, 0, 1);
   }
 
+  .nav-logo-glow {
+    background: transparent;
+  }
+
   /* While the loading screen is up the navbar waits above the viewport;
      Loader.tsx removing .mnet-preload lets the 1s transition drop it in. */
   html.mnet-preload .navbar {
