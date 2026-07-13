@@ -340,7 +340,7 @@ const lavaBlobFragmentShader = /* glsl */ `
     vec3 contourLineColor = mix(uColorA, uColorB, clamp(elevation / 3.0, 0.0, 1.0));
     col += contourLineColor * (cLine + cGlow)
          * uContourStrength * (1.0 + 0.5 * uGlowStrength)
-         * (1.0 - photoAmt * 0.85) * mix(0.35, 1.0, z);
+         * (1.0 - photoAmt * 0.7) * mix(0.7, 1.0, z);
 
     float outline = 1.0 - smoothstep(0.0, edgeW * 3.0, abs(d));
     col += contourLineColor * outline * (0.9 + 0.5 * uHover);
@@ -426,7 +426,7 @@ const FlashbackOrb: React.FC<FlashbackOrbProps> = ({
       uRestPhoto: { value: 0.0 },
       uHasPhoto: { value: 1.0 },
       uInkColor: { value: new THREE.Color(MNET_BLOB_COLORS.ink) },
-      uContourStrength: { value: 1.5 },
+      uContourStrength: { value: 3.5 },
       uRimStrength: { value: 0.15 },
       uGlowStrength: { value: 0.0 },
       uDeform: { value: new THREE.Vector3(1, 1, 0) },
@@ -554,6 +554,11 @@ const FlashbackOrb: React.FC<FlashbackOrbProps> = ({
     mat.uniforms.uOpacity.value = THREE.MathUtils.lerp(
       mat.uniforms.uOpacity.value,
       opacity,
+      0.15
+    );
+    mat.uniforms.uGlowStrength.value = THREE.MathUtils.lerp(
+      mat.uniforms.uGlowStrength.value,
+      hovered ? 1.0 : 0.0,
       0.15
     );
     (mat.uniforms.uDeform.value as THREE.Vector3).copy(sim.deform);
