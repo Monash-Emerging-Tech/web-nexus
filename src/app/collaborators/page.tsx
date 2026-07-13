@@ -31,7 +31,7 @@ const mainPartners: ImageCard[] = [
       <>
         The Embodied Visualisation group in the Faculty of IT is MNET&apos;s closest research
         partner. Their Immersive Analytics Lab is our gateway to immersive visualisation
-        research, and the group is led by Dr Tim Dwyer — our Academic Advisor.
+        research, and the group is led by Dr Tim Dwyer - our Academic Advisor.
       </>
     )
   },
@@ -60,7 +60,7 @@ const supportNetwork: ImageCard[] = [
     website: "https://maps.monash.edu/#v=1&zlevel=1&center=145.135015,-37.90986&zoom=19.74&campusid=159&sharepoitype=poi&sharepoi=1155405",
     description: (
       <>
-        MNET&apos;s home at Monash — a central hub supporting digitally focused student teams
+        MNET&apos;s home at Monash - a central hub supporting digitally focused student teams
         from the faculties of Engineering and Information Technology.
       </>
     )
@@ -87,29 +87,6 @@ const supportNetwork: ImageCard[] = [
       </>
     )
   },
-  {
-    name: "Design and Build Studio",
-    image: "/img/facilities/design-build-studio.png",
-    accent: "#F5A623",
-    description: (
-      <>
-        The Design and Build Studios offer support for Engineering undergraduate teaching,
-        faculty research and Monash Companies on Campus.
-      </>
-    )
-  },
-  {
-    name: "Smart Manufacturing Hub",
-    image: "/img/facilities/smart-manufacturing-hub.png",
-    accent: "#EC4899",
-    website: "https://maps.monash.edu/#v=1&zlevel=1&center=145.134272,-37.909748&zoom=19.5&campusid=159&sharepoitype=poi&sharepoi=1000829064",
-    description: (
-      <>
-        Monash Smart Manufacturing (MSM) offers an end to end digitally connected, collaborative
-        manufacturing system that responds to its environment and monitored processes in real-time.
-      </>
-    )
-  }
 ];
 
 // 3. Student teams, clubs and groups we've shipped work with.
@@ -129,9 +106,8 @@ const pastPartners: { name: string; work: string }[] = [
 function ImageCardGrid({ items, columns = 3 }: { items: ImageCard[]; columns?: 2 | 3 }) {
   return (
     <div
-      className={`grid grid-cols-1 gap-8 md:gap-12 ${
-        columns === 2 ? "md:grid-cols-2" : "md:grid-cols-3 lg:grid-cols-4"
-      }`}
+      className={`grid grid-cols-1 gap-8 md:gap-12 ${columns === 2 ? "md:grid-cols-2" : "md:grid-cols-3 lg:grid-cols-4"
+        }`}
     >
       {items.map((item) => {
         const Wrapper = item.website ? "a" : "div";
@@ -181,7 +157,7 @@ export default async function CollaboratorsPage() {
           Collaborations
         </h1>
         <p className="text-white/60 font-offbit font-bold text-lg md:text-2xl max-w-3xl leading-relaxed">
-          Collaboration is a core value at MNET. We believe the best immersive technology comes from academia, industry, and student innovation meeting in the same room — so we partner with university labs, research groups, and industry teams to give our members real facilities, mentorship, and the chance to build technology that reaches beyond the classroom.
+          Collaboration is a core value at MNET. We believe the best immersive technology comes from academia, industry, and student innovation meeting in the same room - so we partner with university labs, research groups, and industry teams to give our members real facilities, mentorship, and the chance to build technology that reaches beyond the classroom.
         </p>
       </section>
 
@@ -210,7 +186,7 @@ export default async function CollaboratorsPage() {
             </h2>
             <p className="text-white/60 font-offbit font-bold text-lg md:text-xl max-w-3xl leading-relaxed">
               MNET is backed by the Digital Makerspace network and the Faculties of Information
-              Technology and Engineering — the spaces, hardware and people that make our design,
+              Technology and Engineering - the spaces, hardware and people that make our design,
               build and research work possible.
             </p>
           </div>
@@ -258,7 +234,7 @@ export default async function CollaboratorsPage() {
             <p className="text-white/75 text-lg md:text-xl font-sans max-w-2xl leading-relaxed">
               Whether you are an industry player looking to innovate, a researcher seeking
               developer collaboration, or a student team wanting to integrate immersive
-              components — we would love to connect.
+              components - we would love to connect.
             </p>
           </div>
 
@@ -284,7 +260,7 @@ export default async function CollaboratorsPage() {
                 Support MNET
               </h3>
               <p className="font-sans text-white/70 leading-relaxed">
-                Donations and sponsorships fund hardware, events and outreach — and put your
+                Donations and sponsorships fund hardware, events and outreach - and put your
                 name in front of Monash&apos;s emerging-technology talent.
               </p>
               <a

@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: "Monash Nexus for Emerging Technologies",
   description:
-    "MNET is Monash University's student-led team for Extended Reality (XR) and immersive technology — building VR, AR, and mixed-reality projects that bridge academic theory and real-world implementation.",
+    "MNET is Monash University's student-led team for Extended Reality (XR) and immersive technology - building VR, AR, and mixed-reality projects that bridge academic theory and real-world implementation.",
   openGraph: {
     title: "Monash Nexus for Emerging Technologies",
     description:

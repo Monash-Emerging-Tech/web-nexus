@@ -19,7 +19,7 @@ const HISTORY: TimelineEntry[] = [
     date: "2022",
     title: "The METTA era",
     description:
-      "The team begins as METTA — Monash Emerging Technology Themes and Applications — incubated under eSolutions VARS, Monash's virtual and augmented reality services group.",
+      "The team begins as METTA - Monash Emerging Technology Themes and Applications - incubated under eSolutions VARS, Monash's virtual and augmented reality services group.",
   },
   {
     date: "July 2024",
@@ -31,19 +31,19 @@ const HISTORY: TimelineEntry[] = [
     date: "Mid 2024",
     title: "First workshops",
     description:
-      "MNET x MAC: we teach the fundamentals of 3D with Spline alongside Monash's largest IT student club, and run immersive VR demos for Mac.Robertson Girls' High School at MonLEE — the education program begins.",
+      "MNET x MAC: we teach the fundamentals of 3D with Spline alongside Monash's largest IT student club, and run immersive VR demos for Mac.Robertson Girls' High School at MonLEE - the education program begins.",
   },
   {
     date: "Oct 2024",
     title: "SXSW Sydney",
     description:
-      "Representing the Faculty of IT at SXSW Sydney with a 360° robot dog and the Globes App — historic maps in Apple Vision Pro, built with the Embodied Visualisation group and Stanford University, later demoed to the Education Ministers of Australia and India.",
+      "Representing the Faculty of IT at SXSW Sydney with a 360° robot dog and the Globes App - historic maps in Apple Vision Pro, built with the Embodied Visualisation group and Stanford University, later demoed to the Education Ministers of Australia and India.",
   },
   {
     date: "15 July 2025",
-    title: "A new generation — and Mepo",
+    title: "A new generation - and Mepo",
     description:
-      "Our founder hands over the reins, and the team names its platypus mascot: Mepo — one letter from each department. Marketing, Education, Projects, Operations.",
+      "Our founder hands over the reins, and the team names its platypus mascot: Mepo - one letter from each department. Marketing, Education, Projects, Operations.",
   },
   {
     date: "2025",
@@ -55,7 +55,7 @@ const HISTORY: TimelineEntry[] = [
     date: "2026",
     title: "Growing the nexus",
     description:
-      "CampusGuessr, BrainXR, quantum computing and Platypus Forest push the portfolio wider — while O-Week stalls, Tech Futures and this WebXR site bring the work to everyone else.",
+      "CampusGuessr, BrainXR, quantum computing and Platypus Forest push the portfolio wider - while O-Week stalls, Tech Futures and this WebXR site bring the work to everyone else.",
   },
 ];
 
@@ -230,7 +230,7 @@ export default async function AboutUsPage() {
         </h1>
         <p className="text-white/80 text-lg md:text-xl font-offbit text-center max-w-4xl leading-relaxed">
           Monash Nexus for Emerging Technologies (MNET) is Monash
-          University&apos;s student team for emerging simulation technologies —
+          University&apos;s student team for emerging simulation technologies -
           virtual, augmented and extended reality, digital twins, motion
           capture, quantum computing and the web frontier. From our home in the
           Digital Makerspace, we design and build experimental projects that
@@ -241,7 +241,7 @@ export default async function AboutUsPage() {
           Education trains the team and the next generation, Marketing carries
           the story to the world, and Operations keeps the whole nexus running.
           Members work hands-on with industry-grade XR hardware, ship real
-          software, and take their work to conferences and showcases — bridging
+          software, and take their work to conferences and showcases - bridging
           the gap between academic theory and real-world implementation.
         </p>
         <div className="w-full flex flex-col md:flex-row gap-6 items-stretch justify-center p-4 max-w-6xl mt-4">

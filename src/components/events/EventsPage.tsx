@@ -30,7 +30,7 @@ const EventsPage = ({ pastEvents = [], futureEvents = [] } : { pastEvents : Port
           ))
         ) : (
           <p className="text-white/60 font-offbit text-xl col-span-3 text-center py-8">
-            No upcoming events — stay tuned!
+            No upcoming events - stay tuned!
           </p>
         )}
       </div>
