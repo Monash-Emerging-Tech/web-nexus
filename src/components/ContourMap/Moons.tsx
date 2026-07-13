@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, ThreeEvent } from "@react-three/fiber";
 import { Line } from "@react-three/drei";
 import * as THREE from "three";
 
@@ -258,18 +258,18 @@ const Moon: React.FC<MoonProps> = ({ label, color, emissive, orbitRadius, moonRa
         <group ref={moonMeshRef}>
           <mesh
             onPointerOver={(e) => {
-              const isTouch = (e as any).pointerType === "touch" || (e.nativeEvent as any).pointerType === "touch";
+              const isTouch = (e as ThreeEvent<PointerEvent>).pointerType === "touch" || (e.nativeEvent as PointerEvent).pointerType === "touch";
               if (isTouch) return;
               e.stopPropagation();
               setHovered(true);
             }}
             onPointerOut={(e) => {
-              const isTouch = (e as any).pointerType === "touch" || (e.nativeEvent as any).pointerType === "touch";
+              const isTouch = (e as ThreeEvent<PointerEvent>).pointerType === "touch" || (e.nativeEvent as PointerEvent).pointerType === "touch";
               if (isTouch) return;
               setHovered(false);
             }}
             onClick={(e) => {
-              const isTouch = (e as any).pointerType === "touch" || (e.nativeEvent as any).pointerType === "touch";
+              const isTouch = (e as ThreeEvent<PointerEvent>).pointerType === "touch" || (e.nativeEvent as PointerEvent).pointerType === "touch";
               if (isTouch) {
                 e.stopPropagation();
                 const wasHovered = hovered;
