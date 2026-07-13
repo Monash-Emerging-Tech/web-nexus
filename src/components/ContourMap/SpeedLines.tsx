@@ -77,17 +77,18 @@ const SpeedLines: React.FC<SpeedLinesProps> = ({ count = 100 }) => {
   );
 
   useFrame((state) => {
+    const scrollOffset = Math.max(0, Math.min(1, scroll.offset));
     if (materialRef.current) {
       materialRef.current.uniforms.uTime.value = state.clock.elapsedTime;
-      materialRef.current.uniforms.uScroll.value = scroll.offset;
+      materialRef.current.uniforms.uScroll.value = scrollOffset;
     }
     // Perceived visibility of the streaks, matching the vertex shader's
     // opacity curve (sin(sqrt(scroll) * PI) * 0.4). Below ~0.12 intensity
     // the lines are under ~5% opacity — effectively invisible — so skip
     // the draw entirely. (The plasma reveal is keyed to the nav labels
     // appearing, in Planet.tsx, not to the streaks fading.)
-    const warpIntensity = Math.sin(Math.sqrt(scroll.offset) * Math.PI);
-    const isVisible = scroll.offset > 0.001 && warpIntensity > 0.12;
+    const warpIntensity = Math.sin(Math.sqrt(scrollOffset) * Math.PI);
+    const isVisible = scrollOffset > 0.001 && warpIntensity > 0.12;
     if (meshRef.current) {
       meshRef.current.visible = isVisible;
     }

@@ -14,7 +14,7 @@ const CameraHandler: React.FC<CameraHandlerProps> = ({ perf }) => {
   const scroll = useScroll();
 
   useFrame((state) => {
-    const scrollOffset = scroll.offset;
+    const scrollOffset = Math.max(0, Math.min(1, scroll.offset));
     
     // Warp Intensity: Start immediately, peak fast, fade out at the very end
     const warpIntensity = Math.sin(Math.pow(scrollOffset, 0.5) * Math.PI); 
@@ -58,6 +58,8 @@ const CameraHandler: React.FC<CameraHandlerProps> = ({ perf }) => {
     const targetLookAtY = ny * 80 * scrollOffset;
     const targetLookAtZ = nz * 80 * scrollOffset;
     state.camera.lookAt(0, targetLookAtY, targetLookAtZ);
+    // Subtle clockwise tilt to the entire scene
+    state.camera.rotation.z = -0.06;
   });
 
   return null;

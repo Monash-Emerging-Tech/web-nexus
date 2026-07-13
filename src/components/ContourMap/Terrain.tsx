@@ -30,7 +30,7 @@ const Terrain: React.FC<TerrainProps> = ({ perf }) => {
   );
 
   useFrame((state, delta) => {
-    const scrollOffset = scroll.offset;
+    const scrollOffset = Math.max(0, Math.min(1, scroll.offset));
     const time = state.clock.elapsedTime;
 
     if (materialRef.current) {

@@ -105,6 +105,16 @@ const Moon: React.FC<MoonProps> = ({ label, color, emissive, orbitRadius, moonRa
   const tempV3 = useMemo(() => new THREE.Vector3(), []);
 
   useEffect(() => {
+    const handleDeselect = () => {
+      setHovered(false);
+    };
+    window.addEventListener("mnet:moon-deselect", handleDeselect);
+    return () => {
+      window.removeEventListener("mnet:moon-deselect", handleDeselect);
+    };
+  }, []);
+
+  useEffect(() => {
     if (hovered) {
       window.dispatchEvent(new CustomEvent("mnet:cursor", { detail: "pointer" }));
       document.body.style.cursor = "pointer";
@@ -248,10 +258,27 @@ const Moon: React.FC<MoonProps> = ({ label, color, emissive, orbitRadius, moonRa
         <group ref={moonMeshRef}>
           <mesh
             onPointerOver={(e) => {
+              const isTouch = (e as any).pointerType === "touch" || (e.nativeEvent as any).pointerType === "touch";
+              if (isTouch) return;
               e.stopPropagation();
               setHovered(true);
             }}
-            onPointerOut={() => setHovered(false)}
+            onPointerOut={(e) => {
+              const isTouch = (e as any).pointerType === "touch" || (e.nativeEvent as any).pointerType === "touch";
+              if (isTouch) return;
+              setHovered(false);
+            }}
+            onClick={(e) => {
+              const isTouch = (e as any).pointerType === "touch" || (e.nativeEvent as any).pointerType === "touch";
+              if (isTouch) {
+                e.stopPropagation();
+                const wasHovered = hovered;
+                window.dispatchEvent(new CustomEvent("mnet:moon-deselect"));
+                if (!wasHovered) {
+                  setHovered(true);
+                }
+              }
+            }}
           >
             <sphereGeometry args={[moonRadius, 24, 24]} />
             <meshStandardMaterial

@@ -85,7 +85,7 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef, onCubeRadiusChange }) => {
   }, []);
 
   useFrame((state, delta) => {
-    const scrollOffset = scroll.offset;
+    const scrollOffset = Math.max(0, Math.min(1, scroll.offset));
     
     if (planetRef.current) {
       const mapAngle = -Math.PI / 2.5;
@@ -112,7 +112,7 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef, onCubeRadiusChange }) => {
       }
       
       const isMobile = size.width < 768;
-      const baseScale = isMobile ? 0.85 : 2.3;
+      const baseScale = isMobile ? 1.6 : 2.3;
       const animatedScale = springRef.current.scale;
       planetRef.current.scale.setScalar(animatedScale * baseScale);
       planetRef.current.visible = animatedScale > 0.001;

@@ -107,6 +107,9 @@ const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] })
         gl={{ antialias: perf.antialias }}
         dpr={perf.dpr}
         frameloop={leaving ? "never" : "always"}
+        onPointerMissed={() => {
+          window.dispatchEvent(new CustomEvent("mnet:moon-deselect"));
+        }}
       >
         {perf.enableEnvironment && <Environment files="/assets/potsdamer_platz_1k.hdr" />}
         <ambientLight intensity={2.0} />
@@ -138,23 +141,25 @@ const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] })
           let shelf = label.shelf;
 
           if (isMobile) {
-            // Push labels higher/lower and compress horizontal distance (smaller diagX) to prevent cutoffs
+            // Use the original desktop orientations (steep vs shallow diagonals) to prevent
+            // label overlap on mobile, and increase line lengths to give more breathing room.
             if (label.text === "ABOUT US") {
-              diagX = 30;
-              diagY = -320;
+              diagX = 63;
+              diagY = -267;
+              shelf = 45;
             } else if (label.text === "PORTFOLIO") {
-              diagX = 55;
-              diagY = -190;
+              diagX = 100;
+              diagY = -205;
+              shelf = 40;
             } else if (label.text === "OUTREACH") {
-              diagX = -55;
-              diagY = 320;
+              diagX = -63;
+              diagY = 267;
+              shelf = -45;
             } else if (label.text === "COLLABORATORS") {
-              diagX = -30;
-              diagY = 190;
+              diagX = -90;
+              diagY = 206;
+              shelf = -35;
             }
-            diagX *= 0.65;
-            diagY *= 0.65;
-            shelf *= 0.45; // Shorter shelf to prevent spilling off-screen
           }
 
           // LABEL_CONFIG's diag/shelf pixel values were designed around the
@@ -217,21 +222,21 @@ const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] })
                       d={`M ${xArc1},${yArc1} A ${R},${R} 0 0,1 ${xArc2},${yArc2}`}
                       fill="none"
                       stroke="rgba(255,255,255,0.7)"
-                      strokeWidth={isMobile ? 1.25 : 2}
+                      strokeWidth={isMobile ? 1.5 : 2}
                     />
                     {/* Leader Line starting from the arc */}
                     <polyline
                       points={`${xStart},${yStart} ${dx},${dy} ${endX},${endY}`}
                       fill="none"
                       stroke="rgba(255,255,255,0.7)"
-                      strokeWidth={isMobile ? 1.25 : 2}
+                      strokeWidth={isMobile ? 1.5 : 2}
                     />
                     {/* Horizontal tick marker */}
                     <line
-                      x1={endX} y1={endY - (isMobile ? 3 : 6)}
-                      x2={endX} y2={endY + (isMobile ? 3 : 6)}
+                      x1={endX} y1={endY - (isMobile ? 3.5 : 6)}
+                      x2={endX} y2={endY + (isMobile ? 3.5 : 6)}
                       stroke="rgba(255,255,255,0.7)"
-                      strokeWidth={isMobile ? 1.25 : 2}
+                      strokeWidth={isMobile ? 1.5 : 2}
                     />
                   </svg>
                 );
@@ -255,9 +260,9 @@ const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] })
                   style={{
                     whiteSpace: 'nowrap',
                     fontFamily: 'var(--font-offbit, monospace)',
-                    fontSize: isMobile ? 12 : 18,
+                    fontSize: isMobile ? 14 : 18,
                     fontWeight: 700,
-                    letterSpacing: '0.2em',
+                    letterSpacing: isMobile ? '0.15em' : '0.2em',
                     textAlign: isRight ? 'left' : 'right',
                     cursor: 'pointer',
                     pointerEvents: 'auto',
