@@ -38,7 +38,7 @@ export default async function Page({ params } : { params: Promise<{ slug: string
 				<ProjectHero
 					title={portfolioData.name}
 					description={portfolioData.oneliner || portfolioData.description}
-					image={portfolioData.imageUrl || "/img/Nav-Team.JPG"}
+					images={Array.isArray(portfolioData.imageUrl) ? portfolioData.imageUrl : [portfolioData.imageUrl || "/img/Nav-Team.JPG"]}
 					sections={sections}
 				/>
 

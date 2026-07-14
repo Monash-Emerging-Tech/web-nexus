@@ -8,7 +8,7 @@ import ProjectHero from "@/components/projects/ProjectHero";
 import ProjectInfo from "@/components/projects/ProjectInfo";
 import Navbar from "@/components/Navbar/Navbar";
 
-export default async function Page({ params } : { params: { slug: string } }) {
+export default async function Page({ params } : { params: Promise<{ slug: string }> }) {
 	const { slug: projectSlug } = await params;
 
 	//to be used when we have notion data, for now we will use placeholder data

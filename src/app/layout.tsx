@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { SITE_URL } from "@/lib/site";
-import { offbit, offbit101, offbitDot } from "@/lib/fonts";
+import { offbit, offbit101, offbitDot, exo2 } from "@/lib/fonts";
 import "./globals.css";
 import { NavbarProvider } from "@/components/Navbar/NavbarProvider";
 import Navbar from "@/components/Navbar/Navbar";
@@ -47,7 +47,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: loaderGateScript }} />
       </head>
       <body
-        className={`${offbit.variable} ${offbit101.variable} ${offbitDot.variable} antialiased w-full h-auto`}
+        className={`${offbit.variable} ${offbit101.variable} ${offbitDot.variable} ${exo2.variable}antialiased w-full h-auto`}
       >
         <NavbarProvider>
           <Loader />
