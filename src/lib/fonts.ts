@@ -50,3 +50,15 @@ export const offbit101 = localFont({
   variable: "--font-offbit-101",
   display: "swap",
 });
+
+export const exo2 = localFont({
+  src: [
+    {
+      path: "../../public/fonts/Exo2-VariableFont_wght.ttf",
+      weight: "400",
+      style: "normal",
+    },
+  ],
+  variable: "--font-exo2",
+  display: "swap",
+});
