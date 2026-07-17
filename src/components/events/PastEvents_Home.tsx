@@ -26,7 +26,7 @@ function EventsHolder({data}: {data: Portfolio[]}) {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 p-6 md:p-10 pb-0 items-stretch">
         {data.map((event, index) => (
-          <EventsCard style={"gradient"} data={event} key={index} />
+          <EventsCard data={event} key={index} />
         ))}
       </div>
       <div className="flex justify-end px-6 md:px-10 pt-8">
