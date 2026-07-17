@@ -152,13 +152,24 @@ export default async function CollaboratorsPage() {
   return (
     <div className="bg-[#0E0E0E] min-h-screen w-full flex flex-col text-white">
       {/* Hero section */}
-      <section className="pt-[25vh] md:pt-[30vh] px-8 md:px-16 py-12 md:py-20 flex flex-col max-w-7xl mx-auto w-full gap-6">
-        <h1 className="text-white font-offbit-101 font-bold text-5xl md:text-8xl uppercase tracking-wider">
-          Collaborations
-        </h1>
-        <p className="text-white/60 font-offbit font-bold text-lg md:text-2xl max-w-3xl leading-relaxed">
-          Collaboration is a core value at MNET. We believe the best immersive technology comes from academia, industry, and student innovation meeting in the same room - so we partner with university labs, research groups, and industry teams to give our members real facilities, mentorship, and the chance to build technology that reaches beyond the classroom.
-        </p>
+      <section className="pt-[25vh] md:pt-[30vh] px-8 md:px-16 pb-16">
+        <div className="max-w-7xl mx-auto flex flex-col gap-6">
+          <h1 className="text-white font-offbit-101 font-bold text-5xl md:text-8xl uppercase tracking-wider">
+            Collaborations
+          </h1>
+
+          <p className="text-white/60 font-offbit font-bold text-lg md:text-2xl max-w-3xl leading-relaxed">
+            Collaboration is a core value at MNET. We believe the best immersive
+            technology comes from academia, industry, and student innovation meeting
+            in the same room – so we partner with university labs, research groups,
+            and industry teams to give our members real facilities, mentorship, and
+            the chance to build technology that reaches beyond the classroom.
+          </p>
+        </div>
+
+        <div className="max-w-7xl mx-auto mt-16">
+          <div className="h-px bg-white/15" />
+        </div>
       </section>
 
       {/* 1. Main Partners */}
