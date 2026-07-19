@@ -366,88 +366,209 @@ export default async function AboutUsPage() {
         </div>
 
         {/* Meet the Team List */}
-        <div className="w-full flex flex-col items-center justify-center px-4 md:px-16 py-12 md:py-16 gap-10 max-w-7xl mx-auto">
-          <h3 className="font-offbit-101 font-bold text-4xl md:text-6xl text-white">
+        <div className="w-full max-w-7xl mx-auto px-4 md:px-10 py-12 md:py-20">
+          <h3 className="mb-12 text-center font-offbit-101 font-bold text-4xl md:text-6xl text-white">
             Meet the Team
           </h3>
 
-          <div className="w-full flex flex-col gap-8">
-            <div className="w-full flex flex-col items-center gap-2 md:gap-4 border-b border-white/10 pb-6">
-              <p className="text-white text-3xl font-offbit font-semibold">
+          <div className="flex flex-col gap-10">
+            {/* Team Leads */}
+            <div className="border-b border-white/10 pb-10">
+              <h4 className="mb-5 text-center text-2xl md:text-3xl font-offbit font-semibold text-white">
                 Team Leads
-              </p>
-              <div className="w-full text-center flex flex-col md:grid md:grid-cols-5 gap-2">
+              </h4>
+
+              <div
+                className="
+                  grid
+                  grid-cols-1
+                  sm:grid-cols-2
+                  lg:grid-cols-[repeat(auto-fit,minmax(180px,1fr))]
+                  gap-3
+                "
+              >
                 {teamLeads.map((lead) => (
-                  <p
+                  <div
                     key={lead.id}
-                    className="text-white/80 text-lg font-offbit-101 font-semibold"
+                    className="
+                      flex
+                      min-h-12
+                      items-center
+                      justify-center
+                      rounded-lg
+                      border
+                      border-white/10
+                      bg-white/[0.03]
+                      px-4
+                      py-3
+                      text-center
+                    "
                   >
-                    {lead.name}
-                  </p>
+                    <p className="text-white/85 text-base md:text-lg font-offbit-101 font-semibold leading-snug">
+                      {lead.name}
+                    </p>
+                  </div>
                 ))}
               </div>
             </div>
 
-            <div className="w-full flex flex-col items-center gap-2 md:gap-4 border-b border-white/10 pb-6">
-              <p className="text-white text-3xl font-offbit font-semibold">
+            {/* Marketing */}
+            <div className="border-b border-white/10 pb-10">
+              <h4 className="mb-5 text-center text-2xl md:text-3xl font-offbit font-semibold text-white">
                 Marketing
-              </p>
-              <div className="w-full text-center flex flex-col md:grid md:grid-cols-5 gap-2">
+              </h4>
+
+              <div
+                className="
+                  grid
+                  grid-cols-1
+                  sm:grid-cols-2
+                  lg:grid-cols-[repeat(auto-fit,minmax(180px,1fr))]
+                  gap-3
+                "
+              >
                 {marketingMembers.map((member) => (
-                  <p
+                  <div
                     key={member.id}
-                    className="text-white/80 text-lg font-offbit-101 font-semibold"
+                    className="
+                      flex
+                      min-h-12
+                      items-center
+                      justify-center
+                      rounded-lg
+                      border
+                      border-white/10
+                      bg-white/[0.03]
+                      px-4
+                      py-3
+                      text-center
+                    "
                   >
-                    {member.name}
-                  </p>
+                    <p className="text-white/85 text-base md:text-lg font-offbit-101 font-semibold leading-snug">
+                      {member.name}
+                    </p>
+                  </div>
                 ))}
               </div>
             </div>
 
-            <div className="w-full flex flex-col items-center gap-2 md:gap-4 border-b border-white/10 pb-6">
-              <p className="text-white text-3xl font-offbit font-semibold">
+            {/* Operations */}
+            <div className="border-b border-white/10 pb-10">
+              <h4 className="mb-5 text-center text-2xl md:text-3xl font-offbit font-semibold text-white">
                 Operations
-              </p>
-              <div className="w-full text-center flex flex-col md:grid md:grid-cols-5 gap-2">
+              </h4>
+
+              <div
+                className="
+                  grid
+                  grid-cols-1
+                  sm:grid-cols-2
+                  lg:grid-cols-[repeat(auto-fit,minmax(180px,1fr))]
+                  gap-3
+                "
+              >
                 {operationsMembers.map((member) => (
-                  <p
+                  <div
                     key={member.id}
-                    className="text-white/80 text-lg font-offbit-101 font-semibold"
+                    className="
+                      flex
+                      min-h-12
+                      items-center
+                      justify-center
+                      rounded-lg
+                      border
+                      border-white/10
+                      bg-white/[0.03]
+                      px-4
+                      py-3
+                      text-center
+                    "
                   >
-                    {member.name}
-                  </p>
+                    <p className="text-white/85 text-base md:text-lg font-offbit-101 font-semibold leading-snug">
+                      {member.name}
+                    </p>
+                  </div>
                 ))}
               </div>
             </div>
 
-            <div className="w-full flex flex-col items-center gap-2 md:gap-4 border-b border-white/10 pb-6">
-              <p className="text-white text-3xl font-offbit font-semibold">
+            {/* Education */}
+            <div className="border-b border-white/10 pb-10">
+              <h4 className="mb-5 text-center text-2xl md:text-3xl font-offbit font-semibold text-white">
                 Education
-              </p>
-              <div className="w-full text-center flex flex-col md:grid md:grid-cols-5 gap-2">
+              </h4>
+
+              <div
+                className="
+                  grid
+                  grid-cols-1
+                  sm:grid-cols-2
+                  lg:grid-cols-[repeat(auto-fit,minmax(180px,1fr))]
+                  gap-3
+                "
+              >
                 {educationMembers.map((member) => (
-                  <p
+                  <div
                     key={member.id}
-                    className="text-white/80 text-lg font-offbit-101 font-semibold"
+                    className="
+                      flex
+                      min-h-12
+                      items-center
+                      justify-center
+                      rounded-lg
+                      border
+                      border-white/10
+                      bg-white/[0.03]
+                      px-4
+                      py-3
+                      text-center
+                    "
                   >
-                    {member.name}
-                  </p>
+                    <p className="text-white/85 text-base md:text-lg font-offbit-101 font-semibold leading-snug">
+                      {member.name}
+                    </p>
+                  </div>
                 ))}
               </div>
             </div>
 
-            <div className="w-full flex flex-col items-center gap-2 md:gap-4">
-              <p className="text-white text-3xl font-offbit font-semibold">
+            {/* Projects */}
+            <div>
+              <h4 className="mb-5 text-center text-2xl md:text-3xl font-offbit font-semibold text-white">
                 Projects
-              </p>
-              <div className="w-full text-center flex flex-col md:grid md:grid-cols-6 gap-2">
+              </h4>
+
+              <div
+                className="
+                  grid
+                  grid-cols-1
+                  sm:grid-cols-2
+                  md:grid-cols-3
+                  xl:grid-cols-4
+                  gap-3
+                "
+              >
                 {projectsMembers.map((member) => (
-                  <p
+                  <div
                     key={member.id}
-                    className="text-white/80 text-lg font-offbit-101 font-semibold"
+                    className="
+                      flex
+                      min-h-12
+                      items-center
+                      justify-center
+                      rounded-lg
+                      border
+                      border-white/10
+                      bg-white/[0.03]
+                      px-4
+                      py-3
+                      text-center
+                    "
                   >
-                    {member.name}
-                  </p>
+                    <p className="text-white/85 text-base md:text-lg font-offbit-101 font-semibold leading-snug">
+                      {member.name}
+                    </p>
+                  </div>
                 ))}
               </div>
             </div>
