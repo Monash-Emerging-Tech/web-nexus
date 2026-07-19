@@ -116,7 +116,8 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef, onCubeRadiusChange }) => {
       const animatedScale = springRef.current.scale;
       planetRef.current.scale.setScalar(animatedScale * baseScale);
       planetRef.current.visible = animatedScale > 0.001;
-      
+    
+     
       planetRef.current.position.y = ny * 80 * animatedScale;
       planetRef.current.position.z = nz * 80 * animatedScale;
       
