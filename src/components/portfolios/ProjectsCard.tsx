@@ -31,6 +31,8 @@ const ProjectsCard: React.FC<ProjectsCardProps> = ({ data }) => {
           group-hover:scale-[1.02]
           group-hover:bg-white/10
           group-hover:shadow-[0_0_20px_rgba(220,0,59,0.3)]
+          text-sm
+          md:text-base
         "
       >
         {/* Project heading */}

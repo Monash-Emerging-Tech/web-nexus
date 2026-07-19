@@ -3,39 +3,52 @@ const Pulse = ({ className }: { className: string }) => (
 );
 
 const EventCardSkeleton = () => (
-  <div className="flex flex-col gap-3 rounded-2xl p-4 bg-white/5 border border-white/10 h-64">
-    <Pulse className="w-full aspect-video rounded-xl flex-shrink-0" />
-    <Pulse className="h-6 w-3/4" />
-    <Pulse className="h-4 w-full" />
-    <Pulse className="h-4 w-2/3" />
+  <div className="flex flex-col rounded-3xl p-4 bg-white/5 border border-white/10 h-full min-h-[380px]">
+    {/* Title */}
+    <Pulse className="h-8 w-3/4 mb-2" />
+    {/* Description */}
+    <Pulse className="h-6 w-1/2 mb-4" />
+    {/* Image */}
+    <Pulse className="w-full aspect-video rounded-xl mb-4" />
+    {/* Date */}
+    <Pulse className="h-5 w-24 ml-auto mt-auto" />
   </div>
 );
 
 export default function OutreachLoading() {
   return (
-    <div className="mb-25">
-      {/* Hero */}
-      <div className="bg-[url(/img/events-background.png)] bg-cover bg-bottom w-full h-[30vh] md:h-[40vh] flex items-end">
-        <div className="px-6 md:px-12 pb-6 m-auto pt-32">
-          <h1 className="text-[4rem] md:text-[6rem] text-center font-offbit-dot font-bold">OUTREACH</h1>
+    <section className="px-4 sm:px-6 lg:px-8 pt-[25vh] md:pt-[30vh] pb-16">
+      <div className="container mx-auto">
+        {/* Main page heading */}
+        <h1 className="text-5xl sm:text-6xl md:text-header font-bold text-neutral-100 text-left font-offbit-dot mb-12 md:mb-16 h-auto md:h-[160px]">
+          Outreach
+        </h1>
+
+        {/* Upcoming Outreach Section */}
+        <div className="mb-16">
+          <h2 className="text-3xl sm:text-[2.5rem] md:text-[4rem] font-offbit-dot font-bold text-neutral-100 mb-6">
+            Upcoming Outreach
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10 items-stretch">
+            {[...Array(3)].map((_, i) => (
+              <EventCardSkeleton key={i} />
+            ))}
+          </div>
+        </div>
+
+        {/* Past Outreach Section */}
+        <div>
+          <h2 className="text-3xl sm:text-[2.5rem] md:text-[4rem] font-offbit-dot font-bold text-neutral-100 mb-6">
+            Past Outreach
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10 items-stretch">
+            {[...Array(3)].map((_, i) => (
+              <EventCardSkeleton key={i} />
+            ))}
+          </div>
         </div>
       </div>
-
-      {/* Upcoming */}
-      <div className="pt-6 md:pt-8 pr-6 pl-6 md:pr-24 md:pl-12 flex flex-col mb-2 md:mb-4">
-        <Pulse className="h-12 md:h-20 w-72 md:w-[28rem]" />
-      </div>
-      <div className="grid md:grid-cols-3 grid-cols-1 gap-6 md:gap-10 px-6 md:px-10 pt-3 md:pt-4 pb-6 md:pb-8">
-        {[...Array(3)].map((_, i) => <EventCardSkeleton key={i} />)}
-      </div>
-
-      {/* Past */}
-      <div className="pt-6 md:pt-8 pr-6 pl-6 md:pr-24 md:pl-12 flex flex-col mb-2 md:mb-4">
-        <Pulse className="h-12 md:h-20 w-56 md:w-80" />
-      </div>
-      <div className="grid md:grid-cols-3 grid-cols-1 gap-6 md:gap-10 px-6 md:px-10 pt-3 md:pt-4 pb-6 md:pb-8">
-        {[...Array(6)].map((_, i) => <EventCardSkeleton key={i} />)}
-      </div>
-    </div>
+    </section>
   );
 }
+

@@ -30,15 +30,19 @@ const EventsPage = ({
         {/* Main page heading */}
         <h1
           className={`
-            text-header
+            text-5xl
+            sm:text-6xl
+            md:text-header
             font-bold
             text-neutral-100
             text-left
             font-offbit-dot
+            mb-12
+            md:mb-16
             ${
               hasUpcomingEvents
-                ? "h-[160px] mb-16"
-                : "h-auto mb-12 md:mb-16"
+                ? "h-auto md:h-[160px]"
+                : "h-auto"
             }
           `}
         >
@@ -47,7 +51,7 @@ const EventsPage = ({
 
         {/* Upcoming outreach */}
         <div className={hasUpcomingEvents ? "mb-16" : "mb-12"}>
-          <h2 className="text-[2.5rem] md:text-[4rem] font-offbit-dot font-bold text-neutral-100 mb-6">
+          <h2 className="text-3xl sm:text-[2.5rem] md:text-[4rem] font-offbit-dot font-bold text-neutral-100 mb-6">
             Upcoming Outreach
           </h2>
 
@@ -108,7 +112,7 @@ const EventsPage = ({
 
         {/* Past outreach */}
         <div id="past-outreach" className="scroll-mt-28">
-          <h2 className="text-[2.5rem] md:text-[4rem] font-offbit-dot font-bold text-neutral-100 mb-6">
+          <h2 className="text-3xl sm:text-[2.5rem] md:text-[4rem] font-offbit-dot font-bold text-neutral-100 mb-6">
             Past Outreach
           </h2>
 

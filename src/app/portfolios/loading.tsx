@@ -6,8 +6,8 @@ export default function PortfoliosLoading() {
   return (
     <section className="px-4 sm:px-6 lg:px-8 pt-[25vh] md:pt-[30vh] pb-16">
       <div className="container mx-auto">
-        <Pulse className="h-[160px] w-72 mb-4" />
-        <Pulse className="h-8 w-48 mb-8" />
+        <Pulse className="h-[48px] sm:h-[60px] md:h-[120px] w-48 md:w-96 mb-4 md:mb-6" />
+        <Pulse className="h-8 md:h-12 w-48 md:w-64 mb-8" />
         <div className="grid md:grid-cols-3 grid-cols-1 gap-6 md:gap-10">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="flex flex-col gap-3 border-2 border-white/10 rounded-3xl p-4 bg-white/5">
