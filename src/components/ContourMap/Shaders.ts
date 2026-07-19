@@ -85,8 +85,16 @@ export const fragmentShader = `
     vec3 colorHigh = vec3(220.0 / 255.0, 0.0 / 255.0, 59.0 / 255.0); // #DC003B
     vec3 lineColor = mix(colorLow, colorHigh, t);
     
-    float frequency = uContourFrequency;
-    float val = vElevation * frequency;
+    // --- THE FIX: DYNAMIC FREQUENCY ---
+    // Track the scroll to see how far zoomed out we are.
+    // As uScroll goes from 0.0 to 0.5 (halfway down the page), 
+    // the line count drops from 100% (1.0) down to 20% (0.2).
+    float zoomOutProgress = smoothstep(0.0, 0.5, uScroll);
+    float currentFrequency = uContourFrequency * mix(1.0, 0.2, zoomOutProgress);
+    
+    // Use our new currentFrequency instead of the static uContourFrequency
+    float val = vElevation * currentFrequency;
+    
     float f = fract(val);
     float df = fwidth(val);
     float thickness = 1.0; 
