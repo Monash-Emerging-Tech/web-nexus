@@ -12,7 +12,7 @@ function EventsCard({ data }: { data: Portfolio }) {
         <div className="flex flex-col mb-4">
           <h2 className="text-white text-[2em] font-offbit-dot font-bold group-hover:text-[#DC003B] transition-colors duration-300">
             <Link
-              href={`/portfolios/${data.id}`}
+              href="#"
               className="after:absolute after:inset-0 after:z-0"
             >
               {data.name}
