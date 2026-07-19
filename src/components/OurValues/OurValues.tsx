@@ -8,7 +8,7 @@ import "./OurValues.css";
 type ValueCard = {
   title: string;
   tagline: string;
-  points: [string, string, string];
+  points: [string, string];
   icon: ReactNode;
   tilt: NonNullable<VariantProps<typeof valueCardStyles>["tilt"]>;
 };
@@ -29,8 +29,8 @@ const valueCardStyles = cva(
 const values: ValueCard[] = [
   {
     title: "Innovation",
-    tagline: "Expanding All Horizons",
-    points: ["Experiment-Led", "Frontier Technology", "Built To Ship"],
+    tagline: "Pushing Boundaries",
+    points: ["Creative Solutions", "Future Oriented"],
     icon: (
       <svg viewBox="0 0 24 24" className="h-8 w-8" fill="none" aria-hidden="true">
         <path
@@ -46,8 +46,8 @@ const values: ValueCard[] = [
   },
   {
     title: "Collaboration",
-    tagline: "One Tight-Knit Team",
-    points: ["Across Disciplines", "Open To Everyone", "Grow Each Other"],
+    tagline: "Team Synergy",
+    points: ["Open Communication", "Supportive Environment"],
     icon: (
       <svg viewBox="0 0 24 24" className="h-8 w-8" fill="none" aria-hidden="true">
         <path
@@ -84,8 +84,8 @@ const values: ValueCard[] = [
   },
   {
     title: "Excellence",
-    tagline: "Industry Standard",
-    points: ["Hands-On Craft", "Real-World Impact", "Leave It Stronger"],
+    tagline: "Quality Commitment",
+    points: ["Continuous Improvement", "Performance Driven"],
     icon: (
       <svg viewBox="0 0 24 24" className="h-8 w-8" fill="none" aria-hidden="true">
         <path
@@ -119,7 +119,7 @@ function OurValues() {
       <h2 className="mb-10 text-center font-offbit-dot text-5xl font-bold uppercase tracking-tight md:mb-12 md:text-6xl">
         Our Values
       </h2>
-      <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-8 lg:grid-cols-3">
+      <div className="mx-auto grid w-full max-w-[1350px] grid-cols-1 gap-8 lg:grid-cols-3">
         {values.map((value) => (
           <article key={value.title} className={cn(valueCardStyles({ tilt: value.tilt }))}>
             <div className="our-values-shift relative z-10 mb-7 flex items-center justify-between">
