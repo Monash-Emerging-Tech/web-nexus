@@ -44,71 +44,12 @@ const ProjectsCard: React.FC<ProjectsCardProps> = ({ data }) => {
             </Link>
           </h2>
 
-          {/* Description and tooltip */}
-          <div className="relative mt-2 group/tooltip z-30 overflow-visible">
-            <p
-              style={{ fontSize: "1.4em" }}
-              className="
-                relative
-                z-20
-                text-white/80
-                font-offbit
-                line-clamp-2
-                cursor-help
-              "
-            >
-              {description}
-            </p>
-
-            {/* Tooltip */}
-            <div
-              className="
-                absolute
-                left-0
-                top-full
-                mt-3
-                z-[999]
-                w-[24rem]
-                max-w-[calc(100vw-2rem)]
-                rounded-2xl
-                border
-                border-[#DC003B]
-                bg-[#141414]
-                p-5
-                shadow-2xl
-                opacity-0
-                invisible
-                translate-y-2
-                pointer-events-none
-                transition-all
-                duration-200
-                group-hover/tooltip:opacity-100
-                group-hover/tooltip:visible
-                group-hover/tooltip:translate-y-0
-                group-hover/tooltip:pointer-events-auto
-              "
-            >
-              {/* Tooltip arrow */}
-              <div
-                className="
-                  absolute
-                  -top-2
-                  left-6
-                  h-4
-                  w-4
-                  rotate-45
-                  border-l
-                  border-t
-                  border-[#DC003B]
-                  bg-[#141414]
-                "
-              />
-
-              <p className="text-white text-[1.1em] font-offbit leading-relaxed">
-                {description}
-              </p>
-            </div>
-          </div>
+          <p
+            style={{ fontSize: "1.4em" }}
+            className="text-white/80 font-offbit mt-2 line-clamp-2"
+          >
+            {description}
+          </p>
         </div>
 
         {/* Project image */}

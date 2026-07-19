@@ -16,6 +16,7 @@ const DUMMY_PROJECTS: Portfolio[] = [
     imageUrl: "https://placehold.co/640x360.png",
     status: "Featured",
     date: { start: "2025-03-01", end: "2025-11-30" },
+    department: ["Projects"],
   },
   {
     id: "dummy-2",
@@ -29,6 +30,7 @@ const DUMMY_PROJECTS: Portfolio[] = [
     imageUrl: "https://placehold.co/640x360.png",
     status: "Featured",
     date: { start: "2025-01-15", end: null },
+    department: ["Projects"],
   },
   {
     id: "dummy-3",
@@ -42,6 +44,7 @@ const DUMMY_PROJECTS: Portfolio[] = [
     imageUrl: "https://placehold.co/640x360.png",
     status: "Active",
     date: { start: "2025-06-01", end: null },
+    department: ["Projects", "Education"],
   },
 ];
 
@@ -58,6 +61,7 @@ const DUMMY_PAST_EVENTS: Portfolio[] = [
     imageUrl: "https://placehold.co/640x360.png",
     status: undefined,
     date: { start: "2025-04-10", end: "2025-04-10" },
+    department: ["Marketing"],
   },
   {
     id: "dummy-event-2",
@@ -71,6 +75,7 @@ const DUMMY_PAST_EVENTS: Portfolio[] = [
     imageUrl: "https://placehold.co/640x360.png",
     status: undefined,
     date: { start: "2025-03-15", end: "2025-03-17" },
+    department: ["Marketing"],
   },
   {
     id: "dummy-event-3",
@@ -84,6 +89,7 @@ const DUMMY_PAST_EVENTS: Portfolio[] = [
     imageUrl: "https://placehold.co/640x360.png",
     status: undefined,
     date: { start: "2025-05-24", end: "2025-05-24" },
+    department: ["Marketing", "Operations"],
   },
 ];
 
@@ -100,6 +106,7 @@ const DUMMY_UPCOMING_EVENTS: Portfolio[] = [
     imageUrl: "https://placehold.co/640x360.png",
     status: undefined,
     date: { start: "2026-06-15", end: "2026-06-15" },
+    department: ["Marketing"],
   },
 ];
 
@@ -114,44 +121,35 @@ async function getAllPortfoliosRaw(): Promise<Portfolio[]> {
   }
 
   try {
-    const response = await notion.databases.query({
-      database_id: NOTION_CONFIG.PORTFOLIOS_DB_ID,
-      filter: {
-        and: [
-          {
-            or: [
-              {
-                property: "Status",
-                status: {
-                  equals: "In progress",
-                },
+    const results: PortfolioPageObject[] = [];
+    let cursor: string | undefined;
+    do {
+      const response = await notion.databases.query({
+        database_id: NOTION_CONFIG.PORTFOLIOS_DB_ID,
+        filter: {
+          and: [
+            {
+              property: "Web Status",
+              select: {
+                equals: "Active",
               },
-              {
-                property: "Status",
-                status: {
-                  equals: "Done",
-                },
-              },
-            ],
-          },
-          {
-            property: "Web Status",
-            select: {
-              equals: "Active",
             },
+          ],
+        },
+        sorts: [
+          {
+            property: "Dates",
+            direction: "descending",
           },
         ],
-      },
-      sorts: [
-        {
-          property: "Dates",
-          direction: "descending",
-        },
-      ],
-    });
+        start_cursor: cursor,
+      });
+      results.push(...(response.results as PortfolioPageObject[]));
+      cursor = response.has_more ? (response.next_cursor ?? undefined) : undefined;
+    } while (cursor);
 
     const portfolios: Portfolio[] = [];
-    for (const result of response.results) {
+    for (const result of results) {
       try {
         const portfolioPage = result as PortfolioPageObject;
         portfolios.push({
@@ -203,7 +201,12 @@ export async function getPortfolios({
   timeWindow,
   limit,
 }: {
-  department?: "Projects" | "Education" | "Marketing";
+  department?:
+    | "Projects"
+    | "Education"
+    | "Marketing"
+    | "Operations"
+    | ("Projects" | "Education" | "Marketing" | "Operations")[];
   timeWindow?: "past" | "upcoming";
   limit?: number;
 } = {}): Promise<Portfolio[]> {
@@ -211,8 +214,27 @@ export async function getPortfolios({
     let portfolios = await getCachedAllPortfolios();
 
     if (department) {
-      portfolios = portfolios.filter(
-        (p) => p.department && p.department.includes(department)
+      const depts = Array.isArray(department) ? department : [department];
+      const isOutreach = depts.some((d) => d === "Marketing" || d === "Operations");
+      const isPortfolio = depts.some((d) => d === "Projects" || d === "Education");
+
+      // The Portfolios page shows items tagged Projects/Education (or with no
+      // department set at all) and never workshop/Blast3D-named items, which
+      // always belong to outreach regardless of their department tags.
+      const isPortfolioPageItem = (p: Portfolio) => {
+        const nameLower = p.name.toLowerCase();
+        const isOutreachItem = nameLower.includes("workshop") || nameLower.includes("blast3d") || nameLower.includes("blast 3d");
+        if (isOutreachItem) return false;
+        const matchesProjectsEdu = p.department && p.department.some((d) => d === "Projects" || d === "Education");
+        const isEmptyDept = !p.department || p.department.length === 0;
+        return Boolean(matchesProjectsEdu) || isEmptyDept;
+      };
+
+      // Outreach pulls every Active portfolio that ISN'T shown on the
+      // Portfolios page, rather than requiring an explicit Marketing/
+      // Operations department tag — Notion entries are often untagged.
+      portfolios = portfolios.filter((p) =>
+        isOutreach && !isPortfolio ? !isPortfolioPageItem(p) : isPortfolioPageItem(p)
       );
     }
 
@@ -244,15 +266,13 @@ export async function getPortfolios({
 const normalizeNotionId = (id: string | undefined) =>
   (id ?? "").replace(/-/g, "").toLowerCase();
 
-const PUBLISHED_STATUSES = ["In progress", "Done"];
-
 // Featured projects for the home page (Web Redesign brief: Stanford, Bali,
 // MBEST). Name matching is intentionally loose — if a name changes in Notion
 // the list degrades to the most recent projects instead of breaking.
 const FEATURED_PROJECT_NAMES = ["stanford", "bali", "mbest"];
 
 export async function getFeaturedPortfolios(limit = 3): Promise<Portfolio[]> {
-  const all = await getPortfolios({ department: "Projects" });
+  const all = await getPortfolios({ department: ["Projects", "Education"] });
 
   const featured = FEATURED_PROJECT_NAMES.map((name) =>
     all.find((p) => p.name.toLowerCase().includes(name))
@@ -294,9 +314,17 @@ export async function getPortfolioById(id: string): Promise<Portfolio | null> {
       console.warn(`Blocked portfolio fallback for non-portfolio page: ${id}`);
       return null;
     }
-    const statusName = portfolioPage["properties"]["Status"]?.["status"]?.["name"];
-    if (!statusName || !PUBLISHED_STATUSES.includes(statusName)) {
-      console.warn(`Blocked portfolio fallback for unpublished page: ${id}`);
+
+    const webStatus = portfolioPage["properties"]["Web Status"]?.["select"]?.["name"];
+    if (webStatus !== "Active") {
+      console.warn(`Blocked portfolio fallback for non-active web status page: ${id}`);
+      return null;
+    }
+
+    const depts = portfolioPage["properties"]["Department"]?.["multi_select"]?.map((item) => item.name) || [];
+    const allowedDepts = ["Projects", "Education", "Marketing", "Operations"];
+    if (depts.length > 0 && !depts.some((d) => allowedDepts.includes(d))) {
+      console.warn(`Blocked portfolio fallback for page with non-matching department: ${id}`);
       return null;
     }
 

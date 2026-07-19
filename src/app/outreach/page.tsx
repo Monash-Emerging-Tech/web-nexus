@@ -3,8 +3,8 @@ import { getPortfolios } from "@/lib/notion/portfolios";
 
 const OutreachRoute = async () => {
   const [pastEvents, futureEvents] = await Promise.all([
-    getPortfolios({ department: "Marketing", timeWindow: "past" }),
-    getPortfolios({ department: "Marketing", timeWindow: "upcoming" }),
+    getPortfolios({ department: ["Marketing", "Operations"], timeWindow: "past" }),
+    getPortfolios({ department: ["Marketing", "Operations"], timeWindow: "upcoming" }),
   ]);
 
   return (

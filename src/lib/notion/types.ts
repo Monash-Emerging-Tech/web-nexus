@@ -95,6 +95,15 @@ export interface PortfolioPageObject
         color: string;
       } | null;
     };
+    "Web Status"?: {
+      id: string;
+      type: "select";
+      select: {
+        id: string;
+        name: string;
+        color: string;
+      } | null;
+    };
     Dates: {
       id: string;
       type: "date";

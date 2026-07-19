@@ -17,7 +17,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   let portfolioRoutes: MetadataRoute.Sitemap = [];
   try {
-    const portfolios = await getPortfolios({ department: "Projects" });
+    const portfolios = await getPortfolios({ department: ["Projects", "Education"] });
     portfolioRoutes = portfolios
       .filter((p) => !p.id.startsWith("dummy"))
       .map((p) => ({

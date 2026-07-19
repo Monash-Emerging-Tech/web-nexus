@@ -4,7 +4,7 @@ import { getPortfolios } from "@/lib/notion/portfolios";
 import ProjectsCard from "@/components/portfolios/ProjectsCard";
 
 const PortfoliosPage = async () => {
-  const projectData: Portfolio[] = await getPortfolios({ department: "Projects" });
+  const projectData: Portfolio[] = await getPortfolios({ department: ["Projects", "Education"] });
 
   return (
     <section className="px-4 sm:px-6 lg:px-8 pt-[25vh] md:pt-[30vh] pb-16">

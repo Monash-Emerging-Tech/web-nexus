@@ -8,8 +8,8 @@ import HeroTest from "@/components/home_test/HeroTest";
 
 const Home = async () => {
   // Switching to server component for initial data fetch for faster load
-  const projectData: Portfolio[] = await getPortfolios({ department: "Projects", limit: 3 });
-  const eventData: Portfolio[] = await getPortfolios({ department: "Marketing", timeWindow: "past", limit: 3 });
+  const projectData: Portfolio[] = await getPortfolios({ department: ["Projects", "Education"], limit: 3 });
+  const eventData: Portfolio[] = await getPortfolios({ department: ["Marketing", "Operations"], timeWindow: "past", limit: 3 });
 
   return (
     <div className="bg-black min-h-screen w-full">

@@ -14,7 +14,7 @@ const Home = async () => {
         getLeads(),
         getSeniorMembers(),
         getActiveMembers(),
-        getPortfolios({ department: "Marketing", timeWindow: "upcoming", limit: 1 }),
+        getPortfolios({ department: ["Marketing", "Operations"], timeWindow: "upcoming", limit: 1 }),
       ]);
 
     const nextEvent = upcoming[0];
