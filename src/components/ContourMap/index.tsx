@@ -260,9 +260,20 @@ const ContourMap: React.FC<ContourMapProps> = ({ children, flashbackUrls = [] })
                   style={{
                     whiteSpace: 'nowrap',
                     fontFamily: 'var(--font-offbit, monospace)',
-                    fontSize: isMobile ? 14 : 18,
+                    fontSize:
+                        isMobile && label.text === "COLLABORATORS"
+                          ? 13
+                          : isMobile
+                            ? 14
+                            : 18,
+
+                      letterSpacing:
+                        isMobile && label.text === "COLLABORATORS"
+                          ? "0.08em"
+                          : isMobile
+                            ? "0.15em"
+                            : "0.2em",
                     fontWeight: 700,
-                    letterSpacing: isMobile ? '0.15em' : '0.2em',
                     textAlign: isRight ? 'left' : 'right',
                     cursor: 'pointer',
                     pointerEvents: 'auto',
