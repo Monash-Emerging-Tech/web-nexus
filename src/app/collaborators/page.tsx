@@ -34,20 +34,6 @@ const mainPartners: ImageCard[] = [
         research, and the group is led by Dr Tim Dwyer - our Academic Advisor.
       </>
     )
-  },
-  {
-    name: "Smart Manufacturing Hub",
-    image: "/img/facilities/smart-manufacturing-hub.jpg",
-    accent: "#EC4899",
-    website: "https://maps.monash.edu/#v=1&zlevel=1&center=145.134272,-37.909748&zoom=19.5&campusid=159&sharepoitype=poi&sharepoi=1000829064",
-
-    description: (
-      <>
-        eSolutions is Monash&apos;s IT hub, responsible for all things IT on campus. Their
-        Virtual and Augmented Reality Services (VARS) team is our main partner for XR hardware,
-        labs, and services across the university.
-      </>
-    )
   }
 ];
 
