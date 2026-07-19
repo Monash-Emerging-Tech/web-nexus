@@ -13,7 +13,7 @@ export const homeContent: HomeContent = {
   nav: {
     contactHref: "mailto:mnet@monash.edu",
     joinHref:
-      "https://docs.google.com/forms/d/e/1FAIpQLSej1jyIYU_dy2uJqEs5zUvNY1GUN-6eN2DqxCbb2ucnYrTI7Q/viewform",
+      "https://team.monashemerging.tech/",
     menuGroups: [
       {
         links: [

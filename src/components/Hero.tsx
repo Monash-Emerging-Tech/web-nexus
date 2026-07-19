@@ -199,7 +199,7 @@ const Hero: React.FC<HeroProps> = ({ flashbackUrls = [], upcomingEvent = null })
                 <OurWorkButton />
                 <a
                   data-ccursor
-                  href="https://docs.google.com/forms/d/e/1FAIpQLSej1jyIYU_dy2uJqEs5zUvNY1GUN-6eN2DqxCbb2ucnYrTI7Q/viewform"
+                  href="https://team.monashemerging.tech/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:cursor-pointer text-xs md:text-[1rem] font-offbit font-bold h-fit px-5 py-2.5 md:px-8 md:py-3 bg-[#040dc1] rounded-md pointer-events-auto transition-all duration-500 [transition-timing-function:cubic-bezier(0,-0.03,0,1)] md:hover:-translate-y-0.5 flex items-center justify-center text-white"

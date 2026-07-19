@@ -579,7 +579,7 @@ export default async function AboutUsPage() {
       {/* 6. Join Us CTA */}
       <div className="w-full flex items-center justify-center py-16 md:py-24">
         <a
-          href="https://docs.google.com/forms/d/e/1FAIpQLSej1jyIYU_dy2uJqEs5zUvNY1GUN-6eN2DqxCbb2ucnYrTI7Q/viewform"
+          href="https://team.monashemerging.tech/"
           target="_blank"
           rel="noopener noreferrer"
           className="hover:cursor-pointer text-2xl md:text-3xl font-offbit font-bold px-12 py-5 md:px-16 md:py-6 bg-[#DB003B] rounded-md pointer-events-auto transition-all duration-500 [transition-timing-function:cubic-bezier(0,-0.03,0,1)] hover:-translate-y-0.5 hover:bg-[#ff0044] flex items-center justify-center text-white shadow-2xl"
