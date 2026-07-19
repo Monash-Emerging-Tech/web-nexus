@@ -117,14 +117,28 @@ async function getAllPortfoliosRaw(): Promise<Portfolio[]> {
     const response = await notion.databases.query({
       database_id: NOTION_CONFIG.PORTFOLIOS_DB_ID,
       filter: {
-        or: [
+        and: [
           {
-            property: "Status",
-            status: { equals: "In progress" },
+            or: [
+              {
+                property: "Status",
+                status: {
+                  equals: "In progress",
+                },
+              },
+              {
+                property: "Status",
+                status: {
+                  equals: "Done",
+                },
+              },
+            ],
           },
           {
-            property: "Status",
-            status: { equals: "Done" },
+            property: "Web Status",
+            select: {
+              equals: "Active",
+            },
           },
         ],
       },
