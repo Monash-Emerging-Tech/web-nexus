@@ -261,7 +261,7 @@ export default async function CollaboratorsPage() {
                 name in front of Monash&apos;s emerging-technology talent.
               </p>
               <a
-                href="mailto:mnet@monash.edu?subject=Donation%20%2F%20sponsorship%20enquiry"
+                href="https://alumni-friends.monash.edu/s/itstudentteams"
                 className="mt-auto text-white font-offbit font-bold border-2 border-white/40 hover:border-[#DC003B] hover:text-[#DC003B] transition-colors duration-300 px-10 py-4 rounded-xl text-lg"
               >
                 DONATE / SPONSOR
