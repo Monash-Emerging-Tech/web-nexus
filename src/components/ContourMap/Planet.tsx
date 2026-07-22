@@ -61,6 +61,13 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef, onCubeRadiusChange }) => {
     vy: BASE_ROT_Y,
     hovered: false,
   });
+  
+  const tempRef = useRef({
+    axisY: new THREE.Vector3(0, 1, 0),
+    axisX: new THREE.Vector3(1, 0, 0),
+    qYaw: new THREE.Quaternion(),
+    qPitch: new THREE.Quaternion(),
+  });
 
   // Touch-drags on the cube must not scroll the page. touch-action can't be
   // flipped mid-gesture, so preventDefault the touch events on drei's scroll
@@ -83,6 +90,81 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef, onCubeRadiusChange }) => {
   useEffect(() => {
     return () => setGrabCursor("default");
   }, []);
+
+  const handlePointerDown = (e: any) => {
+    e.stopPropagation();
+    const target = e.target as HTMLElement;
+    if (target && typeof target.setPointerCapture === "function") {
+      target.setPointerCapture(e.pointerId);
+    }
+    dragRef.current.dragging = true;
+    dragRef.current.touch = e.pointerType === "touch" || e.nativeEvent.pointerType === "touch";
+    dragRef.current.pointerId = e.pointerId;
+    dragRef.current.lastX = e.clientX;
+    dragRef.current.lastY = e.clientY;
+    
+    // Stop autospin immediately on grab
+    dragRef.current.vx = 0;
+    dragRef.current.vy = 0;
+    
+    setGrabCursor("grabbing");
+  };
+
+  const handlePointerMove = (e: any) => {
+    if (!dragRef.current.dragging || dragRef.current.pointerId !== e.pointerId) return;
+    e.stopPropagation();
+    const dx = e.clientX - dragRef.current.lastX;
+    const dy = e.clientY - dragRef.current.lastY;
+    dragRef.current.lastX = e.clientX;
+    dragRef.current.lastY = e.clientY;
+
+    // Scale sensitivity
+    const sens = 0.005;
+    dragRef.current.pendingYaw += dx * sens;
+    dragRef.current.pendingPitch += dy * sens;
+  };
+
+  const handlePointerUp = (e: any) => {
+    if (dragRef.current.pointerId === e.pointerId) {
+      e.stopPropagation();
+      const target = e.target as HTMLElement;
+      if (target && typeof target.releasePointerCapture === "function") {
+        target.releasePointerCapture(e.pointerId);
+      }
+      dragRef.current.dragging = false;
+      dragRef.current.pointerId = -1;
+      setGrabCursor(dragRef.current.hovered ? "grab" : "default");
+    }
+  };
+
+  const handlePointerCancel = (e: any) => {
+    if (dragRef.current.pointerId === e.pointerId) {
+      e.stopPropagation();
+      const target = e.target as HTMLElement;
+      if (target && typeof target.releasePointerCapture === "function") {
+        target.releasePointerCapture(e.pointerId);
+      }
+      dragRef.current.dragging = false;
+      dragRef.current.pointerId = -1;
+      setGrabCursor("default");
+    }
+  };
+
+  const handlePointerOver = (e: any) => {
+    e.stopPropagation();
+    dragRef.current.hovered = true;
+    if (!dragRef.current.dragging) {
+      setGrabCursor("grab");
+    }
+  };
+
+  const handlePointerOut = (e: any) => {
+    e.stopPropagation();
+    dragRef.current.hovered = false;
+    if (!dragRef.current.dragging) {
+      setGrabCursor("default");
+    }
+  };
 
   useFrame((state, delta) => {
     const scrollOffset = Math.max(0, Math.min(1, scroll.offset));
@@ -122,8 +204,43 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef, onCubeRadiusChange }) => {
       planetRef.current.position.z = nz * 80 * animatedScale;
       
       if (spinRef.current) {
-        spinRef.current.rotation.y += 0.005;
-        spinRef.current.rotation.x += 0.003;
+        const { axisY, axisX, qYaw, qPitch } = tempRef.current;
+
+        if (dragRef.current.dragging) {
+          // Calculate world-space axes
+          axisX.set(1, 0, 0).applyQuaternion(state.camera.quaternion);
+
+          // Construct quaternions
+          qYaw.setFromAxisAngle(axisY, dragRef.current.pendingYaw);
+          qPitch.setFromAxisAngle(axisX, dragRef.current.pendingPitch);
+
+          // Premultiply spinRef's quaternion to rotate relative to world space
+          spinRef.current.quaternion.premultiply(qYaw);
+          spinRef.current.quaternion.premultiply(qPitch);
+
+          // Divide by dt to get velocity in radians/sec
+          const timeStep = Math.max(delta, 0.001);
+          const instantVx = dragRef.current.pendingPitch / timeStep;
+          const instantVy = dragRef.current.pendingYaw / timeStep;
+
+          dragRef.current.vx = THREE.MathUtils.lerp(dragRef.current.vx, instantVx, 0.2);
+          dragRef.current.vy = THREE.MathUtils.lerp(dragRef.current.vy, instantVy, 0.2);
+
+          dragRef.current.pendingYaw = 0;
+          dragRef.current.pendingPitch = 0;
+        } else {
+          const decayFactor = Math.exp(-2.5 * delta);
+          dragRef.current.vx = THREE.MathUtils.lerp(dragRef.current.vx, BASE_ROT_X, 1 - decayFactor);
+          dragRef.current.vy = THREE.MathUtils.lerp(dragRef.current.vy, BASE_ROT_Y, 1 - decayFactor);
+
+          axisX.set(1, 0, 0).applyQuaternion(state.camera.quaternion);
+
+          qYaw.setFromAxisAngle(axisY, dragRef.current.vy * delta);
+          qPitch.setFromAxisAngle(axisX, dragRef.current.vx * delta);
+
+          spinRef.current.quaternion.premultiply(qYaw);
+          spinRef.current.quaternion.premultiply(qPitch);
+        }
       }
 
       // Project cube position to screen for HTML overlay labels
@@ -205,6 +322,17 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef, onCubeRadiusChange }) => {
     <group ref={planetRef} position={[0, 8, 0]} scale={[0, 0, 0]}>
       <group ref={spinRef}>
         <MnetCube />
+        <mesh
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerCancel}
+          onPointerOver={handlePointerOver}
+          onPointerOut={handlePointerOut}
+        >
+          <sphereGeometry args={[cubeLocalRadius * 1.1, 32, 32]} />
+          <meshBasicMaterial transparent={true} opacity={0} depthWrite={false} />
+        </mesh>
         <pointLight intensity={500} distance={50} color="#ffffff" />
         <pointLight position={[2, 2, 2]} intensity={200} color="#0033ff" />
       </group>
