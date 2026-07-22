@@ -1,15 +1,16 @@
 "use server"
 
-import BlockHandler from "@/components/notion/BlockHandler";
-import { getBlogBySlug } from "@/lib/notion/pages";
-import { PageObject } from "@/lib/notion/types";
-import { notFound } from "next/navigation";
+// import BlockHandler from "@/components/notion/BlockHandler";
+// import { getBlogBySlug } from "@/lib/notion/pages";
+// import { PageObject } from "@/lib/notion/types";
+// import { notFound } from "next/navigation";
 import ProjectHero from "@/components/projects/ProjectHero";
-import ProjectInfo from "@/components/projects/ProjectInfo";
+// import ProjectInfo from "@/components/projects/ProjectInfo";
 import Navbar from "@/components/Navbar/Navbar";
+import Image from "next/image";
 
 export default async function Page({ params } : { params: Promise<{ slug: string }> }) {
-	const { slug: projectSlug } = await params;
+	const { slug: _projectSlug } = await params;
 
 	//to be used when we have notion data, for now we will use placeholder data
 	//const projectData: PageObject | null = await getBlogBySlug({ slug: projectSlug });
@@ -60,15 +61,19 @@ export default async function Page({ params } : { params: Promise<{ slug: string
 		<>
 		<Navbar />
 		<main className="relative isolate flex min-h-screen overflow-hidden bg-black px-4 py-8 pt-28 text-white md:items-center md:px-8 md:py-12 md:pt-32">
-			<img
+			<Image
 				src="/img/projects-bg-2.png"
 				alt=""
+				width={1920}
+				height={1080}
+				priority
 				className="
 				absolute
 				top-0
 				left-0
 				-z-10
 				w-full
+				h-auto
 				opacity-80
 				pointer-events-none
 				select-none
@@ -84,15 +89,18 @@ export default async function Page({ params } : { params: Promise<{ slug: string
 				/>
       		</div>
 
-			<img
+			<Image
 				src="/img/projects-bg.png"
 				alt=""
+				width={1920}
+				height={1080}
 				className="
 				absolute
 				bottom-0
 				left-0
 				-z-10
 				w-full
+				h-auto
 				opacity-80
 				pointer-events-none
 				select-none
