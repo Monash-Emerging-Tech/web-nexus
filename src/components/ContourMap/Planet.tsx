@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef } from "react";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useFrame, useThree, ThreeEvent } from "@react-three/fiber";
 import { useGLTF, useScroll } from "@react-three/drei";
 import * as THREE from "three";
 import MnetCube from "../MnetCube";
@@ -91,7 +91,7 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef, onCubeRadiusChange }) => {
     return () => setGrabCursor("default");
   }, []);
 
-  const handlePointerDown = (e: any) => {
+  const handlePointerDown = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation();
     const target = e.target as HTMLElement;
     if (target && typeof target.setPointerCapture === "function") {
@@ -110,7 +110,7 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef, onCubeRadiusChange }) => {
     setGrabCursor("grabbing");
   };
 
-  const handlePointerMove = (e: any) => {
+  const handlePointerMove = (e: ThreeEvent<PointerEvent>) => {
     if (!dragRef.current.dragging || dragRef.current.pointerId !== e.pointerId) return;
     e.stopPropagation();
     const dx = e.clientX - dragRef.current.lastX;
@@ -124,7 +124,7 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef, onCubeRadiusChange }) => {
     dragRef.current.pendingPitch += dy * sens;
   };
 
-  const handlePointerUp = (e: any) => {
+  const handlePointerUp = (e: ThreeEvent<PointerEvent>) => {
     if (dragRef.current.pointerId === e.pointerId) {
       e.stopPropagation();
       const target = e.target as HTMLElement;
@@ -137,7 +137,7 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef, onCubeRadiusChange }) => {
     }
   };
 
-  const handlePointerCancel = (e: any) => {
+  const handlePointerCancel = (e: ThreeEvent<PointerEvent>) => {
     if (dragRef.current.pointerId === e.pointerId) {
       e.stopPropagation();
       const target = e.target as HTMLElement;
@@ -150,7 +150,7 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef, onCubeRadiusChange }) => {
     }
   };
 
-  const handlePointerOver = (e: any) => {
+  const handlePointerOver = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation();
     dragRef.current.hovered = true;
     if (!dragRef.current.dragging) {
@@ -158,7 +158,7 @@ const Planet: React.FC<PlanetProps> = ({ overlayRef, onCubeRadiusChange }) => {
     }
   };
 
-  const handlePointerOut = (e: any) => {
+  const handlePointerOut = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation();
     dragRef.current.hovered = false;
     if (!dragRef.current.dragging) {

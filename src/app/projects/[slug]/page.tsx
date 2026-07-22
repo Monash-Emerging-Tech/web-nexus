@@ -10,7 +10,7 @@ import Navbar from "@/components/Navbar/Navbar";
 import Image from "next/image";
 
 export default async function Page({ params } : { params: Promise<{ slug: string }> }) {
-	const { slug: _projectSlug } = await params;
+	await params;
 
 	//to be used when we have notion data, for now we will use placeholder data
 	//const projectData: PageObject | null = await getBlogBySlug({ slug: projectSlug });
