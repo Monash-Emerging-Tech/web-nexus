@@ -63,7 +63,7 @@ export default function FooterWrapper() {
           </a>
           <a
             data-ccursor
-            href="https://discord.gg/hFxzMnxgbK"
+            href="https://discord.gg/Xjmk4YurEJ"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-[#DC003B] transition-colors duration-200"

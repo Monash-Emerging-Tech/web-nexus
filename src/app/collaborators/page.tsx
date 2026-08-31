@@ -15,7 +15,7 @@ const mainPartners: ImageCard[] = [
     name: "eSolutions VARS Labs",
     image: "/img/facilities/esolutions-vars-labs.jpg",
     accent: "#7B2FF7",
-    website: "https://maps.monash.edu/#v=1&zlevel=2&center=145.130285,-37.914441&zoom=20.63&campusid=159&sharepoitype=poi&sharepoi=1189861",
+    website: "https://sites.google.com/monash.edu/virtual-and-augmented-reality",
     description: (
       <>
         eSolutions is Monash&apos;s IT hub, responsible for all things IT on campus. The Virtual and Augmented Reality Services team is our main contact within this group.

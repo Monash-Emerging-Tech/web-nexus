@@ -225,7 +225,7 @@ export const homeContent: HomeContent = {
       },
       {
         label: "Discord",
-        href: "https://discord.gg/hFxzMnxgbK",
+        href: "https://discord.gg/Xjmk4YurEJ",
         icon: "discord",
       },
     ],
