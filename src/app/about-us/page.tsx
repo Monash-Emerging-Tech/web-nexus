@@ -65,6 +65,7 @@ enum TeamLeadOrder {
   "Operation Lead",
   "Marketing Lead",
   "Education Lead",
+  "Treasurer"
 }
 
 interface MemberWithPhoto extends Member {
