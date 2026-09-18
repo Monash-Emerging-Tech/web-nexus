@@ -10,7 +10,7 @@ const DUMMY_LEADS: Member[] = [
   { id: "d-lead-3", name: "Operation Lead C", role: "Operation Lead", quote: "Smooth operations.", department: ["Operations"], icon: "⚙️" },
   { id: "d-lead-4", name: "Marketing Lead D", role: "Marketing Lead", quote: "Spread the word.", department: ["Marketing"], icon: "📢" },
   { id: "d-lead-5", name: "Education Lead E", role: "Education Lead", quote: "Learn and teach.", department: ["Education"], icon: "📚" },
-  { id: "d-lead-5", name: "Treasurer T", role: "Treasurer", quote: "Keeping the books balanced", department: ["Operations"], icon: "💸" },
+  { id: "d-lead-6", name: "Treasurer T", role: "Treasurer", quote: "Keeping the books balanced", department: ["Operations"], icon: "💸" },
 ];
 
 const DUMMY_SENIOR_MEMBERS: Member[] = [
