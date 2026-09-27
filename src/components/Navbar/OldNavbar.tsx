@@ -7,13 +7,15 @@ import { useEffect, useState } from "react";
 import { homeContent } from "../../content/home";
 import { useScrambleText } from "@/lib/scramble";
 import { getSection, SECTIONS } from "@/lib/sections";
+import { EventBanner } from "./EventBanner";
 
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuLabel, setMenuLabel] = useState("MENU");
   const [scrolled, setScrolled] = useState(false);
   const runScramble = useScrambleText();
-  const currentHref = getSection(usePathname())?.href;
+  const pathname = usePathname();
+  const currentHref = getSection(pathname)?.href;
   const router = useRouter();
 
   const animateMenuText = (oldText: string, newText: string) => {
@@ -177,6 +179,8 @@ export function Navbar() {
           </button>
         </div>
       </nav>
+
+      {pathname === "/" && <EventBanner scrolled={scrolled} />}
 
       <div
         id="mobileMenu"
