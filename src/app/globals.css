@@ -213,11 +213,9 @@ html {
 }
 
 /* Custom cursor (ported from the legacy site's context-cursor).
-   White difference-blend dot; morphs around [data-ccursor] elements. */
-html.has-custom-cursor,
-html.has-custom-cursor * {
-  cursor: none !important;
-}
+   White difference-blend dot; morphs around [data-ccursor] elements. It is a
+   companion to the native cursor, not a replacement: the OS cursor is always
+   composited above page content, so it stays visible on top of the dot. */
 
 .c-cursor {
   position: fixed;
@@ -248,6 +246,50 @@ html.has-custom-cursor * {
 
 .c-cursor--pointer {
   background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* "SCROLL" tag that trails the cursor at the top of the home hero. A dark
+   pill (not difference blend) so it reads over both the black background and
+   bright 3D objects. Shown/hidden by CustomCursor via GSAP autoAlpha. */
+.c-cursor-hint {
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35em;
+  padding: 0.3em 0.65em 0.3em 0.75em;
+  border-radius: 999px;
+  background-color: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(4px);
+  color: #fff;
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 9998;
+  visibility: hidden;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.c-cursor-hint__chevron {
+  width: 0.8em;
+  height: 0.8em;
+  animation: c-cursor-hint-bob 1.4s ease-in-out infinite;
+}
+
+@keyframes c-cursor-hint-bob {
+  0%,
+  100% {
+    transform: translateY(-1px);
+  }
+  50% {
+    transform: translateY(2px);
+  }
 }
 
 /* Respect OS-level reduced-motion preference: freeze decorative animations
