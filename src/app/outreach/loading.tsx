@@ -17,7 +17,7 @@ const EventCardSkeleton = () => (
 
 export default function OutreachLoading() {
   return (
-    <section className="px-4 sm:px-6 lg:px-8 pt-[25vh] md:pt-[30vh] pb-16">
+    <section data-route-loading className="px-4 sm:px-6 lg:px-8 pt-[25vh] md:pt-[30vh] pb-16">
       <div className="container mx-auto">
         {/* Main page heading */}
         <h1 className="text-5xl sm:text-6xl md:text-header font-bold text-neutral-100 text-left font-offbit-dot mb-12 md:mb-16 h-auto md:h-[160px]">

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import { sectionTitle } from "@/lib/sections";
 
 export const metadata: Metadata = {
-  title: "Projects | Monash Nexus for Emerging Technologies",
+  title: sectionTitle("/portfolios"),
   description: "TODO",
 };
 

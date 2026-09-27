@@ -8,6 +8,7 @@ import FooterWrapper from "@/components/FooterWrapper";
 import CustomCursor from "@/components/CustomCursor";
 import Loader from "@/components/Loader";
 import ScrollIndicator from "@/components/ScrollIndicator";
+import PageTransition from "@/components/PageTransition";
 
 // Runs before first paint: skip the loading screen for repeat visits in this
 // session and for reduced-motion users by stripping the gate class off <html>.
@@ -53,8 +54,10 @@ export default function RootLayout({
           <Loader />
           <div className="bg-black min-h-screen w-full relative">
             <Navbar />
-            {children}
-            <FooterWrapper />
+            <PageTransition>
+              {children}
+              <FooterWrapper />
+            </PageTransition>
             <ScrollIndicator />
             <CustomCursor />
           </div>

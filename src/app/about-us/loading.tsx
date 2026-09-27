@@ -15,7 +15,7 @@ const MemberCardSkeleton = ({ size = "normal" }: { size?: "normal" | "small" }) 
 
 export default function AboutUsLoading() {
   return (
-    <div className="w-full flex flex-col bg-black">
+    <div data-route-loading className="w-full flex flex-col bg-black">
       {/* Our Story */}
       <section className="flex flex-col p-[4vw] pb-0 md:p-[8vw] pt-[20vh] md:pt-[25vh] gap-6 md:gap-8 items-center">
         <Pulse className="h-16 md:h-20 w-72 md:w-[28rem]" />

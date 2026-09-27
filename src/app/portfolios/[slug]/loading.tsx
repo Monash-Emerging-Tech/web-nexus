@@ -4,7 +4,7 @@ const Pulse = ({ className }: { className: string }) => (
 
 export default function PortfolioSlugLoading() {
   return (
-    <main className="flex min-h-screen flex-col bg-black px-4 sm:px-8 py-12 text-white items-center pt-32 pb-24">
+    <main data-route-loading className="flex min-h-screen flex-col bg-black px-4 sm:px-8 py-12 text-white items-center pt-32 pb-24">
       <div className="mx-auto flex max-w-7xl w-full flex-col gap-12">
         {/* Hero */}
         <div className="flex flex-col gap-6">

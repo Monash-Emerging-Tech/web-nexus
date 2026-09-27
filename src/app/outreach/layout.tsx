@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import { sectionTitle } from "@/lib/sections";
 
 export const metadata: Metadata = {
-  title: "Events | Monash Nexus for Emerging Technologies",
+  title: sectionTitle("/outreach"),
   description:
     "Workshops, industry nights, expos, and community events run by MNET, Monash University's student-led XR and emerging technology team.",
 };

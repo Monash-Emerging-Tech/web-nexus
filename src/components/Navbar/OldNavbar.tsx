@@ -2,79 +2,27 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { homeContent } from "../../content/home";
+import { useScrambleText } from "@/lib/scramble";
+import { getSection, SECTIONS } from "@/lib/sections";
 
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuLabel, setMenuLabel] = useState("MENU");
   const [scrolled, setScrolled] = useState(false);
-  const animationTimeoutsRef = useRef<number[]>([]);
-
-  const clearTextAnimation = () => {
-    animationTimeoutsRef.current.forEach((timeoutId) =>
-      window.clearTimeout(timeoutId),
-    );
-    animationTimeoutsRef.current = [];
-  };
-
-  const queueTextAnimation = (
-    callback: () => void,
-    delayMs: number,
-  ) => {
-    const timeoutId = window.setTimeout(callback, delayMs);
-    animationTimeoutsRef.current.push(timeoutId);
-  };
+  const runScramble = useScrambleText();
+  const currentHref = getSection(usePathname())?.href;
+  const router = useRouter();
 
   const animateMenuText = (oldText: string, newText: string) => {
-    clearTextAnimation();
-
-    const maxLength = Math.max(oldText.length, newText.length);
-    let transitionText = oldText.padEnd(maxLength, " ");
-    setMenuLabel(transitionText);
-
-    const changeLetter = (index: number) => {
-      if (index >= maxLength) {
-        setMenuLabel(newText);
-        return;
-      }
-
-      const targetChar = newText.charAt(index) || " ";
-      const cycles = 3;
-
-      const animateCycle = (currentCycle: number) => {
-        if (currentCycle >= cycles) {
-          transitionText = `${transitionText.slice(
-            0,
-            index,
-          )}${targetChar}${transitionText.slice(index + 1)}`;
-
-          setMenuLabel(transitionText);
-          changeLetter(index + 1);
-          return;
-        }
-
-        const randomChar = String.fromCharCode(
-          Math.floor(Math.random() * (126 - 33 + 1)) + 33,
-        );
-
-        transitionText = `${transitionText.slice(
-          0,
-          index,
-        )}${randomChar}${transitionText.slice(index + 1)}`;
-
-        setMenuLabel(transitionText);
-
-        queueTextAnimation(
-          () => animateCycle(currentCycle + 1),
-          50,
-        );
-      };
-
-      animateCycle(0);
-    };
-
-    changeLetter(0);
+    runScramble({
+      from: oldText,
+      to: newText,
+      mode: "sequential",
+      onUpdate: setMenuLabel,
+    });
   };
 
   useEffect(() => {
@@ -100,14 +48,14 @@ export function Navbar() {
     };
   }, [menuOpen]);
 
-  useEffect(() => {
-    return () => {
-      clearTextAnimation();
-    };
-  }, []);
-
   const handleMenuToggle = () => {
     const isMenuVisible = menuOpen;
+
+    // Warm the section routes as soon as the menu opens, so the page
+    // transition's cover rarely has to wait (no-op in `next dev`).
+    if (!isMenuVisible) {
+      SECTIONS.forEach((section) => router.prefetch(section.href));
+    }
 
     animateMenuText(
       isMenuVisible ? "CLOSE" : "MENU",
@@ -171,6 +119,14 @@ export function Navbar() {
             </h2>
           </Link>
         </div>
+
+        {/* "You are here" page label, absolutely centred on the navbar (so
+            on the page). Text and visibility are driven by PageTransition
+            (it flies the section name in here), so React renders these
+            spans empty and never touches their contents. */}
+        <span id="nav-page-label" className="nav-page-label font-offbit-101" aria-hidden="true">
+          <span className="nav-page-label__text" />
+        </span>
 
         <div className="m-auto mr-0 flex place-content-center gap-x-4">
           <a
@@ -240,6 +196,7 @@ export function Navbar() {
         >
           {homeContent.nav.menuGroups[0].links.map((link) => {
             const isInternal = link.href.startsWith("/");
+            const isCurrent = isInternal && link.href === currentHref;
 
             const linkContent = link.labelLines ? (
               <span className="flex flex-col items-center justify-center text-center leading-snug">
@@ -258,8 +215,9 @@ export function Navbar() {
               </span>
             );
 
-            const itemClass =
-               "font-offbit-bold flex min-h-[46px] w-full items-center justify-center rounded-lg px-3 py-1.5 text-center text-[1.05rem] text-white transition-all duration-200 hover:bg-white/[0.08] hover:text-[#DC003B]";
+            const itemClass = `font-offbit-bold flex min-h-[46px] w-full items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-center text-[1.05rem] transition-all duration-200 hover:bg-white/[0.08] hover:text-[#DC003B] ${
+              isCurrent ? "text-[#DC003B]" : "text-white"
+            }`;
 
             if (isInternal) {
               return (
@@ -268,9 +226,16 @@ export function Navbar() {
                   data-ccursor
                   href={link.href}
                   onClick={handleOverlayClose}
+                  aria-current={isCurrent ? "page" : undefined}
                   className={itemClass}
                 >
                   {linkContent}
+                  {isCurrent && (
+                    <span
+                      className="h-1.5 w-1.5 shrink-0 rounded-full bg-white"
+                      aria-hidden="true"
+                    />
+                  )}
                 </Link>
               );
             }

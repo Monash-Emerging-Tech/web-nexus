@@ -135,6 +135,66 @@ Codepen for the effect: https://codepen.io/jh3y/pen/jOXgxaj
     }
   }
 
+  /* "You are here" page label (OldNavbar slot, filled by PageTransition).
+     Inline (>= 1200px): absolutely centred on the full-width navbar, so its
+     centre is the viewport centre whatever the logo/button widths. 1200px is
+     the narrowest width where the widest label (COLLABORATORS, ~7.65em) clears
+     the logo block (ends ~483px) and the buttons in the normal navbar state.
+     Narrower: docks as a small pill just under the navbar, still centred
+     (top: 100% of the fixed nav, so it follows .scrolled).
+     Centring uses the `translate` property so GSAP's transform stays free. */
+  .nav-page-label {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    translate: -50% 0;
+    margin-top: 8px;
+    padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    line-height: 1;
+    letter-spacing: 0.025em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: #fff;
+    border: 1px solid #2c2c2d;
+    border-radius: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.75);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    pointer-events: none;
+    visibility: hidden;
+    opacity: 0;
+    transition: font-size 1s cubic-bezier(0, -0.03, 0, 1);
+  }
+
+  @media (min-width: 768px) {
+    .nav-page-label {
+      font-size: 14px;
+    }
+  }
+
+  /* Sized against the navbar height: ~22-26px in the 96px bar, and scaled
+     by the same ratio (84/96) in the shrunk .scrolled bar. */
+  @media (min-width: 1200px) {
+    .nav-page-label {
+      top: 50%;
+      translate: -50% -50%;
+      margin: 0;
+      padding: 0;
+      font-size: clamp(22px, 1.35vw, 26px);
+      border: 0;
+      background: none;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+
+    .navbar.scrolled .nav-page-label {
+      font-size: clamp(19px, 1.18vw, 23px);
+    }
+  }
+
   .mobile-menu-panel {
     display: flex;
     width: 100%;

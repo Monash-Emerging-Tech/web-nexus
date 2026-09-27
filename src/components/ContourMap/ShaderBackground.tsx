@@ -18,6 +18,22 @@ function ShaderScript({ type, source, name, dataSize }: ShaderScriptProps) {
   } as Record<string, unknown>);
 }
 
+// Config read by @shader-art/plugin-uniform (attributes only). `no-gui`
+// just needs to be present to keep a uniform out of the dat.GUI panel.
+const UNIFORMS_HTML = [
+  '<uniform type="float" name="scale" value=".1" min="0.2" max="4" step="0.01" no-gui="true"></uniform>',
+  '<uniform type="float" name="ax" value="5" min="1" max="15" step="0.01" no-gui="true"></uniform>',
+  '<uniform type="float" name="ay" value="7" min="1" max="15" step="0.01" no-gui="true"></uniform>',
+  '<uniform type="float" name="az" value="9" min="1" max="15" step="0.01" no-gui="true"></uniform>',
+  '<uniform type="float" name="aw" value="13" min="1" max="15" step="0.01" no-gui="true"></uniform>',
+  '<uniform type="float" name="bx" value="1" min="-1" max="1" step="0.01" no-gui="true"></uniform>',
+  '<uniform type="float" name="by" value="1" min="-1" max="1" step="0.01" no-gui="true"></uniform>',
+  '<uniform type="color" name="color1" value="#f20544" no-gui="true"></uniform>',
+  '<uniform type="color" name="color2" value="#4F47E6" no-gui="true"></uniform>',
+  '<uniform type="color" name="color3" value="#040FD9" no-gui="true"></uniform>',
+  '<uniform type="color" name="color4" value="#040DBF" no-gui="true"></uniform>',
+].join("");
+
 // Registers the "shader-art" custom element. shader-art's class extends
 // HTMLElement at module scope, so it must stay behind a dynamic import —
 // importing it eagerly would crash during SSR.
@@ -69,17 +85,10 @@ export function ShaderBackground() {
         style={{ opacity: canPlay ? 1 : 0, transition: "opacity 0.8s ease" }}
       >
         <shader-art autoPlay className="shader-bg">
-        <uniform type="float" name="scale" value=".1" min="0.2" max="4" step="0.01" no-gui="true" />
-        <uniform type="float" name="ax" value="5" min="1" max="15" step="0.01" no-gui="true" />
-        <uniform type="float" name="ay" value="7" min="1" max="15" step="0.01" no-gui="true" />
-        <uniform type="float" name="az" value="9" min="1" max="15" step="0.01" no-gui="true" />
-        <uniform type="float" name="aw" value="13" min="1" max="15" step="0.01" no-gui="true" />
-        <uniform type="float" name="bx" value="1" min="-1" max="1" step="0.01" no-gui="true" />
-        <uniform type="float" name="by" value="1" min="-1" max="1" step="0.01" no-gui="true" />
-        <uniform type="color" name="color1" value="#f20544" no-gui="true" />
-        <uniform type="color" name="color2" value="#4F47E6" no-gui="true" />
-        <uniform type="color" name="color3" value="#040FD9" no-gui="true" />
-        <uniform type="color" name="color4" value="#040DBF" no-gui="true" />
+        {/* Uniforms go in as static HTML so React never creates unknown
+            lowercase <uniform> elements; the plugin finds them with a
+            descendant querySelectorAll, and `hidden` keeps them inert. */}
+        <div hidden dangerouslySetInnerHTML={{ __html: UNIFORMS_HTML }} />
         <ShaderScript
           type="buffer"
           name="position"
