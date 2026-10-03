@@ -7,11 +7,13 @@ import { homeContent } from "@/content/home";
 export interface Section {
   label: string;
   href: string;
+  /** Short description, read only by the home hero's menu preview. */
+  blurb?: string;
 }
 
 export const SECTIONS: Section[] = homeContent.nav.menuGroups[0].links
   .filter((link) => link.href.startsWith("/"))
-  .map(({ label, href }) => ({ label, href }));
+  .map(({ label, href, blurb }) => ({ label, href, blurb }));
 
 // Routes that belong to a section without living under its href.
 const SECTION_ALIASES: Record<string, string> = {

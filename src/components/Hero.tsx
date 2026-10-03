@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useScroll } from "@react-three/drei";
 import ContourMap from "./ContourMap";
 import { optimizeFlashbackUrl } from "@/lib/utils";
+import { SECTIONS } from "@/lib/sections";
 
 const OurWorkButton = () => {
   const scroll = useScroll();
@@ -25,6 +27,58 @@ const OurWorkButton = () => {
     >
       LEARN MORE
     </button>
+  );
+};
+
+// Compact "menu preview" for phones, tablets and narrow desktops (the side
+// panel in Navbar/MenuPreview.tsx takes over above its breakpoint, see
+// .menu-preview-compact in globals.css): the four sections as a 2x2 grid
+// under the hero buttons, left out on short screens while the event banner
+// is up. It fades out once the hero scrolls (html[data-hero-at-top], kept by
+// ScrollProgressBridge) and back in at the top; the MENU button is the way
+// in after that.
+const SectionsPreview = () => {
+  const [atTop, setAtTop] = useState(true);
+
+  useEffect(() => {
+    const html = document.documentElement;
+    const update = () => setAtTop(html.dataset.heroAtTop !== "false");
+    update();
+    const observer = new MutationObserver(update);
+    observer.observe(html, { attributes: true, attributeFilter: ["data-hero-at-top"] });
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <nav
+      aria-label="Sections"
+      aria-hidden={!atTop || undefined}
+      inert={!atTop}
+      className={`menu-preview-compact mx-auto mt-4 w-full max-w-[22rem] p-3 transition-opacity duration-300 ease-out motion-reduce:transition-none md:mx-0 md:mt-6 md:max-w-[26rem] [@media(max-height:700px)]:mt-3 ${
+        atTop ? "opacity-100" : "pointer-events-none opacity-0"
+      }`}
+    >
+      <ul className="grid grid-cols-2 gap-2">
+        {SECTIONS.map((section) => (
+          <li key={section.href}>
+            <Link
+              href={section.href}
+              data-ccursor
+              className="group flex h-full min-h-12 flex-col justify-center gap-0.5 rounded-xl bg-white/[0.06] px-3 py-2 text-left transition-colors duration-200 hover:bg-white/10 focus-visible:bg-white/10"
+            >
+              <span className="font-offbit text-sm leading-tight font-bold tracking-wide text-white uppercase transition-colors duration-200 group-hover:text-[#DC003B] group-focus-visible:text-[#DC003B]">
+                {section.label}
+              </span>
+              {section.blurb && (
+                <span className="font-offbit text-[11px] leading-snug text-white/65 [@media(max-height:700px)]:hidden">
+                  {section.blurb}
+                </span>
+              )}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 };
 
@@ -182,7 +236,7 @@ const Hero: React.FC<HeroProps> = ({ flashbackUrls = [], upcomingEvent = null })
                   {date.seconds}s
                 </p>
               )}
-              <h1 className="font-offbit-dot font-bold md:text-7xl text-3xl leading-tight">
+              <h1 id="hero-headline" className="font-offbit-dot font-bold md:text-7xl text-3xl leading-tight">
                 MONASH NEXUS FOR <br className="hidden md:inline" /> EMERGING TECHNOLOGIES
               </h1>
               <h2 className="font-offbit font-bold md:text-2xl text-xs">
@@ -207,6 +261,7 @@ const Hero: React.FC<HeroProps> = ({ flashbackUrls = [], upcomingEvent = null })
                   JOIN US
                 </a>
               </div>
+              <SectionsPreview />
             </div>
           </div>
         </ContourMap>

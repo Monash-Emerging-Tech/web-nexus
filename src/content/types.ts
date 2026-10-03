@@ -2,6 +2,8 @@ export interface NavExternalLink {
   label: string;
   href: string;
   labelLines?: string[];
+  /** One-line description, shown only by the home hero's menu preview. */
+  blurb?: string;
 }
 
 export interface NavDropdownGroup {

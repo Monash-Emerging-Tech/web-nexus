@@ -8,6 +8,7 @@ import { homeContent } from "../../content/home";
 import { useScrambleText } from "@/lib/scramble";
 import { getSection, SECTIONS } from "@/lib/sections";
 import { EventBanner } from "./EventBanner";
+import MenuPreview from "./MenuPreview";
 
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -181,6 +182,8 @@ export function Navbar() {
       </nav>
 
       {pathname === "/" && <EventBanner scrolled={scrolled} />}
+
+      <MenuPreview menuOpen={menuOpen} />
 
       <div
         id="mobileMenu"
